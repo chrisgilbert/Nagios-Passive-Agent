@@ -65,7 +65,7 @@ class NagiosCheck extends Check {
         performance = returnValues[2]
         message = returnValues[1]
 
-        if ( message.length() > 100 ) {
+        if ( message.length() > 200 ) {
             message = message.substring(0,200) + "...message truncated."
         }
         
