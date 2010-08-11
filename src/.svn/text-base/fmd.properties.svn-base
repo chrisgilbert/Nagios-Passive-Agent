@@ -1,0 +1,17 @@
+#Interval for check submission in milliseconds
+npa.flush_queue_ms=30000
+#URL for submission of nagios checks
+npa.submit_url=https://secure.corelogic.co.uk
+#Path for the Nagios cmd.cgi
+npa.submit_path=/nagios/cgi-bin/cmd.cgi
+#Nagios username
+npa.submit_http_user=pcheck
+#Nagios password
+npa.submit_http_passwd=pch3ck1
+npa.proxy_auth_type=none
+npa.proxy_host=none
+npa.proxy_username=none
+npa.proxy_password=none
+npa.proxy_enable=false
+#Config file to specify the checks
+npa.config_file=config/npa-config.xml

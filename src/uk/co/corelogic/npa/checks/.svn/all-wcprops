@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svnroot/npa/!svn/ver/28/release-1.0-fixes/src/uk/co/corelogic/npa/checks
+END
+HTTPCheck.groovy
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svnroot/npa/!svn/ver/15/release-1.0-fixes/src/uk/co/corelogic/npa/checks/HTTPCheck.groovy
+END
+NagiosCheck.groovy
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svnroot/npa/!svn/ver/6/release-1.0-fixes/src/uk/co/corelogic/npa/checks/NagiosCheck.groovy
+END
+OSCheck.groovy
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svnroot/npa/!svn/ver/28/release-1.0-fixes/src/uk/co/corelogic/npa/checks/OSCheck.groovy
+END
+OASCheck.groovy
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svnroot/npa/!svn/ver/6/release-1.0-fixes/src/uk/co/corelogic/npa/checks/OASCheck.groovy
+END
+OracleCheck.groovy
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svnroot/npa/!svn/ver/15/release-1.0-fixes/src/uk/co/corelogic/npa/checks/OracleCheck.groovy
+END
+SSCheck.groovy
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svnroot/npa/!svn/ver/15/release-1.0-fixes/src/uk/co/corelogic/npa/checks/SSCheck.groovy
+END

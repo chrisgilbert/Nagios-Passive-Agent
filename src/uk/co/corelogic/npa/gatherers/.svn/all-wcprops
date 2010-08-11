@@ -1,0 +1,53 @@
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svnroot/npa/!svn/ver/28/release-1.0-fixes/src/uk/co/corelogic/npa/gatherers
+END
+JMXGatherer.groovy
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svnroot/npa/!svn/ver/6/release-1.0-fixes/src/uk/co/corelogic/npa/gatherers/JMXGatherer.groovy
+END
+HTTPGatherer.groovy
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/svnroot/npa/!svn/ver/6/release-1.0-fixes/src/uk/co/corelogic/npa/gatherers/HTTPGatherer.groovy
+END
+JDBCConnection.groovy
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/svnroot/npa/!svn/ver/6/release-1.0-fixes/src/uk/co/corelogic/npa/gatherers/JDBCConnection.groovy
+END
+LogGatherer.groovy
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svnroot/npa/!svn/ver/6/release-1.0-fixes/src/uk/co/corelogic/npa/gatherers/LogGatherer.groovy
+END
+OSGatherer.groovy
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svnroot/npa/!svn/ver/28/release-1.0-fixes/src/uk/co/corelogic/npa/gatherers/OSGatherer.groovy
+END
+ExternalGatherer.groovy
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/svnroot/npa/!svn/ver/6/release-1.0-fixes/src/uk/co/corelogic/npa/gatherers/ExternalGatherer.groovy
+END
+OracleGatherer.groovy
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/svnroot/npa/!svn/ver/8/release-1.0-fixes/src/uk/co/corelogic/npa/gatherers/OracleGatherer.groovy
+END
+SSGatherer.groovy
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svnroot/npa/!svn/ver/6/release-1.0-fixes/src/uk/co/corelogic/npa/gatherers/SSGatherer.groovy
+END

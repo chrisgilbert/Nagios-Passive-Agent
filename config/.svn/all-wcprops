@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svnroot/npa/!svn/ver/18/release-1.0-fixes/config
+END
+log4j.debug
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svnroot/npa/!svn/ver/6/release-1.0-fixes/config/log4j.debug
+END
+wrapper.conf
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svnroot/npa/!svn/ver/6/release-1.0-fixes/config/wrapper.conf
+END
+defaults.groovy
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svnroot/npa/!svn/ver/11/release-1.0-fixes/config/defaults.groovy
+END
+npa.xml
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svnroot/npa/!svn/ver/18/release-1.0-fixes/config/npa.xml
+END
+log4j.xml
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svnroot/npa/!svn/ver/6/release-1.0-fixes/config/log4j.xml
+END

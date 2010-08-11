@@ -1,0 +1,35 @@
+<npa-checks>
+    <check-group name="os" type="nagios" interval="120000">
+        
+	 <check name="chk_disk_free" warn="10" crit="5" type="LTE">
+            <nagiosServiceName>chk_disk_free</nagiosServiceName>
+	    <unitType>percent</unitType>
+            <volume>ALL</volume>
+         </check> 
+	
+	<check name="chk_cpu_pct" warn="95" crit="100" type="GTE">
+            <nagiosServiceName>chk_cpu_pct</nagiosServiceName>
+	</check>
+       
+<!--	<check name="chk_nagios">
+	    <nagiosServiceName>chk_test</nagiosServiceName>
+	    <saveMetrics>true</saveMetrics>
+	    <scriptName>/home/chris/work/projects/monitoring/dummy-nagios.sh</scriptName>
+	    <scriptType>shell</scriptType>
+	    <scriptArgs>-t -U -p</scriptArgs>
+	</check>-->
+
+    </check-group>
+
+<check-group name="oas" type="nagios" interval="120000">
+ 
+	<check name="chk_http" warn="5000" crit="8000" type="GTE">
+            <nagiosServiceName>chk_http_test</nagiosServiceName>
+	    <serverpath>http://localhost:7778</serverpath>
+	    <url>/em</url>
+	    <host>localhost</host>
+	</check> 
+
+</check-group>
+
+</npa-checks>
