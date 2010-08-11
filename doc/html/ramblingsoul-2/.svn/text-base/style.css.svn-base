@@ -1,0 +1,276 @@
+body {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	font-weight: normal;
+	color: #666666;
+	text-decoration: none;
+	background-image: url(images/bg.png);
+	background-repeat: repeat-y;
+	background-position: center top;
+	background-color: #E5E3D5;
+	margin: 0px;
+	padding: 0px;
+}
+.tophead {
+	background-image: url(images/topbar.png);
+	height: 31px;
+	background-repeat: repeat-x;
+	margin: 0px;
+	padding: 0px;
+}
+.main .tophead h1 {
+	padding-left: 15px;
+	color: #CC6633;
+	margin: 0px;
+	padding-top: 0px;
+	padding-right: 0px;
+	padding-bottom: 0px;
+}
+.spacer {
+	clear: both;
+}
+.main .footer .footertexts {
+}
+.main .footer .footertexts a {
+	color: #000099;
+	text-decoration: none;
+	border-bottom-width: 1px;
+	border-bottom-style: dotted;
+	border-bottom-color: #000099;
+}
+
+.header {
+	background-image: url(images/header.png);
+	background-repeat: no-repeat;
+	height: 176px;
+}
+.contents {
+	background-image: url(images/contentbg.png);
+	background-repeat: no-repeat;
+	background-position: center top;
+	margin-bottom: 25px;
+	padding-top: 25px;
+}
+.footer {
+	background-color: #BEC4F2;
+	background-image: url(images/footerdiv.png);
+	background-repeat: no-repeat;
+	background-position: center top;
+	height: 85px;
+	padding-right: 25px;
+	padding-bottom: 0px;
+	padding-left: 25px;
+	padding-top: 35px;
+}
+.main .contents .right {
+	float: right;
+	width: 240px;
+	margin-right: 15px;
+	margin-top: 25px;
+}
+.main .contents .left {
+	margin-right: 260px;
+	padding-left: 15px;
+	padding-right: 10px;
+}
+.main .contents .left p {
+	font-size: 12px;
+	line-height: 16px;
+	text-align: justify;
+}
+.main .contents .right .rightcontents {
+	border: 1px solid #E4DCC2;
+	padding: 5px;
+	margin-bottom: 15px;
+}
+.rightcontents ul {
+	display: block;
+	margin: 0px;
+	padding: 0px;
+}
+.rightcontents li {
+	list-style-type: none;
+	margin-top: 5px;
+	margin-bottom: 3px;
+	text-decoration: none;
+	border-bottom-width: 1px;
+	border-bottom-style: dashed;
+	border-bottom-color: #DAD9CB;
+}
+
+.rightcontents h2 {
+	color: #0099CC;
+	display: block;
+	margin-top: 2px;
+	font-weight: bold;
+	background-color: #F9F5F0;
+	border-bottom-width: 3px;
+	border-bottom-style: solid;
+	border-bottom-color: #F4EDE3;
+	padding-left: 5px;
+	font-size: 18px;
+	margin-bottom: 12px;
+}
+.rightcontents .graduate {
+	background-image: url(images/graduate-postgraduate.png);
+	background-repeat: no-repeat;
+	height: 43px;
+	width: 230px;
+}
+
+
+
+
+.main {
+	background-image: url(images/bg-pg.png);
+	background-repeat: repeat-y;
+	width: 757px;
+	margin-right: auto;
+	margin-left: auto;
+	margin-top: 0px;
+	margin-bottom: 0px;
+	padding: 0px;
+}
+h1 {
+	font-family: Georgia, "Times New Roman", Times, serif;
+	font-size: 24px;
+	color: #336699;
+	text-decoration: none;
+	font-weight: normal;
+}
+h2 {
+	font-family: Georgia, "Times New Roman", Times, serif;
+	font-size: 20px;
+	color: #996633;
+	text-decoration: none;
+	font-weight: normal;
+	display: block;
+	margin-bottom: 5px;
+}
+.main .contents .left a:link {
+	color: #0099FF;
+	text-decoration: none;
+}
+
+
+h3 {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 16px;
+	color: #000000;
+	text-decoration: none;
+}
+    #tabsB {
+	float:left;
+	font-size:93%;
+	line-height:normal;
+	margin-top: 144px;
+	width: 750px;
+      }
+    #tabsB ul {
+	margin:0;
+	list-style:none;
+	padding-top: 10px;
+	padding-right: 5px;
+	padding-bottom: 0;
+	padding-left: 15px;
+      }
+    #tabsB li {
+      display:inline;
+      margin:0;
+      padding:0;
+      }
+    #tabsB a {
+	float:left;
+	margin:0;
+	padding:0 0 0 4px;
+	text-decoration:none;
+	background-image: url(images/tableftB.gif);
+	background-repeat: no-repeat;
+	background-position: left top;
+      }
+    #tabsB a span {
+	float:left;
+	display:block;
+	padding:5px 15px 4px 6px;
+	color:#666;
+	background-image: url(images/tabrightB.gif);
+	background-repeat: no-repeat;
+	background-position: right top;
+      }
+    /* Commented Backslash Hack hides rule from IE5-Mac \*/
+    #tabsB a span {float:none;}
+    /* End IE5-Mac hack */
+    #tabsB a:hover span {
+      color:#000;
+      }
+    #tabsB a:hover {
+      background-position:0% -42px;
+      }
+    #tabsB a:hover span {
+      background-position:100% -42px;
+      }
+.quicklinks {
+	background-image: url(images/quicklinks.png);
+	height: 42px;
+	background-repeat: no-repeat;
+}
+.main .contents .left a:visited {
+	color: #0066FF;
+	text-decoration: underline;
+}
+.main .contents .left a:hover {
+
+	color: #FF9933;
+	text-decoration: none;
+}
+.main .contents .left a:active {
+
+	color: #0066FF;
+	text-decoration: underline;
+}
+.left #news {
+	height: 25px;
+	font-size: 18px;
+	color: #0099CC;
+	font-weight: bold;
+	padding-left: 15px;
+	font-family: Arial, Helvetica, sans-serif;
+	background-color: #F9F5F0;
+	border-bottom-width: 3px;
+	border-bottom-style: solid;
+	border-bottom-color: #F4EDE3;
+	padding-top: 3px;
+}
+.left .date {
+	font-family: Georgia, "Times New Roman", Times, serif;
+	font-style: italic;
+	color: #999999;
+	text-decoration: none;
+}
+.rightcontents a:hover {
+	text-decoration: none;
+	color: #0066FF;
+}
+.rightcontents a:link {
+
+	text-decoration: none;
+	color: #000000;
+}
+.rightcontents a {
+
+
+	text-decoration: none;
+	color: #000000;
+}
+.rightcontents a:link {
+
+
+	text-decoration: none;
+	color: #000000;
+}
+.rightcontents a:active {
+
+
+	text-decoration: none;
+	color: #000000;
+}

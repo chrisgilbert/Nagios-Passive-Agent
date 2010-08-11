@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svnroot/npa/!svn/ver/30/release-1.0-fixes/install
+END
+install_npa_solaris.sh
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svnroot/npa/!svn/ver/30/release-1.0-fixes/install/install_npa_solaris.sh
+END
+update_npa.sh
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svnroot/npa/!svn/ver/32/release-1.0-fixes/install/update_npa.sh
+END
+install_npa_linux.sh
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svnroot/npa/!svn/ver/30/release-1.0-fixes/install/install_npa_linux.sh
+END

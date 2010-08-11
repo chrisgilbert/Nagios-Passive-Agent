@@ -1,0 +1,145 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+<head>
+
+	<title>Nagios Passive Agent - Installation</title>
+	
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	
+	<meta name="author" content="Chris Gilbert"/>
+	<meta name="design" content="SimplyGold [Sadhana Ganapathiraju]" />
+	<meta name="keywords" content="npa installer" />
+	<meta name="description" content="Installation Instructions for NPA" />
+	
+	<link rel="stylesheet" type="text/css" media="screen" href="onepenny/screen.css" />
+	
+</head>
+
+<body id="binstall">
+
+	<div id="container">
+	
+		<div id="header">
+		
+			<h2><a href="/" title="Home"><span>Nagios Passive Agent - Installation</span></a></h2>
+			
+		</div>
+		
+		<div id="navigation">
+		
+			<ul>
+			
+				<li id="lhome"><a href="index.html" title="Home">Home</a></li>
+				<li id="linstall"><a href="install.html" title="Installation">Installation</a></li>
+				<li id="lconf"><a href="config.html" title="Configuration">Configuration</a></li>
+				<li id="lsupport"><a href="support.html" title="Support">Support</a></li>
+				<li id="lbug"><a href="bug.html" title="Report a Bug">Report a Bug</a></li>
+				<li id="ldownload"><a href="download.html" title="Download">Download</a></li>
+			
+			</ul>
+		
+		</div>
+		
+		<div id="wrapper">
+		
+			<div id="content-wrapper">
+			
+				<div id="content">
+				
+ 
+ <h4>Getting Started</h4>
+ 
+ The installers for NPA come in two packages - a zip file and a tar.gz file.  These are essentially the same, other than the format, but zip tends to be better suited for Windows, and tar for UNIX/Linux.
+ So, you will need the appropriate file for your platform.  Get the latest release from the <a href="downloads.html">downloads</a> page.
+ 
+ <h4>UNIX and Linux</h4>
+ When installing to UNIX or Linux, follow these instructions:
+ 
+ <ol>
+ <p><li>Copy the npa-releaseX.tar.gz file to the server you are installing to, in a temporary location (e.g /tmp).</li></p>
+ <li>Change to the location, and untar the file:</li>
+ <blockquote>
+ cd /tmp<br>
+ mkdir npa<br>
+ mv npa-*.tar.gz npa<br>
+ cd npa<br>
+ tar xzvf npa-*.tar.gz<br>
+ </blockquote>
+<p>
+<li>Run the installation script as the root user.  This will create an NPA user and group, along with an init.d startup script, and install the files:</li>
+</p>
+
+<p>
+<blockquote>
+su
+</blockquote>
+<b>For Linux:</b>
+<blockquote>
+./install_npa_linux.sh
+</blockquote>
+<b>For Solaris:</b></br>
+<blockquote>
+./install_npa_solaris.sh
+</blockquote>
+</p>
+<p>
+If everything works correctly, you should see messages of success for the installation of the files and service.
+</p>
+<li>You need to make sure that a correct version of java is used to start NPA.  For Solaris, there will likely be and installed version already in the path.  Check the version as so:</li>
+<blockquote>java -version</blockquote>
+Version 1.5.0+ of the Sun JDK or OpenJDK should work ok.  GCJ however does not work correctly.  
+If using GCJ, it's recommended you install a Sun JDK and then use the 'alternatives' command to add it as the preferred JDK.  There is also the option to set the JAVA_HOME
+in the configuration for NPA, which is covered in the <a href="config.html">configuration</a> section.
+<p>
+<li>Once everything is setup, you can start and stop npa by running these commands as root:
+<blockquote>
+/etc/init.d/npa start<br>
+/etc/init.d/npa stop<br>
+</blockquote>
+</li>
+</p>
+<p>
+<li>
+Please now refer to <a href="config.html">configuration</a> to setup the checks and the details of the Nagios server.
+</li>
+</p>			
+</ol>	
+
+<h4>Windows</h4>
+ When installing to Windows, there is not presently an installer, but hopefully this will be rectified in the near future.
+ 
+ <ol>
+ <p><li>Copy the npa-releaseX.zip file to the server you are installing to, in a temporary location (e.g c:\temp).</li></p>
+ <li>Use the windows unzip tool to unzip the files into an appropriate directory: e.g. c:\npa</li>
+<p>
+<li>Check that you have an appropriate version of java installed.  To do this, open a command prompt and type:
+<blockquote>java -version</blockquote>
+If you get an error, you should add java to the path, by going to Control Panel > system > Advanced > Envrionment Variables and editing the PATH variable to include your java binary directory.
+The version should display 1.5.0 or above.
+</li>
+<li>Configure NPA to talk to your Nagios server by editing the defaults.groovy file, as described on the <a href="config.html">configuration</a> page.</li>
+<li>To test NPA, run the c:\npa\bin\npa.bat file which will start NPA in the foreground.  You can monitor the wrapper.log and npa.log files for any issues.</li>
+<li>Once you are happy that NPA is functioning correctly, you can install it as a service.  To do this, run c:\npa\bin\InstallApp-NT.bat</li>
+<li>Start the service with the following command:
+<blockquote>net start npa</blockquote></li>
+</ol>
+<h5>Uninstallation</h5>
+To remove the NPA service, run the c:\npa\bin\UninstallApp-NT.bat file.
+</p>
+
+				</div>
+			
+			</div>
+			
+
+		
+		<div id="footer"> 
+			Design by <a href="http://www.nikhedonia.com/" title="SimplyGold">Sadhana Ganapathiraju</a>
+		</div>
+	
+	</div>
+
+</body>
+</html>

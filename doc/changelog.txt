@@ -1,0 +1,10 @@
+Nagios Passive Agent Change Log
+-------------------------------
+
+
+
+17/03/2010 - NPA 1.0_rc2
+- Created Log
+- Made various bug fixes
+- Added thread safe CheckScheduler class to control check scheduling and try to restart dead threads
+

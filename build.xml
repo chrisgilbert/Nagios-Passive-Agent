@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- You may freely edit this file. See commented blocks below for -->
+<!-- some examples of how to customize the build. -->
+<!-- (If you delete it and reopen the project it will be recreated.) -->
+<!-- By default, only the Clean and Build commands use this build script. -->
+<!-- Commands such as Run, Debug, and Test only use this build script if -->
+<!-- the Compile on Save feature is turned off for the project. -->
+<!-- You can turn off the Compile on Save (or Deploy on Save) setting -->
+<!-- in the project's Project Properties dialog box.-->
+<project name="npa" default="default" basedir=".">
+    <description>Builds, tests, and runs the project npa.</description>
+    <import file="nbproject/build-impl.xml"/>
+
+    <import file="nbproject/profiler-build-impl.xml"/>
+    <import file="nbproject/management-build-impl.xml"/>
+    <import file="nbproject/profiler-build-impl.xml"/>    <!--
+
+    There exist several targets which are by default empty and which can be 
+    used for execution of your tasks. These targets are usually executed 
+    before and after some main targets. They are: 
+
+      -pre-init:                 called before initialization of project properties
+      -post-init:                called after initialization of project properties
+      -pre-compile:              called before javac compilation
+      -post-compile:             called after javac compilation
+      -pre-compile-single:       called before javac compilation of single file
+      -post-compile-single:      called after javac compilation of single file
+      -pre-compile-test:         called before javac compilation of JUnit tests
+      -post-compile-test:        called after javac compilation of JUnit tests
+      -pre-compile-test-single:  called before javac compilation of single JUnit test
+      -post-compile-test-single: called after javac compilation of single JUunit test
+      -pre-jar:                  called before JAR building
+      -post-jar:                 called after JAR building
+      -post-clean:               called after cleaning build products
+
+    (Targets beginning with '-' are not intended to be called on their own.)
+
+    Example of inserting an obfuscator after compilation could look like this:
+
+        <target name="-post-compile">
+            <obfuscate>
+                <fileset dir="${build.classes.dir}"/>
+            </obfuscate>
+        </target>
+
+    For list of available properties check the imported 
+    nbproject/build-impl.xml file. 
+
+
+    Another way to customize the build is by overriding existing main targets.
+    The targets of interest are: 
+
+      -init-macrodef-javac:     defines macro for javac compilation
+      -init-macrodef-junit:     defines macro for junit execution
+      -init-macrodef-debug:     defines macro for class debugging
+      -init-macrodef-java:      defines macro for class execution
+      -do-jar-with-manifest:    JAR building (if you are using a manifest)
+      -do-jar-without-manifest: JAR building (if you are not using a manifest)
+      run:                      execution of project 
+      -javadoc-build:           Javadoc generation
+      test-report:              JUnit report generation
+
+    An example of overriding the target for project execution could look like this:
+
+        <target name="run" depends="npa-impl.jar">
+            <exec dir="bin" executable="launcher.exe">
+                <arg file="${dist.jar}"/>
+            </exec>
+        </target>
+
+    Notice that the overridden target depends on the jar target and not only on 
+    the compile target as the regular run target does. Again, for a list of available 
+    properties which you can use, check the target you are overriding in the
+    nbproject/build-impl.xml file. 
+
+    -->
+
+     <target name="-post-clean">
+        <exec executable="rm">
+        <arg value="-r"/>
+        <arg value="${dist.dir}"/>
+        </exec>
+     </target>
+     
+    <target name="-post-test-run">
+ <junit dir="${work.dir}" errorproperty="tests.failed"
+ failureproperty="tests.failed" fork="true"
+ showoutput="true">
+   <batchtest todir="${build.test.results.dir}">
+     <fileset dir="${build.test.classes.dir}">
+       <include name="**/*Test.class"/>
+       <exclude name="**/*$*"/>
+     </fileset>
+   </batchtest>
+   <classpath>
+     <path path="${run.test.classpath}"/>
+   </classpath>
+   <syspropertyset>
+     <propertyref prefix="test-sys-prop."/>
+     <mapper from="test-sys-prop.*" to="*" type="glob"/>
+   </syspropertyset>
+   <formatter type="brief" usefile="false"/>
+   <formatter type="xml"/>
+   <jvmarg line="${run.jvmargs}"/>
+ </junit>
+
+ <mkdir dir="${build.test.results.dir}/../report"/>
+ <mkdir dir="${build.test.results.dir}/../report/html"/>
+
+ <junitreport todir="${build.test.results.dir}/../report">
+   <fileset dir="${build.test.results.dir}">
+     <include name="TEST-*.xml"/>
+   </fileset>
+   <report format="frames"
+     todir="${build.test.results.dir}/../report/html"/>
+ </junitreport>
+</target>
+
+<target name="external-tar" depends="jar" description="build a tarball of the distribution">
+
+    <mkdir dir="${dist.dir}/logs"/>
+    
+    <exec executable="cp">
+        <arg value="-r"/>
+        <arg value="${dist.dir}/../config-dist"/>
+        <arg value="${dist.dir}/config"/>
+    </exec>
+        <exec executable="cp">
+        <arg value="-r"/>
+        <arg value="${dist.dir}/../install"/>
+        <arg value="${dist.dir}"/>
+    </exec>
+    <exec executable="cp">
+        <arg value="-r"/>
+        <arg value="${dist.dir}/../db-dist"/>
+        <arg value="${dist.dir}/db"/>
+    </exec>
+    <exec executable="cp">
+        <arg value="-r"/>
+        <arg value="${dist.dir}/../wrapper-lib"/>
+        <arg value="${dist.dir}"/>
+    </exec>
+
+    <exec executable="cp">
+        <arg value="-r"/>
+        <arg value="${dist.dir}/../bin"/>
+        <arg value="${dist.dir}"/>
+    </exec>
+
+
+    <tar basedir="${dist.dir}" destfile="${dist.dir}/../tars/npa-${application.version}.tar.gz" compression="gzip"/>
+</target>
+
+<target name="corelogic-tar" depends="jar" description="build a tarball of the distribution for corelogic use">
+
+    <mkdir dir="${dist.dir}/logs"/>
+
+    <exec executable="cp">
+        <arg value="-r"/>
+        <arg value="${dist.dir}/../config-dist-corelogic"/>
+        <arg value="${dist.dir}/config"/>
+    </exec>
+        <exec executable="cp">
+        <arg value="-r"/>
+        <arg value="${dist.dir}/../install"/>
+        <arg value="${dist.dir}"/>
+    </exec>
+    <exec executable="cp">
+        <arg value="-r"/>
+        <arg value="${dist.dir}/../nagios-plugins"/>
+        <arg value="${dist.dir}"/>
+    </exec>
+    <exec executable="cp">
+        <arg value="-r"/>
+        <arg value="${dist.dir}/../doc"/>
+        <arg value="${dist.dir}"/>
+    </exec>
+    <exec executable="cp">
+        <arg value="-r"/>
+        <arg value="${dist.dir}/../db-dist"/>
+        <arg value="${dist.dir}/db"/>
+    </exec>
+    <exec executable="cp">
+        <arg value="-r"/>
+        <arg value="${dist.dir}/../wrapper-lib"/>
+        <arg value="${dist.dir}"/>
+    </exec>
+    <exec executable="cp">
+        <arg value="-r"/>
+        <arg value="${dist.dir}/../bin"/>
+        <arg value="${dist.dir}"/>
+    </exec>
+
+        <tar basedir="${dist.dir}" destfile="${dist.dir}/../tars/npa-${application.version}-corelogic.tar.gz" compression="gzip"/>
+
+</target>
+
+<target name="external-zip" depends="external-tar" description="build a zip of the distribution for external use">
+    <zip basedir="${dist.dir}" destfile="${dist.dir}/../zips/npa-${application.version}.zip"/>
+</target>
+
+<target name="corelogic-zip" depends="corelogic-tar" description="build a zip of the distribution for corelogic use">
+    <zip basedir="${dist.dir}" destfile="${dist.dir}/../zips/npa-${application.version}-corelogic.zip"/>
+</target>
+
+
+
+<target name="external-rpm" depends="external-tar" description="Build an NPA RPM">
+<mkdir dir="${rpm.build.root}" />
+<mkdir dir="${rpm.build.root}/SOURCES" />
+<mkdir dir="${rpm.build.root}/SOURCES" />
+<mkdir dir="${rpm.build.root}/SPECS" />
+<mkdir dir="${rpm.build.root}/BUILD" />
+<mkdir dir="${rpm.build.root}/RPMS" />
+<mkdir dir="${rpm.build.root}/RPMS/noarch" />
+<mkdir dir="${rpm.build.root}/SRPMS" />
+
+<copy file="${dist.dir}/../tars/npa-${application.version}.tar.gz" todir="${rpm.build.root}/SOURCES"/>
+<copy file="${build.dir}/../npa.spec" todir="${rpm.build.root}/SPECS"/>
+<rpm specFile="npa.spec" topDir="${rpm.build.root}" command="-ba" failOnError="true" cleanBuildDir="true" />
+</target>
+
+<target name="-post-test-run-single">
+<!-- Temp output the files to unit test for later regex -->
+<echo
+  message="${test.includes}"
+  file="testIncludesModifiers.tmp"
+/>
+
+<!-- Use regex to filter out path information
+      then replace .groovy with .class -->
+<loadfile property="test.includes.classnames"
+srcFile="testIncludesModifiers.tmp">
+  <filterchain>
+    <containsregex
+      pattern="^.*\/(?=[a-zA-Z0-9]{0,99}\.groovy$)"
+      replace=""/>
+    <tokenfilter>
+        <replacestring from=".groovy" to=".class"/>
+    </tokenfilter>
+  </filterchain>
+</loadfile>
+<delete file="testIncludesModifiers.tmp"/>
+
+<!-- now run the junit test on the
+    single class and spit out test results etc -->
+<junit dir="${work.dir}" errorproperty="tests.failed"
+failureproperty="tests.failed" fork="true" showoutput="true">
+  <batchtest todir="${build.test.results.dir}">
+    <fileset dir="${build.test.classes.dir}">
+      <include name="**/${test.includes.classnames}"/>
+      <exclude name="**/*$*"/>
+    </fileset>
+  </batchtest>
+  <classpath>
+      <path path="${run.test.classpath}"/>
+  </classpath>
+  <syspropertyset>
+      <propertyref prefix="test-sys-prop."/>
+      <mapper from="test-sys-prop.*" to="*" type="glob"/>
+  </syspropertyset>
+  <formatter type="brief" usefile="false"/>
+  <formatter type="xml"/>
+  <jvmarg line="${run.jvmargs}"/>
+</junit>
+
+<mkdir dir="${build.test.results.dir}/../report"/>
+<mkdir dir="${build.test.results.dir}/../report/html"/>
+
+<junitreport todir="${build.test.results.dir}/../report">
+  <fileset dir="${build.test.results.dir}">
+    <include name="TEST-*.xml"/>
+  </fileset>
+  <report format="frames"
+  todir="${build.test.results.dir}/../report/html"/>
+</junitreport>
+</target>
+
+<!--<taskdef name="groovydoc"
+         classname="org.codehaus.groovy.ant.Groovydoc"
+         classpathref="groovy-all-1.6.8.jar"/>
+
+<taskdef name="groovydoc" classname="org.codehaus.groovy.ant.Groovydoc" classpathref="groovy-all-1.6.8.jar"/>
+<groovydoc
+    destdir="${docsDirectory}/gapi"
+    sourcepath="${src.dir}"
+    packagenames="**.*"
+    use="true"
+    windowtitle="${title}"
+    doctitle="${title}"
+    header="${title}"
+    footer="${docFooter}"
+    overview="src/main/overview.html"
+    private="false">
+        <link packages="java.,org.xml.,javax.,org.xml." href="http://java.sun.com/j2se/1.5.0/docs/api"/>
+        <link packages="org.apache.ant.,org.apache.tools.ant." href="http://www.dpml.net/api/ant/1.7.0"/>
+        <link packages="org.junit.,junit.framework." href="http://junit.sourceforge.net/junit3.8.1/javadoc/"/>
+        <link packages="groovy.,org.codehaus.groovy." href="http://groovy.codehaus.org/api/"/>
+</groovydoc>-->
+
+
+        
+</project>
+
+

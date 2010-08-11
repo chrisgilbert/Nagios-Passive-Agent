@@ -1,0 +1,286 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+<head>
+
+	<title>Nagios Passive Agent - Configuration</title>
+	
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	
+	<meta name="author" content="Chris Gilbert"/>
+	<meta name="design" content="SimplyGold [Sadhana Ganapathiraju]" />
+	<meta name="keywords" content="npa configuration" />
+	<meta name="description" content="Config information for NPA" />
+	
+	<link rel="stylesheet" type="text/css" media="screen" href="onepenny/screen.css" />
+	
+</head>
+
+<body id="bconfig">
+
+	<div id="container">
+	
+		<div id="header">
+		
+			<h2><a href="/" title="Home"><span>Nagios Passive Agent - Configuration</span></a></h2>
+			
+		</div>
+		
+		<div id="navigation">
+		
+			<ul>
+			
+				<li id="lhome"><a href="index.html" title="Home">Home</a></li>
+				<li id="linstall"><a href="install.html" title="Installation">Installation</a></li>
+				<li id="lconfig"><a href="config.html" title="Configuration">Configuration</a></li>
+				<li id="lsupport"><a href="support.html" title="Support">Support</a></li>
+				<li id="lbug"><a href="bug.html" title="Report a Bug">Report a Bug</a></li>
+				<li id="ldownload"><a href="download.html" title="Download">Download</a></li>
+			
+			</ul>
+		
+		</div>
+		
+		<div id="wrapper">
+		
+			<div id="content-wrapper">
+			
+				<div id="content">
+				
+<h4>Getting Started</h4>
+<p>NPA comes with some example configuration which is commented out in the npa.xml file.  These files are used for all the configuration:</p>
+<table>
+<tr>
+<th>npa.xml</th><td>All checks and parameters</td>
+</tr>
+<tr>
+<th>log4j.xml</th><td>Logging output</td>
+</tr>
+<tr>
+<th>defaults.groovy</th><td>Settings for the nagios server, HTTP proxies, authentication and so on.</td>
+</tr>
+<tr>
+<th>wrapper.conf</th><td>Settings for the daemon configuration, including JAVA_HOME.</td>
+</tr>
+</table>
+
+The files are usually located in /usr/local/npa/config (UNIX/Linux) or c:\npa\config (Windows).
+
+<h4>Using Default Configuration</h4>
+The default configuration contains several common checks which will run every 3 mins by default:
+
+<b>chk_disk_free</b> will check for any disks with 10% or less free space and trigger a warning, or 5% or less, which will trigger a critical status.  It will loop through all standard filesystems. 
+
+<b>chk_cpu_pct</b> will check the percentage CPU usage on the all CPUs.  It will trigger a warning at 90%, and critical at 100%.  
+
+<b>chk_disk_busy_pct</b> will check how busy the disks are.  If any are over 80% busy, it will trigger a warning.  90% will trigger a critical status.
+
+These checks are fairly basic.  You can edit the thresholds yourself, and add additional checks in the npa.xml file.  It is worth setting up new servers with just the default checks to start with though.
+This way, you can be sure communication back to nagios is working, before you configure additional checks.
+
+<h4>Using Additional Checks</h4>
+NPA supports several different types of checks:
+
+<li>Internal OS Checks</li>
+<li>Internal Oracle Checks</li>
+<li>Internal SQL Server Checks</li>
+<li>External Nagios Plugins</li>
+
+There are examples of how to configure each of these types in the npa.xml file.
+
+<h5>Some Notes on External Checks:</h5>
+
+Please check Nagios plugins manually before configuring NPA to run them for you.  This will ensure it is easy to satisfy any individual configuration requirements for these plugins,
+before trying to debug the NPA part too.  
+
+With external plugins, NPA simply runs the script/executable you provide, and parses the output, following the nagios plugin standard.  Therefore, the plugin must satisfy the nagios standards
+in order for the check results to be valid, and for the performance data to be correctly sent back to nagios.
+
+The full path of the plugun should be used - relative paths do not presently work, even if you have saved the plugins within the NPA subdirectories.
+
+Here is an example configuration:
+
+<blockquote>
+
+
+</blockquote>
+
+<style type="text/css">
+table {
+	border-width: 1px;
+	border-spacing: ;
+	border-style: hidden;
+	border-color: black;
+	border-collapse: separate;
+	background-color: white;
+}
+table th {
+	border-width: 1px;
+	padding: 5px;
+	border-style: solid;
+	border-color: gray;
+	background-color: white;
+	-moz-border-radius: ;
+}
+table td {
+	border-width: 1px;
+	padding: 5px;
+	border-style: solid;
+	border-color: gray;
+	background-color: white;
+	-moz-border-radius: ;
+}
+</style>
+
+<table class="sample">
+<tr>
+	<th>Header</th>
+	<td>Content</td>
+</tr>
+</table>
+
+<h4>Notes on Individual Checks</h4>
+ 
+<h5>chk_disk_free</h5>
+<p>This check checks the space of each of the filesystems or a single specified filesystem on a server. It can be run on all platforms, and is a part of the OSGatherer/OSCheck classes in NPA. It has options to warn based on a percentage free threshold, and megabytes free.
+</p>
+<p>
+Here is a set of typical XML configuration strings:
+</p>
+<table>
+<tr>
+	<th>Check Type</th>
+	<th>Warning Threshold</th>
+	<th>Critical Threshold</th>
+	<th>XML Config</th></tr>
+	
+	<tr><td>/u01 filesystem <= 100MB</td><td><= 500MB</td><td><= 100MB</td><td></td></tr>	 
+   <tr><td>Any disk free <= 5%</td><td><= 10%</td><td><= 5%</td><td></td></tr>	 
+	<tr><td>/u02 filesystem >= 90%</td><td>>= 80%</td><td>>= 90%</td><td></td></tr>	 
+</table>
+	
+<p>
+As you can see, as with all NPA checks, you can specify the thresholds as greater-than or less-than options. This allows some flexability. Usually we would configure disk checks as a percentage free space, but this is really a matter of preference.
+</p><h6>
+When to Use MB Free instead of Percentage and When to Separate Volume Checks
+</h6>
+<p>
+Sometimes disks can be too large to give a reasonable warning range for the other disks in the system, without triggering too quickly. For example:
+</p>
+
+Disk 1: 1TB<br>
+Disk 2: 10GB<br>
+
+<p>
+When disk1 is 90% full, it will still have 100GB free, which is a lot of space! On the other hand, disk2 will only have 1GB free. Obviously the disk condition on disk2 is much more serious. In a case like this, it would be wise to write different disk checks for each disk. You can do this by adding the volume parameter to the check, as per the above examples, and changing the nagiosServiceName parameter to indicate to disk you are checking. E.g. chk_disk_free_u01. At the nagios end, you then need to add a new service check to that server. Sometimes with checks like this, the service check will have to be created, since it is not generic across all servers. Please let me (Chris) know if this is the case, and I will create the check name, so it can be added to your server.
+</p>
+
+
+<h5>chk_disk_busy_pct</h5>
+<p>
+This check uses iostat (UNIX/Linux) and wmic (Windows) to check how busy each of the physical disks in the system is. It makes no distinction for local/SAN disks and checks them the same way. It will trigger warning and critical thresholds, if any of the disks is greater than a certain threshold. It doesn't presently have the ability to set individual volumes, but I will add the facility in a later release. Here's a good example of the best way to configure it:
+</p>
+
+
+<table>
+<tr>
+	<th>Check Type</th><th>Warning Threshold</th><th>Critical Threshold</th><th>XML Config</th></tr>
+	<td>Disks is 90% busy</td><td>>= 80%</td><td>>= 90%</td><td><blockquote>
+        <check name="chk_disk_busy_pct" warn="85" crit="95" type="GTE">
+            <nagiosServiceName>chk_disk_busy_pct</nagiosServiceName>
+        </check></blockquote>	
+</td>></tr></table>
+
+chk_tablespaces
+This check checks oracle tablespaces and tries to determine how much free space is available. It supports checks on a percentage, or number of megabytes free. It uses the following SQL:
+
+select df.tablespace_name
+,      sum(max_size_mb-total_used_mb) as free_space_mb
+,      sum(max_size_mb) as max_size_mb
+,      sum(total_size_mb) as current_size_mb
+,      (sum(total_used_mb)/sum(max_size_mb))*100 as pct_used
+FROM (select distinct df1.file_id, (decode(df1.autoextensible, 'NO', nvl(df1.bytes,1), 'YES', maxbytes)/1024/1024) as max_size_mb,
+(nvl(df1.bytes,1)/1024/1024) as total_size_mb,
+((nvl(df1.bytes,0)-nvl(fr1.bytes,0))/1024/1024) as total_used_mb,
+df1.autoextensible as auto_ext
+from dba_data_files df1 
+left outer join
+(select sum(bytes) bytes, file_id from dba_free_space group by file_id) fr1 
+on df1.file_id = fr1.file_id) calc, dba_data_files df
+where tablespace_name like '%'
+and df.file_id = calc.file_id
+group by tablespace_name
+order by tablespace_name;
+If this check returns a warning or critical result along with valid output, it is certain that the tablespace needs to be looked at. It takes into account whether autoextend is turned on on a datafile, so max_size_mb includes the maximum auto extend sizes too (which is usually 32GB). If the check triggers, usually adding a datafile is all that is required. It is recommended to run this check only every half-an-hour or so, as checks every minute could affect performance on the database.
+
+Ocassionally, it may trigger because you have configured a tablespace which is not yet being used. To avoid this, create a small datafile for the tablespace, with autoextend turned on. This will ensure that the tablespace has room to expand once it comes into use. For example (with OMF turned on):
+
+alter tablespace case_notes add datafile size 5m autoextend on next 50m;
+Here's some examples on configuration:
+
+Check Type	 Warning Threshold	 Critical Threshold	 XML Config
+Any Tablespace <= 5% free	 <= 10%	 <= 5%	
+<check name="chk_tablespace" warn="10" crit="5" type="LTE">
+	    <nagiosServiceName>chk_tablespaces</nagiosServiceName>
+	    <unitType>percent</unitType>
+	    <tablespace_name>ALL</tablespace_name>
+   	    <host>oracle10g.corelogic.local</host>
+	    <user>fw34x</user>
+	    <password>fw34x</password>
+	    <database>ora10test</database>
+	    <port>1521</port>
+	</check>
+chk_http
+This check checks a web site address for a valid return code. For instance, 200. 404, or 500 error codes would produce a critical status. It is fairly simple to setup, and monitor. It also has a threshold in milliseconds for the page response to be received. This will then trigger warning or critical status levels if the web server is running particularly slow. Here is a typical example of how to configure it:
+
+Check Type	 Warning Threshold	 Critical Threshold	 XML Config
+Page response >= 8 seconds	 >= 5 seconds	 >= 8 seconds	
+<check name="chk_http" warn="5000" crit="8000" type="GTE">
+            <nagiosServiceName>chk_http_fwlive</nagiosServiceName>
+	    <serverpath>http://linuxapp3.corelogic.local:7778</serverpath>
+	    <url>/fwlive</url>
+	    <host>linuxapp3</host>
+	</check> 
+The host parameter needs to match the nagios hostname setting for checks to be correctly accepted. It should be set to the hostname, as determined by the output of the 'hostname' command on the monitored host. The same is true for the nagiosServiceName, which will need to be a configured service check for that host, on the nagios server.
+
+chk_nagios
+This is a pseudo check. It runs an external script at a scheduled interval with specified criteria, and then returns the results of that check directly. This allows NPA to run any existing Nagios compatible script.
+
+It's quite easy to configure - here is an example:
+
+Check Type	 Warning Threshold	 Critical Threshold	 XML Config
+External script	 1	 2	
+	<check name="chk_nagios">
+	    <nagiosServiceName>chk_test</nagiosServiceName>
+	    <saveMetrics>true</saveMetrics>
+	    <scriptName>/home/chris/work/projects/monitoring/dummy-nagios.sh</scriptName>
+	    <scriptType>shell</scriptType>
+	    <scriptArgs>-t -U -p -w 1 -c 2</scriptArgs>
+	</check>
+As you can see, with chk_nagios you do not need crit and warn parameters for the check. These should instead be specified as part of the scriptArgs setting, which are the arguments passed to the script on the command line. With chk_nagios, only the scheduling and submission parts of NPA are used to execute and return the results of the check. This means you should be able to test the check fully from the command line before submitting.
+
+	A note on users
+The script will be executed as the user which the NPA daemon is running as (usually NPA on UNIX/Linux). Since this is the case, you need to make sure that the command has the correct permissions when executed as that user. If it doesn't, you can configure a sudo setting to allow it to be executed as another user. For example, commands which need to run as the oracle user, would need settings something like below:
+<scriptName>/sbin/sudo</scriptName>
+<scriptArgs><scriptName>-u oracle /path/to/script arg1 arg2</scriptName>
+Notice that the only parameter for the scriptName setting is the executable. This is required, and you should not add the sudo arguments to this parameter - they should be instead specified at the start of the scriptArgs setting. 
+ 
+ 
+ 
+				
+				</div>
+			
+			</div>
+			
+
+		
+		<div id="footer"> 
+			Design by <a href="http://www.nikhedonia.com/" title="SimplyGold">Sadhana Ganapathiraju</a>
+		
+		</div>
+	
+	</div>
+
+</body>
+</html>

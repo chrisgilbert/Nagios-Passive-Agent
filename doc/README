@@ -1,0 +1,32 @@
+Post Release Notes and Amendments
+---------------------------------
+
+Have a look here for information on how to resolve common issues.
+
+
+
+
+Trusted SSL Certs - Importing an SSL certificate:
+--------------------------------------------------
+
+If the JRE running NPA does not trust the root certificate authority which generated the certificate, you will receive errors in the logs like the following:
+
+javax.net.ssl.SSLPeerUnverifiedException: peer not authenticated
+
+This can also occur if you are using a proxy, and the proxy certificate is not trusted.
+To avoid this problem, export the certifcate from your browser, by going to the nagios address (or proxy address) manually.  You'll need to export as a DER X.509 (.cer) file.  There are instructions on doing this from Internet Explorer at the following link:
+
+http://www.herongyang.com/Cryptography/Web-Browser-IE-Export-Certificates.html
+
+Next, copy the file to the monitored host, and run a command similar to below:
+
+keytool -import -file /root/proxy_cert.cer -alias haringey-proxy -keystore $JAVA_HOME/jre/security/cacerts/
+
+Depending on the version of java you have installed, and the keystore location, you'll need to adjust the command.  The keystore which you change should be the 'cacerts' directory inside the jre/security/ directory, under the JAVA_HOME.
+
+See the following link for more information:
+
+http://hc.apache.org/httpcomponents-client/httpclient/apidocs/org/apache/http/conn/ssl/SSLSocketFactory.html
+
+
+

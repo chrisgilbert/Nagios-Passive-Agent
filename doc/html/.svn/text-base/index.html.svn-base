@@ -1,0 +1,118 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+<head>
+
+	<title>Nagios Passive Agent</title>
+	
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	
+	<meta name="author" content="Chris Gilbert"/>
+	<meta name="design" content="SimplyGold [Sadhana Ganapathiraju]" />
+	<meta name="keywords" content="npa " />
+	<meta name="description" content="Information about NPA" />
+	
+	<link rel="stylesheet" type="text/css" media="screen" href="onepenny/screen.css" />
+	
+</head>
+
+<body id="bhome">
+
+	<div id="container">
+	
+		<div id="header">
+		
+			<h2><a href="/" title="Home"><span>Nagios Passive Agent</span></a></h2>
+			
+		</div>
+		
+		<div id="navigation">
+		
+			<ul>
+			
+				<li id="lhome"><a href="index.html" title="Home">Home</a></li>
+				<li id="linstall"><a href="install.html" title="Installation">Installation</a></li>
+				<li id="lconfig"><a href="config.html" title="Configuration">Configuration</a></li>
+				<li id="lsupport"><a href="support.html" title="Support">Support</a></li>
+				<li id="lbug"><a href="bug.html" title="Report a Bug">Report a Bug</a></li>
+				<li id="ldownload"><a href="download.html" title="Download">Download</a></li>
+			
+			</ul>
+		
+		</div>
+		
+		<div id="wrapper">
+		
+			<div id="content-wrapper">
+			
+				<div id="content">
+				
+<h4>What Is It?</h4>
+  <div><p>Nagios passive agent is a cross platform monitoring agent for the popular Nagios monitoring tool.  
+It aims to fill in some of the gaps not filled by other methods of running checks on monitored servers, most notably where the checks are running on 
+a remote server which is only able to communicate back to the Nagios server over firewalls/proxies and HTTP/S.</p></div>
+
+
+<h4>What Does It Do?</h4>
+<div>
+NPA already has some useful features, more are on the roadmap.  Here are the currently working features:
+<ul>
+	<li>Open source and free to use however you see fit (licensed under the GPL v3)</li>
+	<li>Simple scheduling (run a check every so many seconds)</li>
+	<li>Support for existing Nagios checks and performance information</li>
+	<li>Submission of passive checks results using the Nagios CGI interface</li>
+	<li>HTTP Proxy Support</li>
+	<li>Cross-platform - tested on Linux, Windows and Solaris.  Written in Java/Groovy so most platforms can be supported.</li>
+	<li>Simple queuing to allow resubmition in the event of temporary network outages.</li>
+	<li>Serveral built in OS checks (CPU, Disk)</li>
+	<li>Built in HTTP response checks</li>
+	<li>Serveral built in Oracle checks (Tablespace free, Buffer Cache Hit Ratio. Custom SQL)</li>
+</ul>
+The following features are presently being developed and tested:
+<ul>
+	<li>Extensible API  to add in custom check plugins</li>
+	<li>Further SQL Server and Oracle built in checks</li>
+	<li>Further submission options other than the Nagios CGI interface</li>
+	<li>More complex performance gathering features as required</li>
+	<li>Simple groovy script plugin mechanism to make writing checks using the NPA API quite simple</li>
+</ul>
+</div>
+
+<div>
+<p>Here is an explanation diagram of how check results are returned to Nagios over firewalls and the internet:</p>
+</div>
+
+<p>
+<img src="FMD.png" width="589" height="335" border="0" style="padding:10px" alt="NPA Diagram">
+</p>
+<div>
+<p>You will need a publically accessible HTTP server for Nagios to allow check results to be returned this way.  It can use basic HTTP authentication to prevent unauthorised access.  It's also recommended that you set up HTTPS for this server so that none of the traffic between your monitored servers and the Nagios server can be intercepted.</p>
+</div>
+ 
+<h4>Why Should I Use It Instead Of Something Else?</h4>
+
+There are quite a few agents for Nagios, including the official ones, and Windows specific agents such as NSClient++.  Unfortunately, none of them had the ability
+to work through firewalls.  In addtion, in a cross platform envrionment of three different operating systems and two different types of database, it was difficult to
+do consistent checking on all platforms.  To solve this, inititally I tried to write a return script which simply submitted check results back to Nagios via HTTP.
+
+This was not flexible enough though, so one frustrated afternoon, NPA was born.  Since then, it's been worked on and developed by myself, Chris Gilbert, and used internally
+in Corelogic for our customers.  After a suggestion by one of the team, we agreed it would be a good idea to make the project open source, and encourage other people to develop
+and contribute to it.
+ 
+				
+				</div>
+			
+			</div>
+			
+
+		
+		<div id="footer"> 
+			Design by <a href="http://www.nikhedonia.com/" title="SimplyGold">Sadhana Ganapathiraju</a>
+		
+		</div>
+	
+	</div>
+
+</body>
+</html>
