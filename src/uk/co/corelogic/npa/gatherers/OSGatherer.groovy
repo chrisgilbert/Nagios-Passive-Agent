@@ -215,7 +215,7 @@ def total_space_mb = [:]
 	if (this.os_name == 'SunOS' ) {
         Log.debug("Getting solaris filesystems.")
         // This could give unpredictable results... 
-        def cmd = ["sh", "-c", "grep dsk /etc/vfstab | grep -v swap | awk '{print \$1}'"]
+        def cmd = ["sh", "-c", "grep dsk /etc/vfstab | grep -v swap | grep -v \"^#\" | awk '{print \$1}'"]
 
         output = runCmd(cmd)
         Log.debug(output)
