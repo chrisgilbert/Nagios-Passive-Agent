@@ -16,22 +16,22 @@
 
 #-----------------------------------------------------------------------------
 # These settings can be modified to fit the needs of your application
-# Optimized for use with version 3.3.6 of the Wrapper.
+# Optimized for use with version 3.3.9 of the Wrapper.
 
 # Application
-APP_NAME="npa"
-APP_LONG_NAME="Nagios Passive Agent"
+APP_NAME="testwrapper"
+APP_LONG_NAME="Test Wrapper Sample Application"
 
 # Wrapper
 WRAPPER_CMD="./wrapper"
-WRAPPER_CONF="../config/wrapper.conf"
+WRAPPER_CONF="../conf/wrapper.conf"
 
 # Priority at which to run the wrapper.  See "man nice" for valid priorities.
 #  nice is only used if a priority is specified.
 PRIORITY=
 
 # Location of the pid file.
-PIDDIR="/usr/local/corelogic"
+PIDDIR="."
 
 # If uncommented, causes the Wrapper to be shutdown using an anchor file.
 #  When launched with the 'start' command, it will also ignore all INT and
@@ -45,11 +45,11 @@ PIDDIR="/usr/local/corelogic"
 #  cause the start command to delay for the indicated period of time 
 #  (in seconds).
 # 
-WAIT_AFTER_STARTUP=5
+WAIT_AFTER_STARTUP=0
 
 # If set, the status, start_msg and stop_msg commands will print out detailed
 #   state information on the Wrapper and Java processes.
-DETAIL_STATUS=true
+#DETAIL_STATUS=true
 
 # If specified, the Wrapper will be run as the specified user.
 # IMPORTANT - Make sure that the user has the required privileges to write
@@ -59,24 +59,24 @@ DETAIL_STATUS=true
 # NOTE - This will set the user which is used to run the Wrapper as well as
 #  the JVM and is not useful in situations where a privileged resource or
 #  port needs to be allocated prior to the user being changed.
-RUN_AS_USER=npa
+#RUN_AS_USER=
 
 # The following two lines are used by the chkconfig command. Change as is
 #  appropriate for your application.  They should remain commented.
 # chkconfig: 2345 20 80
-# description: Nagios Passive Agent
+# description: Test Wrapper Sample Application
  
 # Initialization block for the install_initd and remove_initd scripts used by
 #  SUSE linux distributions.
 ### BEGIN INIT INFO
-# Provides: fmd
+# Provides: testwrapper
 # Required-Start: $local_fs $network $syslog
 # Should-Start: 
 # Required-Stop:
 # Default-Start: 2 3 4 5
 # Default-Stop: 0 1 6
-# Short-Description: Nagios Passive Agent
-# Description: A daemon process to  run checks for Nagios and return results to a central server.
+# Short-Description: Test Wrapper Sample Application
+# Description: Test Wrapper Sample Application Description
 ### END INIT INFO
 
 # Do not modify anything beyond this point
@@ -196,6 +196,9 @@ case "$DIST_OS" in
     'unix_sv')
         DIST_OS="unixware"
         ;;
+    'FreeBSD')
+        DIST_OS="freebsd"
+        ;;
 esac
 
 # Resolve the architecture
@@ -244,6 +247,15 @@ then
     if [ -z "$JAVA_HOME" ]; then
         JAVA_HOME="/Library/Java/Home"; export JAVA_HOME
     fi
+fi
+
+# Test Echo
+ECHOTEST=`echo -n "x"`
+if [ "$ECHOTEST" = "x" ]
+then
+    ECHOOPT="-n "
+else
+    ECHOOPT=""
 fi
 
 outputFile() {
@@ -370,9 +382,9 @@ checkUser() {
         #
         if test -f "/sbin/runuser"
         then
-            /sbin/runuser - $RUN_AS_USER -c "\"$REALPATH\" $2"
+            /sbin/runuser - $RUN_AS_USER -c "\"$REALPATH\" $2 $3 $3"
         else
-            su - $RUN_AS_USER -c "\"$REALPATH\" $2"
+            su - $RUN_AS_USER -c "\"$REALPATH\" $2 $3 $3"
         fi
 
         # Now that we are the original user again, we may need to clean up the lock file.
@@ -408,6 +420,13 @@ getpid() {
                 # The ps statement below looks for the specific wrapper command running as
                 #  the pid.  If it is not found then the pid file is considered to be stale.
                 case "$DIST_OS" in
+                    'freebsd')
+                        pidtest=`$PSEXE -p $pid -o args | tail -1`
+                        if [ "X$pidtest" = "XCOMMAND" ]
+                        then 
+                            pidtest=""
+                        fi
+                        ;;
                     'macosx')
                         pidtest=`$PSEXE -ww -p $pid -o command | grep "$WRAPPER_CMD" | tail -1`
                         ;;
@@ -483,12 +502,12 @@ testpid() {
 }
 
 console() {
-    echo "Running $APP_LONG_NAME..."
+    echo "Running $APP_LONG_NAME with test action: $1 with test action: $1..."
     getpid
     if [ "X$pid" = "X" ]
     then
         # The string passed to eval must handles spaces in paths correctly.
-        COMMAND_LINE="$CMDNICE \"$WRAPPER_CMD\" \"$WRAPPER_CONF\" wrapper.syslog.ident=\"$APP_NAME\" wrapper.pidfile=\"$PIDFILE\" wrapper.name=\"$APP_NAME\" wrapper.displayname=\"$APP_LONG_NAME\" $ANCHORPROP $STATUSPROP $LOCKPROP"
+        COMMAND_LINE="$CMDNICE \"$WRAPPER_CMD\" \"$WRAPPER_CONF\" wrapper.app.parameter.1=$1 wrapper.app.parameter.1=$1 wrapper.syslog.ident=\"$APP_NAME\" wrapper.pidfile=\"$PIDFILE\" wrapper.name=\"$APP_NAME\" wrapper.displayname=\"$APP_LONG_NAME\" $ANCHORPROP $STATUSPROP $LOCKPROP"
         eval $COMMAND_LINE
     else
         echo "$APP_LONG_NAME is already running."
@@ -497,12 +516,12 @@ console() {
 }
  
 start() {
-    echo -n "Starting $APP_LONG_NAME..."
+    echo $ECHOOPT"Starting $APP_LONG_NAME with test action: $1 with test action: $1..."
     getpid
     if [ "X$pid" = "X" ]
     then
         # The string passed to eval must handles spaces in paths correctly.
-        COMMAND_LINE="$CMDNICE \"$WRAPPER_CMD\" \"$WRAPPER_CONF\" wrapper.syslog.ident=\"$APP_NAME\" wrapper.pidfile=\"$PIDFILE\" wrapper.name=\"$APP_NAME\" wrapper.displayname=\"$APP_LONG_NAME\" wrapper.daemonize=TRUE $ANCHORPROP $IGNOREPROP $STATUSPROP $LOCKPROP"
+        COMMAND_LINE="$CMDNICE \"$WRAPPER_CMD\" \"$WRAPPER_CONF\" wrapper.app.parameter.1=$1 wrapper.app.parameter.1=$1 wrapper.syslog.ident=\"$APP_NAME\" wrapper.pidfile=\"$PIDFILE\" wrapper.name=\"$APP_NAME\" wrapper.displayname=\"$APP_LONG_NAME\" wrapper.daemonize=TRUE $ANCHORPROP $IGNOREPROP $STATUSPROP $LOCKPROP"
         eval $COMMAND_LINE
     else
         echo "$APP_LONG_NAME is already running."
@@ -516,7 +535,7 @@ start() {
     while [ $i -lt $WAIT_AFTER_STARTUP ]
     do
         sleep 1
-        echo -n "."
+        echo $ECHOOPT"."
         i=`expr $i + 1`
     done
     if [ $WAIT_AFTER_STARTUP -gt 0 ]
@@ -600,20 +619,6 @@ stopit() {
             echo "Stopped $APP_LONG_NAME."
         fi
     fi
-
-echo Killing orhpaned processes..
-for i in `ps -ef | grep wrapper- | grep npa | awk '{print $2}'`
-do
-  echo Killing pid $i
-  kill -9 $i
-done
-
-for i in `ps -ef | grep wrapper | grep java | awk '{print $2}'`
-do
-  echo Killing pid $i
-  kill -9 $i
-done
-
 }
 
 status() {
@@ -658,14 +663,14 @@ startmsg() {
     getpid
     if [ "X$pid" = "X" ]
     then
-        echo "Starting $APP_LONG_NAME... (Wrapper:Stopped)"
+        echo "Starting $APP_LONG_NAME with test action: $1 with test action: $1... (Wrapper:Stopped)"
     else
         if [ "X$DETAIL_STATUS" = "X" ]
         then
-            echo "Starting $APP_LONG_NAME... (Wrapper:Running)"
+            echo "Starting $APP_LONG_NAME with test action: $1 with test action: $1... (Wrapper:Running)"
         else
             getstatus
-            echo "Starting $APP_LONG_NAME... (Wrapper:$STATUS, Java:$JAVASTATUS)"
+            echo "Starting $APP_LONG_NAME with test action: $1 with test action: $1... (Wrapper:$STATUS, Java:$JAVASTATUS)"
         fi
     fi
 }
@@ -690,17 +695,17 @@ stopmsg() {
 case "$1" in
 
     'console')
-        checkUser touchlock $1
-        console
+        checkUser touchlock $1 $2
+        console $2
         ;;
 
     'start')
-        checkUser touchlock $1
-        start
+        checkUser touchlock $1 $2
+        start $2
         ;;
 
     'stop')
-        checkUser "" $1
+        checkUser "" $1 $2 $2
         stopit "0"
         ;;
 
@@ -717,22 +722,22 @@ case "$1" in
         ;;
 
     'status')
-        checkUser "" $1
+        checkUser "" $1 $2 $2
         status
         ;;
 
     'dump')
-        checkUser "" $1
+        checkUser "" $1 $2 $2
         dump
         ;;
 
     'start_msg')
-        checkUser "" $1
+        checkUser "" $1 $2 $2
         startmsg
         ;;
 
     'stop_msg')
-        checkUser "" $1
+        checkUser "" $1 $2 $2
         stopmsg
         ;;
 
