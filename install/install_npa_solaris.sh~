@@ -48,3 +48,7 @@ else
         echo Chkconfig command to install npa service failed!
         exit 1
 fi
+else
+  echo No root access, service was not installed.
+fi
+

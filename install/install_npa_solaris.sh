@@ -8,7 +8,7 @@ if [ $(who am i | awk '{print $1}') == 'root' ]; then
   echo Root access is available, creating user and group.
   groupadd $NPAGROUP
   useradd -G $NPAGROUP $NPAUSER
-
+fi
 
 mkdir -p $INSTALLDIR/db
 
