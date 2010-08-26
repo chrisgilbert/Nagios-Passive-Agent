@@ -1,0 +1,215 @@
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svnroot/npa/!svn/ver/6/release-1.0-fixes/bin
+END
+testwrapper
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svnroot/npa/!svn/ver/6/release-1.0-fixes/bin/testwrapper
+END
+wrapper-solaris-sparc-32
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svnroot/npa/!svn/ver/6/release-1.0-fixes/bin/wrapper-solaris-sparc-32
+END
+StartTestWrapper-NT.bat
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svnroot/npa/!svn/ver/6/release-1.0-fixes/bin/StartTestWrapper-NT.bat
+END
+npa.bat
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svnroot/npa/!svn/ver/6/release-1.0-fixes/bin/npa.bat
+END
+wrapper-linux-ppc-64
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svnroot/npa/!svn/ver/6/release-1.0-fixes/bin/wrapper-linux-ppc-64
+END
+TestWrapper.bat
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svnroot/npa/!svn/ver/6/release-1.0-fixes/bin/TestWrapper.bat
+END
+wrapper-linux-x86-64
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svnroot/npa/!svn/ver/6/release-1.0-fixes/bin/wrapper-linux-x86-64
+END
+InstallTestWrapper-NT.bat
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svnroot/npa/!svn/ver/6/release-1.0-fixes/bin/InstallTestWrapper-NT.bat
+END
+wrapper-windows-x86-32.exe
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svnroot/npa/!svn/ver/6/release-1.0-fixes/bin/wrapper-windows-x86-32.exe
+END
+UninstallApp-NT.bat
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svnroot/npa/!svn/ver/6/release-1.0-fixes/bin/UninstallApp-NT.bat
+END
+wrapper-aix-ppc-32
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svnroot/npa/!svn/ver/6/release-1.0-fixes/bin/wrapper-aix-ppc-32
+END
+wrapper-freebsd-x86-64
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svnroot/npa/!svn/ver/6/release-1.0-fixes/bin/wrapper-freebsd-x86-64
+END
+wrapper-solaris-x86-64
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svnroot/npa/!svn/ver/6/release-1.0-fixes/bin/wrapper-solaris-x86-64
+END
+wrapper-macosx-universal-64
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svnroot/npa/!svn/ver/6/release-1.0-fixes/bin/wrapper-macosx-universal-64
+END
+wrapper-hpux-parisc-64
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svnroot/npa/!svn/ver/6/release-1.0-fixes/bin/wrapper-hpux-parisc-64
+END
+StopTestWrapper-NT.bat
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svnroot/npa/!svn/ver/6/release-1.0-fixes/bin/StopTestWrapper-NT.bat
+END
+debugservice.bat
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svnroot/npa/!svn/ver/6/release-1.0-fixes/bin/debugservice.bat
+END
+wrapper-linux-ppc-32
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svnroot/npa/!svn/ver/6/release-1.0-fixes/bin/wrapper-linux-ppc-32
+END
+wrapper-hpux-ia-64
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svnroot/npa/!svn/ver/6/release-1.0-fixes/bin/wrapper-hpux-ia-64
+END
+wrapper-linux-x86-32
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svnroot/npa/!svn/ver/6/release-1.0-fixes/bin/wrapper-linux-x86-32
+END
+ResumeTestWrapper-NT.bat
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svnroot/npa/!svn/ver/6/release-1.0-fixes/bin/ResumeTestWrapper-NT.bat
+END
+wrapper-solaris-sparc-64
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svnroot/npa/!svn/ver/6/release-1.0-fixes/bin/wrapper-solaris-sparc-64
+END
+wrapper-linux-ia-64
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svnroot/npa/!svn/ver/6/release-1.0-fixes/bin/wrapper-linux-ia-64
+END
+InstallApp-NT.bat
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svnroot/npa/!svn/ver/6/release-1.0-fixes/bin/InstallApp-NT.bat
+END
+TempWmicBatchFile.bat
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svnroot/npa/!svn/ver/6/release-1.0-fixes/bin/TempWmicBatchFile.bat
+END
+wrapper-freebsd-x86-32
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svnroot/npa/!svn/ver/6/release-1.0-fixes/bin/wrapper-freebsd-x86-32
+END
+UninstallTestWrapper-NT.bat
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svnroot/npa/!svn/ver/6/release-1.0-fixes/bin/UninstallTestWrapper-NT.bat
+END
+wrapper-solaris-x86-32
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svnroot/npa/!svn/ver/6/release-1.0-fixes/bin/wrapper-solaris-x86-32
+END
+wrapper-macosx-universal-32
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svnroot/npa/!svn/ver/6/release-1.0-fixes/bin/wrapper-macosx-universal-32
+END
+wrapper.log
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svnroot/npa/!svn/ver/6/release-1.0-fixes/bin/wrapper.log
+END
+PauseTestWrapper-NT.bat
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svnroot/npa/!svn/ver/6/release-1.0-fixes/bin/PauseTestWrapper-NT.bat
+END
+wrapper-hpux-parisc-32
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svnroot/npa/!svn/ver/6/release-1.0-fixes/bin/wrapper-hpux-parisc-32
+END
+wrapper-aix-ppc-64
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svnroot/npa/!svn/ver/6/release-1.0-fixes/bin/wrapper-aix-ppc-64
+END
+wrapper-hpux-ia-32
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svnroot/npa/!svn/ver/6/release-1.0-fixes/bin/wrapper-hpux-ia-32
+END
+npa
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svnroot/npa/!svn/ver/6/release-1.0-fixes/bin/npa
+END
