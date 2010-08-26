@@ -31,11 +31,7 @@ WRAPPER_CONF="../config/wrapper.conf"
 PRIORITY=
 
 # Location of the pid file.
-<<<<<<< HEAD:bin/npa
 PIDDIR="."
-=======
-PIDDIR="/usr/local/corelogic/"
->>>>>>> 1.0_patches:bin/npa
 
 # If uncommented, causes the Wrapper to be shutdown using an anchor file.
 #  When launched with the 'start' command, it will also ignore all INT and
@@ -604,22 +600,6 @@ stopit() {
             echo "Stopped $APP_LONG_NAME."
         fi
     fi
-<<<<<<< HEAD:bin/npa
-=======
-
-echo Killing any orphaned processes..
-for in in `ps -ef | grep wrapper- | grep npa | awk '{print $2}'`
-do
-    echo Killing pid $i
-    kill -9 $i
-done
-for in in `ps -ef | grep wrapper | grep java | awk '{print $2}'`
-do
-    echo Killing pid $i
-    kill -9 $i
-done
-
->>>>>>> 1.0_patches:bin/npa
 }
 
 status() {
