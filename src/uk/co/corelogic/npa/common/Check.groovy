@@ -99,7 +99,7 @@ def variables
         } catch(e) {
             Log.error("Exception occurred whilst running $chk_name check: ", e)
             Log.error("STACK:", e)
-            throw e
+            Log.error("A SERIOUS ERROR OCCURRED IN CHECK!")
         }
     }
 

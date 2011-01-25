@@ -25,7 +25,7 @@ static config
 
         config = NPA.getConfigObject()
 
-        def npa_version = "1.0.5_p2"
+        def npa_version = "1.0.6_test1"
 
 
         println "Nagios Passive Agent - version $npa_version started."
@@ -82,7 +82,6 @@ static config
                         c.chk_args = argsmap
                     }
                     c.chk_interval = g.@interval.toString().toInteger();
-                    //checkList.add([check:c, group:g.@name, interval:g.@interval])
                     checkList.add(c);
                     Log.debug(checkList)
                 }
@@ -104,7 +103,6 @@ static config
                     def c = new RawMetric(it.@name.toString(), argsmap)
                     c.chk_interval = g.@interval.toString().toInteger();
                     checkList.add(c);
-                    //checkList.add([check:c, group:g.@name, interval:g.@interval.toString().toFloat()])
                     Log.debug(checkList)
                 }
 

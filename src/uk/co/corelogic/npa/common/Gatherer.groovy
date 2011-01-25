@@ -74,6 +74,19 @@ class Gatherer {
     }
 
     /**
+        Get a stat average using a valid metric ID and return the value - with variables
+    */
+    public avg(String metricName, variables) throws NPAException {
+        if (MetricRegister.getClassName(metricName)) {
+            return MetricsDB.getAvg(metricName, timePeriod)
+        } else {
+            Log.error("No valid metric type registered for " + metricName)
+            Log.error("Metric list contents: ${this.metricList}")
+            throw new NPAException("No valid metric type registered for " + metricName)
+        }
+    }
+
+    /**
      * Sample a stat using a valid metric ID and return the value - no variables
     */
     public sample(String metricName) throws NPAException {
