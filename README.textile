@@ -1,19 +1,18 @@
 h2. Nagios Passive Agent
+
 h4. Chris Gilbert <disciple3d AT gmail DOT com>
 
 This is the git repository for NPA.  I decided to change to git, to gain some greater flexibility in version control, and also to learn about it.
 
 There are several branches:
 
-||master||main dev branch|
-||*_patches||patches on previous stable versions|
+|_. master|main dev branch|
+|_. *_patches|patches on previous stable versions|
 
 To checkout the repo, and modify locally in your own branch, do the following:
 
-{noformat}
-git clone https://github.com/chrisgilbert/Nagios-Passive-Agent.git	
-git -b my_branch
-{noformat}
+bq. git clone https://github.com/chrisgilbert/Nagios-Passive-Agent.git	
+bq. git -b my_branch
 
 Please see http://npa.sourceforge.net for further information on the project.
 
