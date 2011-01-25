@@ -1,0 +1,9 @@
+tars/
+zips/
+build/
+db/
+logs/
+nagios-plugins/
+dist/
+src.bak/
+*.properties

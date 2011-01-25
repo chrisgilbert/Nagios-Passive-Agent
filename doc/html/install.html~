@@ -119,12 +119,13 @@ Please now refer to <a href="config.html">configuration</a> to setup the checks 
 If you get an error, you should add java to the path, by going to Control Panel > system > Advanced > Envrionment Variables and editing the PATH variable to include your java binary directory.
 The version should display 1.5.0 or above.
 </li>
+<li>Configure NPA to talk to your Nagios server by editing the defaults.groovy file, as described on the <a href="config.html">configuration</a> page.</li>
 <li>To test NPA, run the c:\npa\bin\npa.bat file which will start NPA in the foreground.  You can monitor the wrapper.log and npa.log files for any issues.</li>
 <li>Once you are happy that NPA is functioning correctly, you can install it as a service.  To do this, run c:\npa\bin\InstallApp-NT.bat</li>
 <li>Start the service with the following command:
 <blockquote>net start npa</blockquote></li>
 </ol>
-<h3>Uninstallation</h3>
+<h5>Uninstallation</h5>
 To remove the NPA service, run the c:\npa\bin\UninstallApp-NT.bat file.
 </p>
 

@@ -1,0 +1,106 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+<head>
+
+	<title>Nagios Passive Agent - Contributing</title>
+	
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	
+	<meta name="author" content="Chris Gilbert" />
+	<meta name="design" content="SimplyGold [Sadhana Ganapathiraju]" />
+	<meta name="keywords" content="npa contributions" />
+	<meta name="description" content="Contributions for NPA" />
+	
+	<link rel="stylesheet" type="text/css" media="screen" href="onepenny/screen.css" />
+	
+</head>
+
+<body id="bcontributions">
+
+	<div id="container">
+	
+		<div id="header">
+		
+			<h2><a href="/" title="Home"><span>Nagios Passive Agent - Contributing</span></a></h2>
+			
+		</div>
+		
+		<div id="navigation">
+		
+			<ul>
+			
+				<li id="lhome"><a href="index.html" title="Home">Home</a></li>
+				<li id="linstall"><a href="install.html" title="Installation">Installation</a></li>
+				<li id="lconf"><a href="config.html" title="Configuration">Configuration</a></li>
+				<li id="lsupport"><a href="support.html" title="Support">Support</a></li>
+				<li id="lbug"><a href="bug.html" title="Report a Bug">Report a Bug</a></li>
+				<li id="ldownload"><a href="download.html" title="Download">Download</a></li>
+				<li id="lcontributing"><a href="contributing.html" title="Contributing">Contributing</a></li>
+			</ul>
+		
+		</div>
+		
+		<div id="wrapper">
+		
+			<div id="content-wrapper">
+			
+				<div id="content">
+				
+ 				<h2>Contributing</h2>
+				If you would like to contribute to improve NPA, or adapt it for your own needs, then please checkout the latest sourcecode.
+				
+				NPA is released under the GPL version 3 license.  This means if you are permitted to view and change the source code for your own use.  If you wish to redistribute
+				NPA, you must contribute any changes you make back to the project, or otherwise make them available to others, <a href="http://www.gnu.org/licenses/gpl.html">under the terms of the GPL</a>.				
+				
+				NPA was designed using Netbeans 6.8, using the Groovy plugin.  It requires the following to compile and build correctly:
+				
+				<ul>
+				<li>Apache Ant 1.7+</li>
+				<li>Sun Java 1.5.0 JDK</li>
+				<li>GNU Tar</li>
+				<li>GNU Gzip</li>
+				<li>GNU Zip</li>
+				<li>Git</li>
+				</ul>
+				
+				To checkout a copy of the latest unstable code, run:
+				
+				<pre>
+				git clone https://github.com/chrisgilbert/Nagios-Passive-Agent.git	
+				git -b my_branch 		
+				</pre>
+				
+				<P>This will clone the git repository and create new local branch called my_branch.  The master branch contains unstable code, and there will also be a 1.*_patches branch at all times for the latest stable releases.</P>
+				
+				<h4>Compiling</h4>
+				
+				<p>To compile NPA, cd to the git repository location on your machine and type <b>ant jar</b>.  If you have all the required dependencies, then this will compile a new JAR file.
+				You can start the JAR file by running the npa script in the bin directory.</p>
+
+				<h4>Contributing Code</h4>
+				If you have a patch you wish to contribute back to the code, please create a patch file using the git patch commands.  To do this, make changes to your local branch.
+				Before merging the code anywhere else, you will need to create a diff with the master branch.  
+				
+				<pre>
+				git format-patch master --stdout > my_fixes.patch
+				</pre>
+				
+				Now, just send that file to me at disciple3d AT gmail DOT com, and I'll review your fix and apply it to the code.
+				
+				</div>
+			
+			</div>
+			
+
+		
+		<div id="footer"> 
+			Design by <a href="http://www.nikhedonia.com/" title="SimplyGold">Sadhana Ganapathiraju</a>
+		
+		</div>
+	
+	</div>
+
+</body>
+</html>

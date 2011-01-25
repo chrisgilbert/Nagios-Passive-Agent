@@ -1,0 +1,291 @@
+body 
+{
+	margin: 0;
+	padding: 0;
+	background-color: #f9f9f9;
+	font: normal 12px "Trebuchet MS", "Lucida Grande", Verdana, Georgia, Sans-Serif;
+}
+
+
+
+
+/* Table */
+
+table {
+	border-width: 1px;
+	border-spacing: ;
+	border-style: hidden;
+	border-color: black;
+	border-collapse: separate;
+	background-color: white;
+}
+table th {
+	border-width: 1px;
+	padding: 5px;
+	border-style: solid;
+	border-color: gray;
+	background-color: white;
+	-moz-border-radius: ;
+}
+table td {
+	border-width: 1px;
+	padding: 5px;
+	border-style: solid;
+	border-color: gray;
+	background-color: white;
+	-moz-border-radius: ;
+}
+
+/* Links */
+
+a:link { color: #335577; text-decoration: none; }
+
+a:visited { color: #557799; text-decoration: none; }
+
+a:hover, a:active { color: #ffffff; background-color: #335577; }
+
+/* Html Elements */
+
+h1, h2, h3, h4, h5, h6 { font-weight: normal; margin: 10px 0; padding: 4px; }
+
+h1 { font-size: 32px; }
+
+h2 { font-size: 28px; }
+
+h3 { font-size: 24px; }
+
+h4 { font-size: 20px; }
+
+h5 { font-size: 16px; }
+
+h6 
+{ 
+	font-size: 13px; 
+	text-transform: uppercase; 
+	margin: 5px 0; 
+	font-weight: bold; 
+}
+
+ul { line-height: 1.8em; list-style-type: square; color: #333333; }
+
+ol { line-height: 2.2em; color: #333333; }
+
+blockquote
+{
+	color: #555555;
+	background-color: #eeeeee;
+	border: 1px solid #cfcfcf;
+	padding: 5px 10px; 
+	margin: 10px 20px;
+}
+
+code { font-family: Consolas, Verdana, Arial, "Courier New"; }
+
+abbr, acronym { font-style: normal; border-bottom: 1px dotted #333333; cursor: help; }
+
+em { font-style: italic; }
+
+strong { font-weight: bold; }
+
+del { text-decoration: line-through; color: #555555; font-size: 11px; }
+
+ins { text-decoration: none; color: #679b3c; }
+
+p em, 
+cite
+{
+	font-family: Consolas, Verdana, Serif;
+}
+
+
+/* Structure */
+
+#container
+{
+	width: 65%;
+	margin: 0 auto;
+}
+
+#header
+{
+	padding: 15px 0;	
+}
+
+#navigation
+{
+	float: left; 
+	width: 100%;
+	background-color: #333333;
+	font-family: Consolas, Verdana, Serif;
+}
+
+#wrapper
+{
+	margin: 0;
+	padding: 0;
+	clear: both;
+	float: left;
+	width: 100%;
+}
+
+#content-wrapper
+{
+	width: 80%;
+	float: left;
+}
+
+#content
+{
+	float: left;
+	padding: 15px;
+	line-height: 1.8em;
+}
+
+#sidebar-wrapper
+{
+	width: 40%;
+	float: left;
+}
+
+#sidebar
+{
+	float: left;
+	padding: 20px;
+}
+
+#footer
+{
+	clear: both;
+	float: left;
+	width: 100%;
+	margin: 20px 0;
+	color: #555555;
+	text-align: center;
+	padding: 10px 0;
+	background-color: #cfcfcf;
+}
+
+/* Navigation */
+
+#navigation ul
+{
+	margin: 0 5px;
+	float: left;
+	width: 95%;
+	padding: 5px 0;
+	list-style-type: none;
+}
+
+#navigation li { float: left; margin: 0 0 0 5px; padding: 0; }
+
+#navigation a:link,
+#navigation a:visited
+{
+	float: left;
+	display: block;
+	color: #99bbdd;
+	padding: 5px 10px;
+	border: 1px solid #333333;
+}
+
+#navigation a:hover,
+#navigation a:active
+{
+	color: #ffffff;
+	background-color: #557799;
+	border-color: #99bbdd;
+}
+
+#bhome li#lhome a,
+#bconfig li#lconfig a,
+#bsupport li#lsupport a,
+#binstall li#linstall a,
+#bdownload li#ldownload a
+{
+	color: #f9f9f9;
+	background-color: #557799;
+	border-color: #7799bb;
+}
+
+/* Header */
+
+#header h1 { margin-bottom: 0; }
+
+#header h1 a { background: transparent url(title.png) center center no-repeat; }
+
+#header h1 a:link,
+#header h1 a:visited
+{
+	color: #333333;
+}
+
+#header h1 a:hover,
+#header h1 a:active
+{
+	color: #000000;
+	background-color: transparent;
+}
+
+#header h1 span { visibility: hidden; }
+
+
+/* Sidebar */
+
+ul#sidenotes
+{
+	margin: 0;
+	padding: 0;
+	line-height: 1.6em;
+	list-style-type: none;
+}
+
+ul#sidenotes li
+{
+	padding: 5px;
+	border-bottom: 1px dotted #cccccc;
+}
+
+ul#sidenotes li:hover
+{
+	background-color: #eeeeee;
+}
+
+ul#sidenotes li .title
+{
+	display: block;
+	font-weight: bold;
+}
+
+ul#sidenotes li .date
+{
+	display: block;
+	color: #777777;
+	font-size: smaller;
+}
+
+ul#sidenotes li .content
+{
+	display: block;
+}
+
+ul#sidenotes li a:link,
+ul#sidenotes li a:visited
+{
+	padding: 0; 
+	color: #333333;
+}
+
+ul#sidenotes li a:hover,
+ul#sidenotes li a:active
+{
+	background-color: transparent; 
+}
+
+/* Footer */
+
+#footer a:hover,
+#footer a:active
+{
+	color: #003355;
+	background-color:transparent;
+}

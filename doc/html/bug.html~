@@ -8,7 +8,7 @@
 	
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 	
-	<meta name="author" content="Chris Gilbert"/>
+	<meta name="author" content="Chris Gilbert" />
 	<meta name="design" content="SimplyGold [Sadhana Ganapathiraju]" />
 	<meta name="keywords" content="npa bug" />
 	<meta name="description" content="Bug report for NPA" />
@@ -37,7 +37,7 @@
 				<li id="lsupport"><a href="support.html" title="Support">Support</a></li>
 				<li id="lbug"><a href="bug.html" title="Report a Bug">Report a Bug</a></li>
 				<li id="ldownload"><a href="download.html" title="Download">Download</a></li>
-			
+			<li id="lcontributing"><a href="contributing.html" title="Contributing">Contributing</a></li>
 			</ul>
 		
 		</div>
@@ -51,7 +51,7 @@
  
  
  				<h2>Reporting Bugs</h2>
- 				Please add a bug entry at <a https://sourceforge.net/tracker/?func=add&group_id=298351&atid=1258761">Sourceforge Bug tracker</a> for any issues that you encounter.
+ 				Please add a bug entry at <a href="https://sourceforge.net/tracker/?func=add&group_id=298351&atid=1258761">Sourceforge Bug tracker</a> for any issues that you encounter.
  
  
  

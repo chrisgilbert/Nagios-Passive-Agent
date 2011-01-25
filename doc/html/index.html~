@@ -8,7 +8,7 @@
 	
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 	
-	<meta name="author" content="Chris Gilbert"/>
+	<meta name="author" content="Chris Gilbert" />
 	<meta name="design" content="SimplyGold [Sadhana Ganapathiraju]" />
 	<meta name="keywords" content="npa " />
 	<meta name="description" content="Information about NPA" />
@@ -37,7 +37,7 @@
 				<li id="lsupport"><a href="support.html" title="Support">Support</a></li>
 				<li id="lbug"><a href="bug.html" title="Report a Bug">Report a Bug</a></li>
 				<li id="ldownload"><a href="download.html" title="Download">Download</a></li>
-			
+			<li id="ldownload"><a href="contributing.html" title="Contributing">Contributing</a></li>
 			</ul>
 		
 		</div>
@@ -58,6 +58,7 @@ a remote server which is only able to communicate back to the Nagios server over
 <div>
 NPA already has some useful features, more are on the roadmap.  Here are the currently working features:
 <ul>
+	<li>Open source and free to use however you see fit (licensed under the GPL v3)</li>
 	<li>Simple scheduling (run a check every so many seconds)</li>
 	<li>Support for existing Nagios checks and performance information</li>
 	<li>Submission of passive checks results using the Nagios CGI interface</li>

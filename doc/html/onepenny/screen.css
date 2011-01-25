@@ -6,6 +6,46 @@ body
 	font: normal 12px "Trebuchet MS", "Lucida Grande", Verdana, Georgia, Sans-Serif;
 }
 
+/* Code */
+
+pre {
+        padding: 10px 15px;
+        margin: 5px 0 15px;
+        border-left: 5px solid #666666;
+        background: #E0ECF8;
+        font: 1em/1.5 "Courier News", monospace;
+        color: #190707;
+        overflow : auto;
+}
+
+
+/* Table */
+
+table {
+	border-width: 1px;
+	border-spacing: ;
+	border-style: hidden;
+	border-color: black;
+	border-collapse: separate;
+	background-color: white;
+}
+table th {
+	border-width: 1px;
+	padding: 5px;
+	border-style: solid;
+	border-color: gray;
+	background-color: white;
+	-moz-border-radius: ;
+}
+table td {
+	border-width: 1px;
+	padding: 5px;
+	border-style: solid;
+	border-color: gray;
+	background-color: white;
+	-moz-border-radius: ;
+}
+
 /* Links */
 
 a:link { color: #335577; text-decoration: none; }

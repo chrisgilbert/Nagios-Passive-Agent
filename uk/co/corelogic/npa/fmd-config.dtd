@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<!--
+    TODO define vocabulary identification
+    PUBLIC ID: -//vendor//vocabulary//EN
+    SYSTEM ID: http://server/path/fm-config.dtd
+
+-->
+
+<!--
+    An example how to use this DTD from your XML document:
+
+    <?xml version="1.0"?>
+
+    <!DOCTYPE fmd-checks SYSTEM "fm-config.dtd">
+
+    <fmd-checks>
+    ...
+    </fmd-checks>
+-->
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT fmd-checks (check-group)*>
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT check-group (check)*>
+<!ATTLIST check-group
+    interval CDATA #IMPLIED
+    name CDATA #IMPLIED
+  >
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT check (argument)*>
+<!ATTLIST check
+    path CDATA #IMPLIED
+    type CDATA #IMPLIED
+    crit CDATA #IMPLIED
+    warn CDATA #IMPLIED
+    name CDATA #IMPLIED
+  >
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT argument (#PCDATA)>
