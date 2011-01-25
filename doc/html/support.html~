@@ -37,7 +37,7 @@
 				<li id="lsupport"><a href="support.html" title="Support">Support</a></li>
 				<li id="lbug"><a href="bug.html" title="Report a Bug">Report a Bug</a></li>
 				<li id="ldownload"><a href="download.html" title="Download">Download</a></li>
-			<li id="ldownload"><a href="contributing.html" title="Contributing">Contributing</a></li>
+			   <li id="lcontributing"><a href="contributing.html" title="Contributing">Contributing</a></li>
 			</ul>
 		
 		</div>
