@@ -12,7 +12,7 @@ There are several branches:
 To checkout the repo, and modify locally in your own branch, do the following:
 
 bq. git clone https://github.com/chrisgilbert/Nagios-Passive-Agent.git	
-bq. git -b my_branch
+git -b my_branch
 
 Please see http://npa.sourceforge.net for further information on the project.
 
