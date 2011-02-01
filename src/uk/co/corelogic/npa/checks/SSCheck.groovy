@@ -79,7 +79,7 @@ public init() {
     public chk_ss_blocking_procs(){
         init()
         assert this.chk_args.nagiosServiceName != null, "nagiosServiceName is a required parameter!"
-        int value = this.gatherer.SS_NUM_BLOCKING_PROCS(this.chk_args.clone())
+        int value = this.gatherer.sample("SS_NUM_BLOCKING_PROCS", this.chk_args.clone())
         def performance = ["SS_NUM_BLOCKING_PROCS":"$value;${this.chk_th_warn};${this.chk_th_crit};;"]
 
         // Now check for threshold levels

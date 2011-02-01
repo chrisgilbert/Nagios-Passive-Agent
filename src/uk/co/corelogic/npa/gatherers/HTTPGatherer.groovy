@@ -12,12 +12,12 @@ class HTTPGatherer extends Gatherer {
 
 def host
 def path
-String initiatorID
 def groupID
 def metricList = []
 
     public HTTPGatherer(initiatorID) {
-        this.initiatorID = initiatorID
+        super(initiatorID);
+        this.registerMetrics();
     }
 
     /**

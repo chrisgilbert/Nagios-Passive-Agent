@@ -11,8 +11,7 @@ import org.apache.http.*
 
 /* This is an implementation of the HTTP curl submission script in groovy.
    It avoids having to use the external program to submit nagios results.
-   In the future we may be able to use out own listener instead of the nagios CGI interface.
-   TODO: Implement NTLM auth for proxies.  
+   In the future we may be able to use our own listener instead of the nagios CGI interface.
 
 */
 
@@ -20,34 +19,35 @@ class SendCheckResultHTTP {
 
 static boolean submit(CheckResult) {
 
+def config = NPA.getConfigObject()
 
 def args
-Log.debug("Submitting to URL: " + NPA.config.npa.submit_url)
-def http = new HTTPBuilder(NPA.config.npa.submit_url)
+Log.debug("Submitting to URL: " + config.npa.submit_url)
+def http = new HTTPBuilder(config.npa.submit_url)
 
 // If a proxy is needed.
-if (NPA.config.npa.proxy_enable == "true") {
+if (config.npa.proxy_enable == "true") {
     Log.info("Using proxy for HTTP submission.")
-    http.setProxy(NPA.config.npa.proxy_host, NPA.config.npa.proxy_port, null)
+    http.setProxy(config.npa.proxy_host, config.npa.proxy_port, null)
 
     // If authentication is needed
-    if (NPA.config.npa.proxy_auth_type == 'basic') { 
-        if ( NPA.config.npa.proxy_user == null || NPA.config.npa.proxy_user == "none" ) {
-            Log.info("Using proxy ${NPA.config.npa.proxy_host} with no authentication.")
-            http.auth.basic(NPA.config.npa.proxy_host, NPA.config.npa.proxy_port)
+    if (config.npa.proxy_auth_type == 'basic') { 
+        if ( config.npa.proxy_user == null || config.npa.proxy_user == "none" ) {
+            Log.info("Using proxy ${config.npa.proxy_host} with no authentication.")
+            http.auth.basic(config.npa.proxy_host, config.npa.proxy_port)
         }
-        else (NPA.config.npa.proxy_auth_type == null ) {
+        else (config.npa.proxy_auth_type == null ) {
             Log.info("Using basic/digest auth for proxy.")
-            http.auth.basic(NPA.config.npa.proxy_host, NPA.config.npa.proxy_port,
-            NPA.config.npa.proxy_user,NPA.config.npa.proxy_password)
+            http.auth.basic(config.npa.proxy_host, config.npa.proxy_port,
+            config.npa.proxy_user,config.npa.proxy_password)
         }
-    } else if (NPA.config.npa.proxy_auth_type == 'ntlm') {
+    } else if (config.npa.proxy_auth_type == 'ntlm') {
             Log.info("Using NTLM auth for proxy.")
             def client = http.getClient();
-            Credentials defaultcreds = new NTCredentials(NPA.config.npa.proxy_user, NPA.config.npa.proxy_password);
-            client.getState().setCredentials(new AuthScope(NPA.config.npa.proxy_host, NPA.config.npa.proxy_port, AuthScope.ANY_REALM), defaultcreds);
+            Credentials defaultcreds = new NTCredentials(config.npa.proxy_user, config.npa.proxy_password);
+            client.getState().setCredentials(new AuthScope(config.npa.proxy_host, config.npa.proxy_port, AuthScope.ANY_REALM), defaultcreds);
     } else {
-        Log.debug("Using proxy ${NPA.config.npa.proxy_host} with no authentication.")
+        Log.debug("Using proxy ${config.npa.proxy_host} with no authentication.")
         
     }
  } else {
@@ -55,9 +55,9 @@ if (NPA.config.npa.proxy_enable == "true") {
  }
 
     // Set auth for HTTP
-    http.auth.basic(NPA.config.npa.submit_auth_server, NPA.config.npa.submit_port, NPA.config.npa.submit_http_user, NPA.config.npa.submit_http_passwd)
-    //http.auth.basic(NPA.config.npa.submit_http_user, NPA.config.npa.submit_http_passwd)
-    //Log.debug("Auth details:" + NPA.config.npa.submit_url +" " + NPA.config.npa.submit_port)
+    http.auth.basic(config.npa.submit_auth_server, config.npa.submit_port, config.npa.submit_http_user, config.npa.submit_http_passwd)
+    //http.auth.basic(config.npa.submit_http_user, config.npa.submit_http_passwd)
+    //Log.debug("Auth details:" + config.npa.submit_url +" " + config.npa.submit_port)
 
 
 // Clean up perf stats for submission
@@ -95,19 +95,28 @@ def nagiosStatus
 
 
 http.request( GET, HTML ) {
-  uri.path = NPA.config.npa.submit_path
+  uri.path = config.npa.submit_path
   // Here we make up the GET request using the results from the check.
-  uri.query = [
-  cmd_typ:'30',
-  cmd_mod:'2', 
-  host:CheckResult.hostname,
-  service:CheckResult.check_name,
-  plugin_state:nagiosStatus,
-  //plugin_output:URLEncoder.encode(CheckResult.message, "UTF-8").replaceAll("\\+","%20"),
-  //performance_data:URLEncoder.encode(perfStats,"UTF-8").replaceAll("\\+","%20"),
-  plugin_output:message,
-  performance_data:perfStats,
-  btnSubmit:'Commit']
+
+  if ( CheckResult.check_name == null ) {
+    uri.query = [
+    cmd_typ:'87',
+    cmd_mod:'2',
+    host:CheckResult.hostname,
+    plugin_state:nagiosStatus,
+    plugin_output:message,
+    btnSubmit:'Commit']
+  } else {
+    uri.query = [
+    cmd_typ:'30',
+    cmd_mod:'2',
+    host:CheckResult.hostname,
+    service:CheckResult.check_name,
+    plugin_state:nagiosStatus,
+    plugin_output:message,
+    performance_data:perfStats,
+    btnSubmit:'Commit']
+  }
 
   response.success = { resp, html ->
     assert resp.statusLine.statusCode == 200

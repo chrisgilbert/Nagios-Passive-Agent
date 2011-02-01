@@ -149,6 +149,7 @@ def variables
                             if ( value == -1 ) { status = "UNKNOWN" }
                             break;
                             
+                            
             default:        Log.warn("Comparison type did not match known values - will be treated as GTE!")
                             if ( value >= th_warn ) { status = "WARNING" }
                             if ( value >= th_crit ) { status = "CRITICAL" }
@@ -196,35 +197,8 @@ def variables
         CheckScheduler.schedule(this.clone());
      }
 
-//    // Method to execute OS commands
-//    public runCmd (cmd) {
-//
-//     def stdout = new StringBuffer()
-//     def stderr = new StringBuffer()
-//     def p
-//     try {
-//            Log.debug("Running command: $cmd" )
-//            p = cmd.execute()
-//
-//
-//            p.consumeProcessOutput(stdout, stderr)
-//            Log.debug("Waiting for command to return...")
-//            Log.debug("Trying to get text: $p.text")
-//            p.out.flush()
-//            //p.out.close()
-//            p.waitForOrKill(30000)
-//
-//            Log.debug("Stream: $stdout $stderr")
-//            return [p.exitValue(), stdout]
-//
-//     } catch (e) {
-//         Log.error("Exception thrown running command!", e)
-//         Log.error("STACK:", e)
-//     }
-//
-//
-//    }
-       // Method to execute OS commands
+
+    // Method to execute OS commands
     public runCmd (cmd) {
 
      def stdout = new StringBuffer()

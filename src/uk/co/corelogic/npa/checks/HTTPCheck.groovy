@@ -53,9 +53,12 @@ public chkHTTP(variables, th_warn, th_crit, th_type) {
     def performance = [:]
     def status
     def message
+    def avgMessage = ""
+    def respTime
 
     Log.debug("Running sample check on URL: " + URL)
-    def respTime = this.gatherer.sample("HTTP_MS_RESP_TIME", variables).toDouble()
+
+        respTime = this.gatherer.sample("HTTP_MS_RESP_TIME", variables).toDouble()
 
         if (respTime == -1 ) {
             Log.error("Failed to get valid response from URL :(")
@@ -63,6 +66,13 @@ public chkHTTP(variables, th_warn, th_crit, th_type) {
             message = "Failed to get response from URL!"
             performance = [('response_time_ms'):"${respTime}ms;$th_warn;$th_crit;;"]
         } else {
+
+            if (variables.timePeriodMillis != null ){
+                Log.info("Retrieving average results over ${variables1.timePeriodMillis}")
+                avgMessage = "(average over ${variables.timePeriodMillis} ms)"
+                respTime = this.gatherer.avg("HTTP_MS_RESP_TIME", variables).toDouble()
+            }
+
             Log.info("Received valid response from URL in ${respTime}ms.")
             if (respTime >= th_warn ) { status = "WARNING" }
             if (respTime >= th_crit ) { status = "CRITICAL" }
@@ -70,7 +80,7 @@ public chkHTTP(variables, th_warn, th_crit, th_type) {
 
 
             performance = [('response_time_ms'):"${respTime}ms;$th_warn;$th_crit;;"]
-            message = "Received valid response from URL in ${respTime}ms."
+            message = "Received valid response from URL in ${respTime}ms. $avgMessage"
             
         }
 

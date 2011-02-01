@@ -52,6 +52,7 @@ public init(variables1) {
         clone.database = this.database;
         clone.user = this.user;
         clone.password = this.password;
+        clone.instance = this.database;
         return clone;
     }
 
@@ -100,6 +101,7 @@ def message=""
 def performance = [:]
 def tablespaces = []
 def tablespaceRes = []
+def avgMessage = ""
 
 
     // Get samples of required metrics
@@ -112,19 +114,36 @@ def tablespaceRes = []
             Log.debug("Variables being passed: " + newVars)
             def tbsResult = [:]
             tbsResult[('name')] = it.name
-            tbsResult[('max')] = this.gatherer.sample("ORA_TBS_MB_TOTAL", newVars).toFloat()
-            tbsResult[('used')] = this.gatherer.sample("ORA_TBS_MB_USED", newVars).toFloat()
-            tbsResult[('free')] = this.gatherer.sample("ORA_TBS_MB_FREE", newVars).toFloat()
+
+            if (newVars.timePeriodMillis != null ){
+                Log.info("Retrieving average results over ${newVars.timePeriodMillis}")
+                avgMessage = "(average over ${variables.timePeriodMillis} ms)"
+                tbsResult[('max')] = this.gatherer.avg("ORA_TBS_MB_TOTAL", newVars).toFloat()
+                tbsResult[('used')] = this.gatherer.avg("ORA_TBS_MB_USED", newVars).toFloat()
+                tbsResult[('free')] = this.gatherer.avg("ORA_TBS_MB_FREE", newVars).toFloat()
+            } else {
+                tbsResult[('max')] = this.gatherer.sample("ORA_TBS_MB_TOTAL", newVars).toFloat()
+                tbsResult[('used')] = this.gatherer.sample("ORA_TBS_MB_USED", newVars).toFloat()
+                tbsResult[('free')] = this.gatherer.sample("ORA_TBS_MB_FREE", newVars).toFloat()
+            }
             tablespaceRes.add(tbsResult)
         }
     } else {
         Log.info("Requested tablespace ${variables1.tablespace_name}.")
         def tbsResult = [:]
         tbsResult[('name')] = variables1.tablespace_name
-        tbsResult[('max')] = this.gatherer.sample("ORA_TBS_MB_TOTAL", variables1).toFloat()
-        tbsResult[('used')] = this.gatherer.sample("ORA_TBS_MB_USED", variables1).toFloat()
-        tbsResult[('free')] = this.gatherer.sample("ORA_TBS_MB_FREE", variables1).toFloat()
-        tablespaceRes.add(tbsResult)
+        if (variables1.timePeriodMillis != null ){
+            Log.info("Retrieving average results over ${variables1.timePeriodMillis}")
+            avgMessage = "(average over ${variables.timePeriodMillis} ms)"
+            tbsResult[('max')] = this.gatherer.avg("ORA_TBS_MB_TOTAL", variables1).toFloat()
+            tbsResult[('used')] = this.gatherer.avg("ORA_TBS_MB_USED", variables1).toFloat()
+            tbsResult[('free')] = this.gatherer.avg("ORA_TBS_MB_FREE", variables1).toFloat()
+        } else {
+            tbsResult[('max')] = this.gatherer.sample("ORA_TBS_MB_TOTAL", variables1).toFloat()
+            tbsResult[('used')] = this.gatherer.sample("ORA_TBS_MB_USED", variables1).toFloat()
+            tbsResult[('free')] = this.gatherer.sample("ORA_TBS_MB_FREE", variables1).toFloat()
+        }
+            tablespaceRes.add(tbsResult)
     }
         def valuesArray = []
 	tablespaceRes.each {
@@ -164,7 +183,7 @@ def tablespaceRes = []
 		//if (status == "WARNING" && maxstatus != "CRITICAL") { maxstatus = "WARNING" }
 		//if (status == "CRITICAL") { maxstatus = "CRITICAL" }
                 //if (status == "OK" && maxstatus != "CRITICAL" && maxstatus != "WARNING") { maxstatus = "OK" }
-                message = message + ";" + it.name + " free: $value ${variables1.unitType} - status: $status"
+                message = message + ";" + it.name + " free: $value ${variables1.unitType} $avgMessage - status: $status"
 	}
         
     maxstatus = calculateStatus(th_warn, th_crit, valuesArray, th_type)
@@ -180,7 +199,15 @@ def tablespaceRes = []
 public chkBufferCache(variables1, th_warn, th_crit, th_type) {
 reinit()
 
-    def calc = this.gatherer.sample("ORA_STATS_BUFFER_CACHE_HIT_RATIO", variables1).toFloat()
+    def avgMessage = ""
+    def calc
+    if (variables1.timePeriodMillis != null ){
+        Log.info("Retrieving average results over ${variables1.timePeriodMillis}")
+        avgMessage = "(average over ${variables.timePeriodMillis} ms)"
+        calc = this.gatherer.avg("ORA_STATS_BUFFER_CACHE_HIT_RATIO", variables1).toFloat()
+    } else {
+        calc = this.gatherer.sample("ORA_STATS_BUFFER_CACHE_HIT_RATIO", variables1).toFloat()
+    }
     def status = "UNKNOWN"
 
     def performance=[('buffer_cache_pct'):"${calc}%;$th_warn;$th_crit;;"]
@@ -190,7 +217,7 @@ reinit()
     bd = bd.setScale(2, BigDecimal.ROUND_HALF_UP);
     def pct_val = bd.doubleValue();
 
-    def message="Results of buffer cache check: $pct_val %"
+    def message="Results of buffer cache check: $pct_val % $avgMessage"
     Log.debug(message)
 
     // Now check for threshold levels

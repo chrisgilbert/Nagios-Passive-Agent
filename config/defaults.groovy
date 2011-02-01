@@ -39,6 +39,9 @@ npa {
     // Persistence settings for MetricsDB
     metrics_db_location="/../db/metrics.db"
     metrics_db_purge_days=30
+
+    // Setting for how to get hostname
+    use_os_hostname_command="false"
 }
 
 log4j {

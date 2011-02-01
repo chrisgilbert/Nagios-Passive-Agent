@@ -25,12 +25,12 @@ static config
 
         config = NPA.getConfigObject()
 
-        def npa_version = "1.0.6_test1"
-
+        //def npa_version = "1.2_test1"
+        def npa_version = MaintenanceUtil.getNPAVersion()
 
         println "Nagios Passive Agent - version $npa_version started."
         Log.debug("Nagios Passive Agent - version $npa_version started.")
-        def configFile = new File(NPA.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParent().toString() + "/" + NPA.config.npa.configfile
+        def configFile = new File(NPA.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParent().toString() + "/" + config.npa.configfile
         def npachecks = new XmlSlurper().parse(new File(configFile))
         def allGroups = npachecks.'check-group'
 
@@ -127,9 +127,24 @@ static config
         long delay = 0   // delay for 0 sec.
         //def random = new Random()
         Timer timer = new Timer("ResultsQueue")
-        def interval = NPA.config.npa.flush_queue_ms
+        def interval = config.npa.flush_queue_ms
+        if ( interval == [:] ) { interval = "30000" }
+        
+        // Check for a variable setting the period to report back host OK status - default to 60 seconds
+        def hostInt = config.npa.submit_host_ok_ms
+        if ( hostInt == [:] ) { hostInt = "60000" }
+
+        // Check for a variable setting the period to run maintenance jobs - default to 60 minutes
+        def maintInt = config.npa.submit_host_ok_ms
+        if ( maintInt == [:] ) { maintInt = "3600000" }
+
         Log.info("Scheduling results queue to be flushed every $interval")
         timer.scheduleAtFixedRate(new FlushQueue(), delay, interval.toLong())
+        Log.info("Scheduling host OK check to run every $hostInt ms")
+        timer.scheduleAtFixedRate(new SubmitHostOK(), delay, hostInt.toLong())
+        Log.info("Scheduling maintenance to run every $maintInt ms")
+        timer.scheduleAtFixedRate(new RunMaintenance(), delay, maintInt.toLong())
+
 
         // This is a shutdown hook to automatically flush the queue on a JVM shutdown
         def shutdownClosureMap = [run: {
