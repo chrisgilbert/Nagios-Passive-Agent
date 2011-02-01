@@ -1,5 +1,7 @@
 tars/
 zips/
+config/
+config-dist-corelogic/
 build/
 db/
 logs/
