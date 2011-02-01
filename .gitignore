@@ -1,6 +1,8 @@
 tars/
 zips/
 build/
+config/
+config-dist-corelogic/
 db/
 logs/
 nagios-plugins/
