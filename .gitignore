@@ -1,4 +1,6 @@
 tars/
+config/
+config-dist-corelogic/
 zips/
 build/
 db/
