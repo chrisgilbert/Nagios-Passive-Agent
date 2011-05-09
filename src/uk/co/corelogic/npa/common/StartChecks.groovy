@@ -25,7 +25,6 @@ static config
 
         config = NPA.getConfigObject()
 
-        //def npa_version = "1.2_test1"
         def npa_version = MaintenanceUtil.getNPAVersion()
 
         println "Nagios Passive Agent - version $npa_version started."

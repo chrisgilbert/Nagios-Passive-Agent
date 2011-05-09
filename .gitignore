@@ -1,6 +1,8 @@
 release-file.sh
 tars/
 zips/
+config/
+config-dist-corelogic/
 build/
 config/
 config-dist-corelogic/

@@ -167,10 +167,14 @@ def total_space_mb = [:]
 
     /**
      * Get all the volumes on the system
-    */
+     */
     public getVolumes() {
     def output
     if ( volumes != null ) {
+        return volumes
+    }
+
+    if ( volumes.size() != 0 ) {
         return volumes
     }
 
@@ -182,8 +186,8 @@ def total_space_mb = [:]
         def cmd1 = ["cmd","/u/c","fsutil fsinfo drives"]
 
             output = runCmd(cmd1)
-            
-            
+
+
             Log.debug("Cmd output: ${output.toString()}")
 
             def s1 = output.toString().trim().tokenize(":\\")
@@ -219,8 +223,8 @@ def total_space_mb = [:]
         Log.debug("Getting solaris filesystems.")
         // An alteration to make this work with other filesystem arrangements
         //def cmd = ["sh", "-c", "grep dsk /etc/vfstab | grep -v swap | grep -v \"^#\" | awk '{print \$1}'"]
-        def cmd =["sh", "-c", "df -n | egrep -e \"nfs|ufs|zfs|lofs\" | cut -f1 -d ' '"]
-        
+        def cmd =["sh", "-c", "df -n | grep -v  libc.so | egrep -e \"nfs|ufs|zfs|lofs\" | cut -f1 -d ' '"]
+
         output = runCmd(cmd)
         Log.debug(output)
         volumes = output.toString().split()
