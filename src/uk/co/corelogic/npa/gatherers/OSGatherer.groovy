@@ -16,6 +16,8 @@ String os_name
 String os_version
 String kernel_version
 String result
+// Define volumes instance variable to reduce OS commands
+def volumes = []
 
 // These hold the return values temporarily
 def free_space_mb = [:]
@@ -165,9 +167,13 @@ def total_space_mb = [:]
 
     /**
      * Get all the volumes on the system
-    */
+     */
     public getVolumes() {
     def output
+
+    if ( volumes.size() != 0 ) {
+        return volumes
+    }
 
     // We need a command for each os type
     Log.debug("Detected OS type: ${this.os_name}")
@@ -177,8 +183,8 @@ def total_space_mb = [:]
         def cmd1 = ["cmd","/u/c","fsutil fsinfo drives"]
 
             output = runCmd(cmd1)
-            
-            
+
+
             Log.debug("Cmd output: ${output.toString()}")
 
             def s1 = output.toString().trim().tokenize(":\\")
@@ -188,7 +194,6 @@ def total_space_mb = [:]
             outputf = s2.findAll{ it != /Drives/ }
             Log.debug("Drive list: $outputf")
 
-            def volumes = []
             outputf.each {
                 def cmd2 = ["cmd","/u/c","fsutil fsinfo drivetype  ${it.trim()}:"]
                 def output2 = runCmd(cmd2)
@@ -197,7 +202,6 @@ def total_space_mb = [:]
                 }
             }
             Log.debug("All fixed disks: $volumes")
-            return volumes
 	}
 	// Linux
 	if (this.os_name == 'Linux' ) {
@@ -207,23 +211,24 @@ def total_space_mb = [:]
 
         output = runCmd(cmd)
         Log.debug(output)
-        def volumes = output.toString().split()
+        volumes = output.toString().split()
         Log.debug("All local volumes (no tmpfs): $volumes" )
-        return volumes
+
 	}
 	// Solaris
 	if (this.os_name == 'SunOS' ) {
         Log.debug("Getting solaris filesystems.")
-        // This could give unpredictable results... 
-        def cmd = ["sh", "-c", "grep dsk /etc/vfstab | grep -v swap | grep -v \"^#\" | awk '{print \$1}'"]
+        // An alteration to make this work with other filesystem arrangements
+        //def cmd = ["sh", "-c", "grep dsk /etc/vfstab | grep -v swap | grep -v \"^#\" | awk '{print \$1}'"]
+        def cmd =["sh", "-c", "df -n | grep -v  libc.so | egrep -e \"nfs|ufs|zfs|lofs\" | cut -f1 -d ' '"]
 
         output = runCmd(cmd)
         Log.debug(output)
-        def volumes = output.toString().split()
-        Log.debug("All dsk volumes in vfstab (no swap): $volumes" )
-        return volumes
+        volumes = output.toString().split()
+        Log.debug("All volumes shown by df (nfs,ufs,zfs,lofs filesystems only): $volumes" )
 
 	}
+        return volumes
     }
 
 
