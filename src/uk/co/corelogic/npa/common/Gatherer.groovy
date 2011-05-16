@@ -15,12 +15,14 @@ class Gatherer {
     def initiatorID
     def metrics = [:]
     def metricList = []
+    def host
 
     /**
     * Generic constructor which creates new initiatorID
     */
    public Gatherer() {
        this.initiatorID = UUID.randomUUID();
+       this.host = MaintenanceUtil.getHostName()
        Log.debug("Gatherer initiator ID is ${this.initiatorID}")
    }
 
@@ -29,6 +31,7 @@ class Gatherer {
     */
    public Gatherer(initiatorID) {
        this.initiatorID = initiatorID
+       this.host = MaintenanceUtil.getHostName()    
        Log.debug("Gatherer initiator ID is ${this.initiatorID}")
    }
 
@@ -65,7 +68,20 @@ class Gatherer {
     */
     public sample(String metricName, variables) throws NPAException {
         if (MetricRegister.getClassName(metricName)) {
-            return this.invokeMethod(metricName, variables)
+
+            if (variables.host == null ) {
+                variables.host = this.host
+            }
+
+            // Called to retrieve a single sample from the DBGatherer
+            if (MetricRegister.getType(metricName).startsWith("DATABASE")) {
+                Log.debug("Invoking getSingleMetric for DBGatherer")
+                return this.invokeMethod("getSingleMetric", metricName)
+            } else {
+                Log.debug("Invoking the $metricName method")
+                return this.invokeMethod(metricName, variables)
+            }
+
         } else {
             Log.error("No valid metric type registered for " + metricName)
             Log.error("Metric list contents: ${this.metricList}")
@@ -74,11 +90,14 @@ class Gatherer {
     }
 
     /**
-        Get a stat average using a valid metric ID and return the value - with variables
+        Get a stat average using a valid metric ID and return the value - with variables. 
     */
     public avg(String metricName, variables) throws NPAException {
         if (MetricRegister.getClassName(metricName)) {
-            return MetricsDB.getAvg(metricName, timePeriod)
+            assert variables.timePeriodMillis != null, "Must specify a timePeriodMillis value, if using comparison type AVG!"
+
+            this.sample(metricName, variables)
+            return MetricsDB.getAvgMetricValue(metricName, variables, variables.timePeriodMillis)
         } else {
             Log.error("No valid metric type registered for " + metricName)
             Log.error("Metric list contents: ${this.metricList}")
@@ -89,21 +108,22 @@ class Gatherer {
     /**
      * Sample a stat using a valid metric ID and return the value - no variables
     */
-    public sample(String metricName) throws NPAException {
-        if (MetricRegister.getClassName(metricName)) {
-            try {
-                return this.invokeMethod(metricName)
-            } catch(e) {
-                Log.error("Sampling a stat threw an exception.  Oops.", e)
-                Log.error("STACK:", e)
-                throw e;
-            }
-        } else {
-            Log.error("No valid metric type registered for " + metricName)
-            Log.error("Metric list contents: ${this.metricList}")
-            throw new NPAException("No valid metric type registered for " + metricName)
-        }
-    }
+//    public sample(String metricName) throws NPAException {
+//        if (MetricRegister.getClassName(metricName)) {
+//
+//            try {
+//                return this.invokeMethod(metricName)
+//            } catch(e) {
+//                Log.error("Sampling a stat threw an exception.  Oops.", e)
+//                Log.error("STACK:", e)
+//                throw e;
+//            }
+//        } else {
+//            Log.error("No valid metric type registered for " + metricName)
+//            Log.error("Metric list contents: ${this.metricList}")
+//            throw new NPAException("No valid metric type registered for " + metricName)
+//        }
+//    }
 
     /**
      * Return a collection of all metrics

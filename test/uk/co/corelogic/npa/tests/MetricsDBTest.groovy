@@ -77,6 +77,37 @@ class MetricsDBTest extends NPATest {
     assertEquals(1.999999999D, m2.value.toDouble())
     assertEquals(datestamp, m2.datestamp)
   }
+    @Test void testRetrieveAvgMetric() {
+        // Create a MetricModel object and set the metric properties
+        MetricModel mod = new MetricModel()
+        mod.setMetricName("TEST_METRIC")
+        mod.setMetricType("TEST")
+        mod.setMetricDataType("Double")
+        mod.setIdentifier("TOTAL")
+        mod.setInstanceName("TESTINST");
+        mod.setHostName("HOST")
+        mod.setGroupID("TESTGROUP")
+        mod.setInitiatorID("TEST")
+
+        MetricsDB.connect()
+        def datestamp = MetricsDB.getNewDateTime()
+        //Creating a new metric should automatically persist it
+        Metric m = new Metric(mod, 1, datestamp)
+        Metric m2 = new Metric(mod, 2, datestamp)
+
+        def variables = [:]
+        variables.identifier="TOTAL"
+        variables.instance="TESTINST"
+        variables.host="HOST"
+        def metricName = "TEST_METRIC"
+        def period = 600000
+        // Try to retrieve the average.  It ought to be 1.5..
+        def returnVal = MetricsDB.getAvgMetricValue(metricName, variables, period).toDouble()
+        
+        assertEquals(1.5D, returnVal)
+
+    }
+
 
     @Test void testFindGroupID() {
     // Create a MetricModel object and set the metric properties

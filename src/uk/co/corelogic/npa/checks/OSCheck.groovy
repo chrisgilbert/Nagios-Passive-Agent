@@ -63,16 +63,27 @@ public CheckResult chkAllDisks(variables, th_warn, th_crit, th_type) {
     def maxstatus = "UNKNOWN"
     def each_space_free = []
     Log.debug("Running ALL filesystems check.")
+    def avgMessage = ""
 
         this.gatherer.getVolumes().each{
-            def vars = [:]
+            def vars = variables.clone()
             vars.volume=it
             vars.identifier=it
             def drive = it;
-            
-            free_space_mb[it] = this.gatherer.sample("OS_DISK_MB_FREE", vars).toFloat()
-            used_space_mb[it] = this.gatherer.sample("OS_DISK_MB_USED", vars).toFloat()
-            total_space_mb[it] = this.gatherer.sample("OS_DISK_MB_TOTAL", vars).toFloat()
+
+
+            if (variables.timePeriodMillis != null ){
+                Log.info("Retrieving average results over ${variables.timePeriodMillis}")
+                free_space_mb[it] = this.gatherer.avg("OS_DISK_MB_FREE", vars).toFloat()
+                used_space_mb[it] = this.gatherer.avg("OS_DISK_MB_USED", vars).toFloat()
+                total_space_mb[it] = this.gatherer.avg("OS_DISK_MB_TOTAL", vars).toFloat()
+                avgMessage = "(average over ${variables.timePeriodMillis} ms)"
+            } else {
+                // Get some samples of required metrics
+                free_space_mb[it] = this.gatherer.sample("OS_DISK_MB_FREE", vars).toFloat()
+                used_space_mb[it] = this.gatherer.sample("OS_DISK_MB_USED", vars).toFloat()
+                total_space_mb[it] = this.gatherer.sample("OS_DISK_MB_TOTAL", vars).toFloat()
+            }
             Log.debug("Checks returned: $drive - ${free_space_mb[it]} : ${used_space_mb[it]} : ${total_space_mb[it]} ")
 
 
@@ -113,6 +124,7 @@ public CheckResult chkAllDisks(variables, th_warn, th_crit, th_type) {
 
     }
     maxstatus = super.calculateStatus(th_warn, th_crit, each_space_free, th_type)
+    message = message + avgMessage
     Log.debug("Message is: " + message)
     Log.debug("Status is $maxstatus")
     Log.debug("Generating result from values: ${this.initiatorID}, ${variables.nagiosServiceName}, ${this.gatherer.host}, $maxstatus, $performance, [new date], $message")
@@ -130,13 +142,22 @@ public CheckResult chkDiskFree(variables, th_warn, th_crit, th_type) {
     def status
     def message = "Space free -"
     def performance = [:]
+    def avgMessage = ""
     Log.debug("Running single filesystem check.")
+    variables.identifier=variables.volume
 
-    // Get some samples of required metrics
-    free_space_mb = this.gatherer.sample("OS_DISK_MB_FREE", variables).toFloat()
-    used_space_mb = this.gatherer.sample("OS_DISK_MB_USED", variables).toFloat()
-    total_space_mb = this.gatherer.sample("OS_DISK_MB_TOTAL", variables).toFloat()
-
+    if (variables.timePeriodMillis != null ){
+        Log.info("Retrieving average results over ${variables.timePeriodMillis}")
+        free_space_mb = this.gatherer.avg("OS_DISK_MB_FREE", variables).toFloat()
+        used_space_mb = this.gatherer.avg("OS_DISK_MB_USED", variables).toFloat()
+        total_space_mb = this.gatherer.avg("OS_DISK_MB_TOTAL", variables).toFloat()
+        avgMessage = "(average over ${variables.timePeriodMillis} ms)"
+    } else {
+        // Get some samples of required metrics
+        free_space_mb = this.gatherer.sample("OS_DISK_MB_FREE", variables).toFloat()
+        used_space_mb = this.gatherer.sample("OS_DISK_MB_USED", variables).toFloat()
+        total_space_mb = this.gatherer.sample("OS_DISK_MB_TOTAL", variables).toFloat()
+    }
     Log.debug("Checks returned: $free_space_mb : $used_space_mb : $total_space_mb ")
     message = "Results of chk_disk_free is null!"
 
@@ -150,13 +171,13 @@ public CheckResult chkDiskFree(variables, th_warn, th_crit, th_type) {
         } else {
             value = (free_space_mb / total_space_mb)*100
             Log.debug("Space free on $drive $value %")
-            message = "$drive $value % ($free_space_mb MB);"
+            message = "$drive $value % ($free_space_mb MB); ${avgMessage}"
             performance=[(drive):"${value}%;${th_warn};${th_crit};;"]
         }
     } else {
         value = free_space_mb
         Log.debug("Space free on $drive $free_space_mb MB")
-        message = "$drive $free_space_mb MB;"
+        message = "$drive $free_space_mb MB; ${avgMessage}"
         performance=[(drive):"${value}MB;${th_warn};${th_crit};;"]
     }
 
@@ -176,13 +197,21 @@ public CheckResult chkCpuPct(variables, th_warn, th_crit, th_type) {
     String status
     assert variables.nagiosServiceName != null, 'nagiosServiceName is null!'
     def performance = [:]
-    
-    cpu_pct = this.gatherer.sample("OS_CPU_PCT_USED_TOTAL", [:]).toFloat()
+    def avgMessage = ""
+    variables.identifier="TOTAL"
+
+    if (variables.timePeriodMillis != null ){
+        Log.info("Retrieving average results over ${variables.timePeriodMillis}")
+        cpu_pct = this.gatherer.avg("OS_CPU_PCT_USED_TOTAL", variables).toFloat()
+        avgMessage = "(average over ${variables.timePeriodMillis} ms)"
+    } else {
+        cpu_pct = this.gatherer.sample("OS_CPU_PCT_USED_TOTAL", variables).toFloat()
+    }
     // Round to 2 decimal places.
     BigDecimal bd = new BigDecimal(cpu_pct);
     bd = bd.setScale(2, BigDecimal.ROUND_HALF_UP);
     def value = bd.doubleValue();
-    message = "Results of chk_cpu_pct: $value %"
+    message = "Results of chk_cpu_pct: $value % ${avgMessage}"
     performance = ["cpu_pct":"${cpu_pct}%;$th_warn;$th_crit;;"]
 
     status = super.calculateStatus(th_warn, th_crit, cpu_pct, th_type)
@@ -199,13 +228,20 @@ public CheckResult chkDiskBusyPct(variables, th_warn, th_crit, th_type) {
     def p
     def performance = [:]
     def message = ""
-
+    def avgMessage = ""
+    variables.identifier="TOTAL"
     String status
 
-    disk_pct = this.gatherer.sample("OS_STATS_DISK_BUSY_PCT", variables).toFloat()
+    if (variables.timePeriodMillis != null ){
+        Log.info("Retrieving average results over ${variables.timePeriodMillis}")
+        disk_pct = this.gatherer.avg("OS_STATS_DISK_BUSY_PCT", variables).toFloat()
+        avgMessage = "(average over ${variables.timePeriodMillis} ms)"
+    } else {
+        disk_pct = this.gatherer.sample("OS_STATS_DISK_BUSY_PCT", variables).toFloat()
+    }
     Log.debug("Disk time values: $disk_pct $th_warn $th_crit")
      performance = ["disk_pct":"${disk_pct}%;$th_warn;$th_crit;;"]
-    message = "Results of chk_disk_busy_pct - highest value for all disks: $disk_pct %"
+    message = "Results of chk_disk_busy_pct - highest value for all disks: $disk_pct % ${avgMessage}"
 
     // Now check for threshold levels
     status = super.calculateStatus(th_warn, th_crit, disk_pct, th_type)

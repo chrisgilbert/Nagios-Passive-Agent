@@ -1,10 +1,10 @@
 package uk.co.corelogic.npa.common
-import uk.co.corelogic.npa.metrics.RawMetric
 
 
 /**
  * This class handles parsing of the various configuration files
  * and validation of the npa.xml
+ *
  *
  * @author Chris Gilbert
  */
@@ -28,7 +28,9 @@ class ConfigParser {
     /**
      * A complicated XML file parser.
      * This will parse the npa.xml file for known group types and then
-     * add either checks or RawMetric objects to the CheckList.
+     * add checks objects to the CheckList.
+     *
+     * This method is still being developed and is NOT CURRENTLY IN USE - handled instead in StartChecks class
      *
     */
     public parseXMLConfig() {
@@ -44,8 +46,6 @@ class ConfigParser {
             def metrics
             if (it.@type == "nagios" ) {
                 checks = it.check
-            } else if (it.@type == "metrics") {
-                metrics = it.metric
             } else {
                 Log.warn("Group type ${it.@type} not supported - ignoring.")
 
@@ -81,27 +81,6 @@ class ConfigParser {
                     checkList.add([check:c, group:g.@name, interval:g.@interval])
                     Log.fine(checkList)
                 }
-
-                metrics.each {
-                    Log.info("Adding metric ${it.@name} to list.")
-
-                    Log.debug("Parsing arguments.")
-                    def argsmap = [:]
-                    def args = it.children()
-                    Log.debug(it.text())
-                    args.each {
-                        def m = [{it.name()}:{it.text()}]
-                        Log.debug("Found arguments")
-                        Log.debug(m)
-                        argsmap["${it.name()}"] =it.text()
-                    }
-
-                    def c = new RawMetric(it.@name.toString(), argsmap)
-                    checkList.add([check:c, group:g.@name, interval:g.@interval.toString().toFloat()])
-                    Log.fine(checkList)
-                }
-
-
 
         }
     }

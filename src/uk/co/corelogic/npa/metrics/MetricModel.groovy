@@ -6,11 +6,12 @@ package uk.co.corelogic.npa.metrics;
 */
 class MetricModel implements Cloneable {
 
-    def metricName;  // The registered name of the metric
-    def metricType;  // The overall metric type, for example OS, ORACLE, SS
+    def metricName;    // The registered name of the metric
+    def metricType;    // The overall metric type, for example OS, ORACLE, SS
     def metricDataType; // The datatype stored in the database.  This is a string description
-    def identifier;  // The unique indentifier in the database
-    def instanceName;    // The instance of the data value being persisted (for example database name, filesystem identifier)
+    def identifier;    // The unique indentifier in the database
+    def instanceName;  // The instance of the data value being persisted (for example database name, filesystem identifier)
+    def description;   // An optional description message which is sent back to Nagios
 
     def initiatorID;  // The initiator ID for the Gatherer
     def groupID;      // The group ID for the metric (if required)

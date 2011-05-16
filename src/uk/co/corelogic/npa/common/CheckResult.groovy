@@ -21,10 +21,10 @@ def message
 
 CheckResult (check_name, hostname, status, performance, check_time, message) {
     // Check for nulls
-    assert check_name != null, 'Check name cannot be null!'
+    //assert check_name != null, 'Check name cannot be null!'
     assert hostname != null, 'hostname cannot be null!'
     assert status != null, 'status cannot be null!'
-    assert performance != null, 'performance cannot be null!'
+    //assert performance != null, 'performance cannot be null!'
     assert check_time != null, 'check_time cannot be null!'
     assert message != null, 'message cannot be null!'
 

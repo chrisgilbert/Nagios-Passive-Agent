@@ -1,8 +1,13 @@
+release-file.sh
 tars/
 config/
 config-dist-corelogic/
 zips/
+config/
+config-dist-corelogic/
 build/
+config/
+config-dist-corelogic/
 db/
 logs/
 nagios-plugins/

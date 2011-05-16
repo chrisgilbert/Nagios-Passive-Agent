@@ -25,12 +25,11 @@ static config
 
         config = NPA.getConfigObject()
 
-        def npa_version = "1.0.6_test1"
-
+        def npa_version = MaintenanceUtil.getNPAVersion()
 
         println "Nagios Passive Agent - version $npa_version started."
         Log.debug("Nagios Passive Agent - version $npa_version started.")
-        def configFile = new File(NPA.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParent().toString() + "/" + NPA.config.npa.configfile
+        def configFile = new File(NPA.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParent().toString() + "/" + config.npa.configfile
         def npachecks = new XmlSlurper().parse(new File(configFile))
         def allGroups = npachecks.'check-group'
 
@@ -45,11 +44,8 @@ static config
             Log.debug("Parsing group " + it.@name + " of type " + it.@type)
             def g = it
             def checks 
-            def metrics
             if (it.@type == "nagios" ) {
                 checks = it.check
-            } else if (it.@type == "metrics") {
-                metrics = it.metric
             } else {
                 Log.debug("Group type ${it.@type} not supported - ignoring.")
 
@@ -80,34 +76,12 @@ static config
                         c.chk_th_crit = it.@crit.toDouble()
                         c.chk_th_type = it.@type.toString()
                         c.chk_args = argsmap
+                        c.variables = argsmap
                     }
                     c.chk_interval = g.@interval.toString().toInteger();
                     checkList.add(c);
                     Log.debug(checkList)
                 }
-
-                metrics.each {
-                    Log.info("Adding metric ${it.@name} to list.")
-
-                Log.debug("Parsing arguments.")
-                def argsmap = [:]
-                def args = it.children()
-                Log.debug(it.text())
-                args.each {
-                    def m = [{it.name()}:{it.text()}]
-                    Log.debug("Found arguments")
-                    Log.debug(m)
-                    argsmap["${it.name()}"] =it.text()
-                }
-
-                    def c = new RawMetric(it.@name.toString(), argsmap)
-                    c.chk_interval = g.@interval.toString().toInteger();
-                    checkList.add(c);
-                    Log.debug(checkList)
-                }
-
-
-
         }
     }
 
@@ -127,9 +101,24 @@ static config
         long delay = 0   // delay for 0 sec.
         //def random = new Random()
         Timer timer = new Timer("ResultsQueue")
-        def interval = NPA.config.npa.flush_queue_ms
+        def interval = config.npa.flush_queue_ms
+        if ( interval == [:] ) { interval = "30000" }
+        
+        // Check for a variable setting the period to report back host OK status - default to 60 seconds
+        def hostInt = config.npa.submit_host_ok_ms
+        if ( hostInt == [:] ) { hostInt = "60000" }
+
+        // Check for a variable setting the period to run maintenance jobs - default to 60 minutes
+        def maintInt = config.npa.submit_host_ok_ms
+        if ( maintInt == [:] ) { maintInt = "3600000" }
+
         Log.info("Scheduling results queue to be flushed every $interval")
         timer.scheduleAtFixedRate(new FlushQueue(), delay, interval.toLong())
+        Log.info("Scheduling host OK check to run every $hostInt ms")
+        timer.scheduleAtFixedRate(new SubmitHostOK(), delay, hostInt.toLong())
+        Log.info("Scheduling maintenance to run every $maintInt ms")
+        timer.scheduleAtFixedRate(new RunMaintenance(), delay, maintInt.toLong())
+
 
         // This is a shutdown hook to automatically flush the queue on a JVM shutdown
         def shutdownClosureMap = [run: {

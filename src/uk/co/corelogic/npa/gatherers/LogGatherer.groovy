@@ -23,7 +23,7 @@ class LogGatherer extends Gatherer {//implements Gatherer {
                ln = null
                pos = lnr.lineNumber
             }
-            if ( variables.savePosition ) {
+            if ( variables.savePosition == "true" ) {
                 MetricsDB.saveLogPosition(variables, pos)
             }
             Log.debug("Finished processing lines from $fromLine onward in $variables.filename")

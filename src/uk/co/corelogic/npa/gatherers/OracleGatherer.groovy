@@ -5,6 +5,12 @@ import uk.co.corelogic.npa.database.*
 import uk.co.corelogic.npa.common.*
 
 
+/**
+ * @deprecated
+ * This class is deprecated in favour of the generic DBGatherer
+ */
+
+@Deprecated
 class OracleGatherer extends Gatherer   {
 
 def conn

@@ -39,11 +39,25 @@ class OSCheckTest extends NPATest {
         assert result != null
         println("Results is: " + result.status + " Message is: " + result.message)
 
-        println("Running two more times for good measure...")
+        this.variables.volume="/"
+        this.variables.nagiosServiceName="TEST"
+        this.variables.unitType="percent"
+        check = new OSCheck(chk_name, th_warn, th_crit, th_type, variables)
+        assert check != null
         result = check.chk_disk_free()
         assert result != null
         println("Results is: " + result.status + " Message is: " + result.message)
-        result = check.chk_disk_free()
+    }
+
+
+    void testChk_disk_free_avg() {
+        this.variables.volume="ALL"
+        this.variables.nagiosServiceName="TEST"
+        this.variables.unitType="percent"
+        this.variables.timePeriodMillis="600000"
+        def check = new OSCheck(chk_name, th_warn, th_crit, th_type, variables)
+        assert check != null
+        def result = check.chk_disk_free()
         assert result != null
         println("Results is: " + result.status + " Message is: " + result.message)
 
@@ -57,6 +71,7 @@ class OSCheckTest extends NPATest {
         println("Results is: " + result.status + " Message is: " + result.message)
     }
 
+
     void testChk_cpu_pct() {
         this.th_type = "GTE"
         this.variables.nagiosServiceName="TEST"
@@ -67,6 +82,16 @@ class OSCheckTest extends NPATest {
         println("Results is: " + result.status + " Message is: " + result.message)
     }
 
+    void testChk_cpu_pct_avg() {
+        this.th_type = "GTE"
+        this.variables.nagiosServiceName="TEST"
+        this.variables.timePeriodMillis="600000"
+        def check = new OSCheck("chk_cpu_pct", th_warn, th_crit, th_type, variables)
+        assert check != null
+        def result = check.chk_cpu_pct()
+        assert result != null
+        println("Results is: " + result.status + " Message is: " + result.message)
+    }
 
     void testChk_disk_busy_pct() {
         this.th_type = "GTE"
@@ -78,6 +103,16 @@ class OSCheckTest extends NPATest {
         println("Results is: " + result.status + " Message is: " + result.message)
     }
 
+    void testChk_disk_busy_pct_avg() {
+        this.th_type = "GTE"
+        this.variables.nagiosServiceName="TEST"
+        this.variables.timePeriodMillis="600000"
+        def check = new OSCheck("chk_disk_busy_pct", th_warn, th_crit, th_type, variables)
+        assert check != null
+        def result = check.chk_disk_busy_pct()
+        assert result != null
+        println("Results is: " + result.status + " Message is: " + result.message)
+    }
 
 }
 

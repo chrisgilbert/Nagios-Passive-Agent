@@ -15,6 +15,7 @@ def value
 def identifier
 def datestamp
 def ID
+def description
 
 
     public Metric(initiatorID, groupID, hostName, instanceName, metricName, metricType, metricDataType, value, identifier, datestamp) {
@@ -60,6 +61,7 @@ def ID
         this.metricDataType = mod.metricDataType
         this.value = value
         this.identifier = mod.identifier
+        this.description = mod.description
         this.datestamp = datestamp
         Log.debug("Creating a metric with value ${this.value}")
         // Persist the metric, so we can get an ID
@@ -76,6 +78,7 @@ def ID
         this.metricDataType = row.metricDataType
         this.value = row.value
         this.identifier = row.identifier
+        this.description = row.description
         this.datestamp = row.datestamp
     }
 

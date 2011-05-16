@@ -23,9 +23,17 @@ static boolean connected
         def location = new File(NPA.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParent().toString() + "/" + config.npa.metrics_db_location
         Log.info("Initialising MetricsDB connection..")
         conn = groovy.sql.Sql.newInstance("jdbc:sqlite:${location}","org.sqlite.JDBC")
+
         conn.execute('CREATE TABLE IF NOT EXISTS metrics(id integer primary key, initiatorID, groupID, hostName, instanceName, metricName, metricType, metricDataType, value, identifier, datestamp date)');
+        if ( ! conn.firstRow("SELECT * from metrics").containsKey("description") ) {
+            conn.execute("ALTER TABLE metrics ADD COLUMN description")
+        }
+
+        conn.execute('CREATE INDEX IF NOT EXISTS met_datestamp_indx on metrics(datestamp)')
         conn.execute('CREATE INDEX IF NOT EXISTS met_grp_indx on metrics(groupID)')
         conn.execute('CREATE INDEX IF NOT EXISTS met_ident_indx on metrics(identifier)')
+        conn.execute('CREATE INDEX IF NOT EXISTS met_inst_indx on metrics(instanceName)')
+        conn.execute('CREATE INDEX IF NOT EXISTS met_ident_inst_indx on metrics(identifier, instanceName)')
         conn.execute('CREATE INDEX IF NOT EXISTS met_init_indx on metrics(initiatorID)')
         conn.execute('CREATE INDEX IF NOT EXISTS met_name_indx on metrics(metricName)')
         conn.execute('CREATE TABLE IF NOT EXISTS logPositions(id integer primary key, fileName, lineNumber, lastAccessed)')
@@ -44,8 +52,8 @@ static boolean connected
             m.value = m.value.toDouble() }
         
         def keys = conn.executeUpdate("""
-            INSERT INTO metrics(id, initiatorID, groupID, hostName, instanceName, metricName, metricType, metricDataType, value, identifier, datestamp)
-            values (null, $m.initiatorID, $m.groupID, $m.hostName, $m.instanceName, $m.metricName, $m.metricType, $m.metricDataType, $m.value, $m.identifier, $m.datestamp)
+            INSERT INTO metrics(id, initiatorID, groupID, hostName, instanceName, metricName, metricType, metricDataType, value, identifier, description, datestamp)
+            values (null, $m.initiatorID, $m.groupID, $m.hostName, $m.instanceName, $m.metricName, $m.metricType, $m.metricDataType, $m.value, $m.identifier, $m.description, $m.datestamp)
         """)
             return conn.firstRow("SELECT last_insert_rowid()")[0]
     }
@@ -111,6 +119,7 @@ static boolean connected
         def stmt = /DELETE FROM groups where id in (select id from metrics WHERE datestamp < date('now','-/ + purgeInterval +/ day'))/
         conn.executeUpdate(stmt)
         conn.executeUpdate(/delete from metrics where groupID not in (select id from groups)/)
+        conn.execute('vacuum')
     }
 
     /**
@@ -132,6 +141,15 @@ static boolean connected
     public static getNewDateTime() {
         return new Date().format('yyyy-MM-d HH:mm:ss.SSS')
     }
+
+    /**
+     * Subtract given number of milliseconds from the current time and return a SQL Lite timestamp
+     */
+    public static subtractFromNow(subtract) {
+        Log.debug("Subtracting $subtract milliseconds")
+        return new Date( new Date().time - Long.parseLong(subtract.toString().trim())).format('yyyy-MM-d HH:mm:ss.SSS')
+    }
+
 
     /**
      * Search the database for a group ID in the current initiator, when you do not have group name
@@ -159,7 +177,7 @@ static boolean connected
     }
 
     /**
-     * Get available metrics for a goven groupID
+     * Get available metrics for a given groupID
     */
     public static getAvailableMetrics(groupID) {
         if ( ! connected ) { connect() }
@@ -188,5 +206,24 @@ static boolean connected
         conn.executeUpdate("DELETE FROM groups WHERE groupName='TESTGROUP'")
         conn.executeUpdate("DELETE FROM logpositions WHERE fileName='/tmp/test'")
     }
+
+    /*
+    * Get average metric value over time
+    */
+   public static getAvgMetricValue(metricName, variables, period) {
+       if ( ! connected ) { connect() }
+       assert variables.identifier != null, "Identifier must be specified for check!"
+
+       Log.debug("Retrieving average metric value from DB with identifier ${variables.identifier}, metricName $metricName, host ${variables.host}, instance ${variables.instance}")
+       def row
+       if (variables.instance == null ) {
+           row = conn.firstRow("SELECT avg(value) as value from metrics WHERE identifier = ? and metricName = ? and hostName = ? and instanceName is null and datestamp > ?", [variables.identifier, metricName, variables.host, subtractFromNow(period)])
+       } else {
+           row = conn.firstRow("SELECT avg(value) as value from metrics WHERE identifier = ? and metricName = ? and hostName = ? and instanceName = ? and datestamp > ?", [variables.identifier, metricName, variables.host, variables.instance, subtractFromNow(period)])
+       }
+       if ( row != null ) { return row.value }
+       else { return null }
+
+   }
 
 }

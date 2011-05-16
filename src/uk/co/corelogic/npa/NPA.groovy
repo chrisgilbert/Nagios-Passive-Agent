@@ -94,14 +94,12 @@ while(true) {
 
         def obj
         switch (cmd) {
-            case ~/report.*/: obj = new Report(cmd)
-            break
             case ~/check.*/: obj = CheckFactory.getCheck(cmd)
 
             break
-            case "help" : return "Valid commands: report | check\n"
+            case "help" : return "Valid commands: check\n"
             break
-            default : return "Unrecognised command.\nValid commands: report | check\n"
+            default : return "Unrecognised command.\nValid commands: check\n"
         }
 
         return obj.returnString()
