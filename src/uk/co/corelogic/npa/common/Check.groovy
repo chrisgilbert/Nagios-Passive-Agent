@@ -27,6 +27,7 @@ def variables
         this.chk_th_crit = th_crit
         this.chk_th_type = th_type
         this.chk_args = args
+        this.variables = args
     }
 
     Check() {
@@ -99,6 +100,7 @@ def variables
         } catch(e) {
             Log.error("Exception occurred whilst running $chk_name check: ", e)
             Log.error("STACK:", e)
+            e.printStackTrace()
             Log.error("A SERIOUS ERROR OCCURRED IN CHECK!")
         }
     }
@@ -115,42 +117,49 @@ def variables
 
         switch ( th_type ) {
 
-            case "GTE":     if ( value >= th_warn ) { status = "WARNING" }
+            case "GTE":     value = Double.parseDouble(value.toString())
+                            if ( value >= th_warn ) { status = "WARNING" }
                             if ( value >= th_crit ) { status = "CRITICAL" }
                             if ( (th_crit > value) && (th_warn > value) ) { status = "OK" }
                             if ( value == -1 ) { status = "UNKNOWN" }
                             break;
 
-            case "GT":      if ( value > th_warn ) { status = "WARNING" }
+            case "GT":      value = Double.parseDouble(value.toString())
+                            if ( value > th_warn ) { status = "WARNING" }
                             if ( value > th_crit ) { status = "CRITICAL" }
                             if ( ( value <= th_warn ) && ( value <= th_crit ) ) { status = "OK" }
                             if ( value == -1 ) { status = "UNKNOWN" }
                             break;
 
-            case "LTE":     if ( value <= th_warn ) { status = "WARNING" }
+            case "LTE":     value = Double.parseDouble(value.toString())
+                            if ( value <= th_warn ) { status = "WARNING" }
                             if ( value <= th_crit ) { status = "CRITICAL" }
                             if ( (value > th_crit ) && ( value > th_warn ) ) { status = "OK" }
                             if ( value == -1 ) { status = "UNKNOWN" }
                             break;
 
-            case "LT":      if ( value < th_warn ) { status = "WARNING" }
+            case "LT":      value = Double.parseDouble(value.toString())
+                            if ( value < th_warn ) { status = "WARNING" }
                             if ( value < th_crit ) { status = "CRITICAL" }
                             if ( (value >= th_crit) && (value >= th_warn) ) { status = "OK" }
                             if ( value == -1 ) { status = "UNKNOWN" }
                             break;
 
-            case "EQ":      if ( th_crit == value ) { status = "CRITICAL" }
+            case "EQ":      value = (String) value
+                            if ( th_crit == value ) { status = "CRITICAL" }
                             if ( th_crit != value ) { status = "OK" }
                             if ( value == -1 ) { status = "UNKNOWN" }
                             break;
 
-            case "CONTAINS":   if ( value =~ th_crit)  { status = "CRITICAL" }
+            case "CONTAINS": value = (String) value
+                            if ( value =~ th_crit)  { status = "CRITICAL" }
                             else { status = "OK" }
                             if ( value == -1 ) { status = "UNKNOWN" }
                             break;
                             
                             
-            default:        Log.warn("Comparison type did not match known values - will be treated as GTE!")
+            default:        value = Double.parseDouble(value.toString())
+                            Log.warn("Comparison type did not match known values - will be treated as GTE!")
                             if ( value >= th_warn ) { status = "WARNING" }
                             if ( value >= th_crit ) { status = "CRITICAL" }
                             if ( (th_crit > value) && (th_warn > value) ) { status = "OK" }

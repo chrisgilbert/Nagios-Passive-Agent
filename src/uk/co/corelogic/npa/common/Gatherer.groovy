@@ -68,7 +68,20 @@ class Gatherer {
     */
     public sample(String metricName, variables) throws NPAException {
         if (MetricRegister.getClassName(metricName)) {
-            return this.invokeMethod(metricName, variables)
+
+            if (variables.host == null ) {
+                variables.host = this.host
+            }
+
+            // Called to retrieve a single sample from the DBGatherer
+            if (MetricRegister.getType(metricName).startsWith("DATABASE")) {
+                Log.debug("Invoking getSingleMetric for DBGatherer")
+                return this.invokeMethod("getSingleMetric", metricName)
+            } else {
+                Log.debug("Invoking the $metricName method")
+                return this.invokeMethod(metricName, variables)
+            }
+
         } else {
             Log.error("No valid metric type registered for " + metricName)
             Log.error("Metric list contents: ${this.metricList}")
@@ -82,10 +95,6 @@ class Gatherer {
     public avg(String metricName, variables) throws NPAException {
         if (MetricRegister.getClassName(metricName)) {
             assert variables.timePeriodMillis != null, "Must specify a timePeriodMillis value, if using comparison type AVG!"
-
-            if (variables.host == null ) {
-                variables.host = this.host
-            }
 
             this.sample(metricName, variables)
             return MetricsDB.getAvgMetricValue(metricName, variables, variables.timePeriodMillis)

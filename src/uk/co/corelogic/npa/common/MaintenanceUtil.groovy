@@ -16,7 +16,7 @@ static class MaintenanceUtil {
 	
     static config = NPA.getConfigObject()
     static npa_version = "1.2_test1"
-
+    //static npa_version = System.getProperty("application.version")
 
     public static getNPAVersion() {
         return npa_version;

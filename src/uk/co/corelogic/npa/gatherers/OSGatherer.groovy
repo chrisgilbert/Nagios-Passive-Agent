@@ -26,7 +26,7 @@ def total_space_mb = [:]
 
     public OSGatherer(initiatorID) {
         super(initiatorID);
-        //this.host = "hostname".execute().text.trim()
+        this.host = "hostname".execute().text.trim()
         //this.ip_address = "hostname".execute().text.trim()
         this.os_name = System.getProperty("os.name")
         this.os_version = System.getProperty("os.version")
@@ -170,9 +170,6 @@ def total_space_mb = [:]
      */
     public getVolumes() {
     def output
-    if ( volumes != null ) {
-        return volumes
-    }
 
     if ( volumes.size() != 0 ) {
         return volumes

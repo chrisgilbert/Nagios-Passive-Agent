@@ -23,7 +23,12 @@ static boolean connected
         def location = new File(NPA.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParent().toString() + "/" + config.npa.metrics_db_location
         Log.info("Initialising MetricsDB connection..")
         conn = groovy.sql.Sql.newInstance("jdbc:sqlite:${location}","org.sqlite.JDBC")
+
         conn.execute('CREATE TABLE IF NOT EXISTS metrics(id integer primary key, initiatorID, groupID, hostName, instanceName, metricName, metricType, metricDataType, value, identifier, datestamp date)');
+        if ( ! conn.firstRow("SELECT * from metrics").containsKey("description") ) {
+            conn.execute("ALTER TABLE metrics ADD COLUMN description")
+        }
+
         conn.execute('CREATE INDEX IF NOT EXISTS met_datestamp_indx on metrics(datestamp)')
         conn.execute('CREATE INDEX IF NOT EXISTS met_grp_indx on metrics(groupID)')
         conn.execute('CREATE INDEX IF NOT EXISTS met_ident_indx on metrics(identifier)')
@@ -47,8 +52,8 @@ static boolean connected
             m.value = m.value.toDouble() }
         
         def keys = conn.executeUpdate("""
-            INSERT INTO metrics(id, initiatorID, groupID, hostName, instanceName, metricName, metricType, metricDataType, value, identifier, datestamp)
-            values (null, $m.initiatorID, $m.groupID, $m.hostName, $m.instanceName, $m.metricName, $m.metricType, $m.metricDataType, $m.value, $m.identifier, $m.datestamp)
+            INSERT INTO metrics(id, initiatorID, groupID, hostName, instanceName, metricName, metricType, metricDataType, value, identifier, description, datestamp)
+            values (null, $m.initiatorID, $m.groupID, $m.hostName, $m.instanceName, $m.metricName, $m.metricType, $m.metricDataType, $m.value, $m.identifier, $m.description, $m.datestamp)
         """)
             return conn.firstRow("SELECT last_insert_rowid()")[0]
     }
@@ -172,7 +177,7 @@ static boolean connected
     }
 
     /**
-     * Get available metrics for a goven groupID
+     * Get available metrics for a given groupID
     */
     public static getAvailableMetrics(groupID) {
         if ( ! connected ) { connect() }

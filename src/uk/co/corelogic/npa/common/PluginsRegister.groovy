@@ -25,6 +25,7 @@ class PluginsRegister {
         registerPlugin(new OSGatherer(), new OSCheck())
         registerPlugin(new OracleGatherer(), new OracleCheck())
         registerPlugin(new SSGatherer(), new SSCheck())
+        registerPlugin(new DBGatherer(), new DBCheck())
     }
 
     /**

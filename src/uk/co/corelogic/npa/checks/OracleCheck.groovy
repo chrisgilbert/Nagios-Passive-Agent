@@ -5,6 +5,12 @@ import uk.co.corelogic.npa.database.*
 import uk.co.corelogic.npa.common.Log
 import uk.co.corelogic.npa.gatherers.*
 
+/**
+ * @deprecated
+ * This class is deprecated in favour of the generic DBCheck
+ */
+
+@Deprecated
 class OracleCheck extends Check {
 
 String conn

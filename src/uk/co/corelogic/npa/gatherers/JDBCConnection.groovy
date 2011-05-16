@@ -3,6 +3,13 @@ import groovy.sql.Sql
 import oracle.jdbc.driver.OracleDriver
 import uk.co.corelogic.npa.common.Log
 
+
+/**
+ * @deprecated
+ * This class is deprecated in favour of the generic DBCheck changes
+ */
+
+@Deprecated
 class JDBCConnection {
 
 def connection

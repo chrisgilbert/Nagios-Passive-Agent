@@ -17,9 +17,5 @@ def config
         this.config = NPA.getConfigObject()
     }
 
-    //public void testTest(){
-    //    println("Test")
-    //}
-
 }
 

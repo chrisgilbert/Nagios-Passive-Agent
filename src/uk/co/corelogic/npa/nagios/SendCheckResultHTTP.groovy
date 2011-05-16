@@ -131,6 +131,9 @@ http.request( GET, HTML ) {
     } else if ( html =~ /and verify that you entered all required information correctly/  ) {
         Log.error("Failed to submit check! Nagios returned invalid properties error.  Check the DEBUG log for the GET string being used.")
         Log.error(html)
+    }  else if ( html =~ /An error occurred/ ) {
+        Log.error("Failed to submit check! Nagios/Icinga returned a general processing error.  Check the DEBUG log for the GET string being used.")
+        Log.error(html)
     } else { return true }
   }
 

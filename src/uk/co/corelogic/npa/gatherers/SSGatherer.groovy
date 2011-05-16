@@ -6,6 +6,12 @@ import uk.co.corelogic.npa.common.*
 import groovy.sql.Sql
 
 
+/**
+ * @deprecated
+ * This class is deprecated in favour of the generic DBGatherer
+ */
+
+@Deprecated
 class SSGatherer extends Gatherer {
 
     def conn

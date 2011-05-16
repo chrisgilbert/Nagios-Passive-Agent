@@ -44,11 +44,8 @@ static config
             Log.debug("Parsing group " + it.@name + " of type " + it.@type)
             def g = it
             def checks 
-            def metrics
             if (it.@type == "nagios" ) {
                 checks = it.check
-            } else if (it.@type == "metrics") {
-                metrics = it.metric
             } else {
                 Log.debug("Group type ${it.@type} not supported - ignoring.")
 
@@ -79,34 +76,12 @@ static config
                         c.chk_th_crit = it.@crit.toDouble()
                         c.chk_th_type = it.@type.toString()
                         c.chk_args = argsmap
+                        c.variables = argsmap
                     }
                     c.chk_interval = g.@interval.toString().toInteger();
                     checkList.add(c);
                     Log.debug(checkList)
                 }
-
-                metrics.each {
-                    Log.info("Adding metric ${it.@name} to list.")
-
-                Log.debug("Parsing arguments.")
-                def argsmap = [:]
-                def args = it.children()
-                Log.debug(it.text())
-                args.each {
-                    def m = [{it.name()}:{it.text()}]
-                    Log.debug("Found arguments")
-                    Log.debug(m)
-                    argsmap["${it.name()}"] =it.text()
-                }
-
-                    def c = new RawMetric(it.@name.toString(), argsmap)
-                    c.chk_interval = g.@interval.toString().toInteger();
-                    checkList.add(c);
-                    Log.debug(checkList)
-                }
-
-
-
         }
     }
 

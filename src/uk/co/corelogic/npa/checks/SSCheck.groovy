@@ -5,10 +5,13 @@ import uk.co.corelogic.npa.database.*
 import uk.co.corelogic.npa.common.Log
 import uk.co.corelogic.npa.gatherers.*
 
-/*
- * This class provides checks for SQL Server 2005.
-*/
 
+/**
+ * @deprecated
+ * This class is deprecated in favour of the generic DBCheck
+ */
+
+@Deprecated
 class SSCheck extends Check {
 
 String conn

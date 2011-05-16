@@ -1,4 +1,5 @@
 package uk.co.corelogic.npa.common
+import uk.co.corelogic.npa.metrics.MetricsDB
 
 /**
  * TimerTask to run maintenance methods
