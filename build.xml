@@ -276,11 +276,12 @@ failureproperty="tests.failed" fork="true" showoutput="true">
 </junitreport>
 </target>
 
-<!--<taskdef name="groovydoc"
+<!--
+<taskdef name="groovydoc"
          classname="org.codehaus.groovy.ant.Groovydoc"
-         classpathref="groovy-all-1.6.8.jar"/>
+         classpathref="/home/chris/work/projects/npa_git_repo/groovy-all-1.6.8.jar"/>
 
-<taskdef name="groovydoc" classname="org.codehaus.groovy.ant.Groovydoc" classpathref="groovy-all-1.6.8.jar"/>
+<taskdef name="groovydoc" classname="org.codehaus.groovy.ant.Groovydoc" classpathref="/home/chris/work/projects/npa_git_repo/groovy-all-1.6.8.jar"/>
 <groovydoc
     destdir="${docsDirectory}/gapi"
     sourcepath="${src.dir}"
@@ -296,8 +297,8 @@ failureproperty="tests.failed" fork="true" showoutput="true">
         <link packages="org.apache.ant.,org.apache.tools.ant." href="http://www.dpml.net/api/ant/1.7.0"/>
         <link packages="org.junit.,junit.framework." href="http://junit.sourceforge.net/junit3.8.1/javadoc/"/>
         <link packages="groovy.,org.codehaus.groovy." href="http://groovy.codehaus.org/api/"/>
-</groovydoc>-->
-
+</groovydoc>
+-->
 
         
 </project>

@@ -93,6 +93,29 @@ class OSCheckTest extends NPATest {
         println("Results is: " + result.status + " Message is: " + result.message)
     }
 
+
+    void testChk_mem_pct() {
+        this.th_type = "LTE"
+        this.variables.nagiosServiceName="TEST"
+        def check = new OSCheck("chk_mem_free_pct", th_warn, th_crit, th_type, variables)
+        assert check != null
+        def result = check.chk_mem_free_pct()
+        assert result != null
+        println("Results is: " + result.status + " Message is: " + result.message)
+    }
+
+    void testChk_mem_pct_avg() {
+        this.th_type = "LTE"
+        this.variables.nagiosServiceName="TEST"
+        this.variables.timePeriodMillis="600000"
+        def check = new OSCheck("chk_mem_free_pct", th_warn, th_crit, th_type, variables)
+        assert check != null
+        def result = check.chk_mem_free_pct()
+        assert result != null
+        println("Results is: " + result.status + " Message is: " + result.message)
+    }
+
+
     void testChk_disk_busy_pct() {
         this.th_type = "GTE"
         this.variables.nagiosServiceName="TEST"

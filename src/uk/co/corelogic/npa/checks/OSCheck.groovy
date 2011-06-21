@@ -46,6 +46,12 @@ public chk_disk_busy_pct() {
     return this.chkDiskBusyPct(this.chk_args.clone(), this.chk_th_warn, this.chk_th_crit, this.chk_th_type)
 }
 
+public chk_mem_free_pct() {
+    init()
+    return this.chkMemoryFreePct(this.chk_args.clone(), this.chk_th_warn, this.chk_th_crit, this.chk_th_type)
+}
+
+
 public CheckResult chkAllDisks(variables, th_warn, th_crit, th_type) {   
     init()
     // Check for null values
@@ -221,6 +227,39 @@ public CheckResult chkCpuPct(variables, th_warn, th_crit, th_type) {
 
 }
 
+public CheckResult chkMemoryFreePct(variables, th_warn, th_crit, th_type) {
+    init()
+    float mem_pct
+    def message = ""
+    String status
+    assert variables.nagiosServiceName != null, 'nagiosServiceName is null!'
+    def performance = [:]
+    def avgMessage = ""
+    variables.identifier="FREE"
+
+    if (variables.timePeriodMillis != null ){
+        Log.info("Retrieving average results over ${variables.timePeriodMillis}")
+        mem_pct = this.gatherer.avg("OS_MEMORY_FREE_PCT", variables).toFloat()
+        avgMessage = "(average over ${variables.timePeriodMillis} ms)"
+    } else {
+        mem_pct = this.gatherer.sample("OS_MEMORY_FREE_PCT", variables).toFloat()
+    }
+    // Round to 2 decimal places.
+    BigDecimal bd = new BigDecimal(mem_pct);
+    bd = bd.setScale(2, BigDecimal.ROUND_HALF_UP);
+    def value = bd.doubleValue();
+    message = "Results of chk_mem_pct: $value % ${avgMessage}"
+    performance = ["mem_pct":"${mem_pct}%;$th_warn;$th_crit;;"]
+
+    status = super.calculateStatus(th_warn, th_crit, mem_pct, th_type)
+    Log.debug("Generating result from values: ${this.initiatorID}, ${variables.nagiosServiceName}, ${this.gatherer.host}, $status, $performance, [new date], $message")
+    return super.generateResult(this.initiatorID, variables.nagiosServiceName, this.gatherer.host, status, performance, new Date(), message)
+    this.gatherer = null;
+
+}
+    
+
+
 public CheckResult chkDiskBusyPct(variables, th_warn, th_crit, th_type) {
     init()
     float disk_pct
@@ -257,6 +296,7 @@ public registerChecks() {
     CheckRegister.add("chk_disk_free", "OS", this.getClass().getName())
     CheckRegister.add("chk_cpu_pct", "OS", this.getClass().getName())
     CheckRegister.add("chk_disk_busy_pct", "OS", this.getClass().getName())
+    CheckRegister.add("chk_mem_free_pct", "OS", this.getClass().getName())
 }
 
 

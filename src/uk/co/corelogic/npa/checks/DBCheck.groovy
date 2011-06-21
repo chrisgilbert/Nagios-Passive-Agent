@@ -55,6 +55,11 @@ public init(variables1) {
     try {
         gatherer.validateQuery()
         this.metricNames = gatherer.getMetricNames()
+        if (this.metricNames == null ) {
+            Log.info("No rows returned.  Assuming OK status.")
+            CheckResultsQueue.add(super.generateResult(this.initiatorID, variables1.nagiosServiceName, this.host, "OK", [:], new Date(), "No rows returned.  Assuming OK status."))
+        }
+
     } catch(e) {
         Log.error("An error occurred when running the SQL to find metric names:", e)
         CheckResultsQueue.add(super.generateResult(this.initiatorID, variables1.nagiosServiceName, this.host, "CRITICAL", [:], new Date(), "An error occurred when running the SQL to find metric names!"))
@@ -100,12 +105,18 @@ public init(variables1) {
 
         try {
             this.metricNames = gatherer.getMetricNames()
+
+            if (this.metricNames == null ) {
+                Log.info("No rows returned.  Assuming OK status.")
+                CheckResultsQueue.add(super.generateResult(this.initiatorID, variables1.nagiosServiceName, this.host, "OK", [:], new Date(), "No rows returned.  Assuming OK status."))
+            }
         } catch(e) {
             Log.error("An error occurred when running the SQL to find metric names:", e)
                 CheckResultsQueue.add(super.generateResult(this.initiatorID, variables1.nagiosServiceName, this.host, "CRITICAL", [:], new Date(), "An error occurred when running the SQL to find metric names!"))
             Log.error("Throwing error up chain")
             throw e
         }
+
     }
 
 
@@ -147,9 +158,10 @@ public init(variables1) {
                 def calc = this.gatherer.avg(it, variables1)
                 Log.debug("Avg value: $calc was read.")
                 if (gatherer.getMessageForMetric(it) != null ) { allMessages += gatherer.getMessageForMetric(it) }
-                if (gatherer.getStatusForMetric(it) != null ) { allComparisons += gatherer.getStatusnForMetric(it) }
+                if (gatherer.getStatusForMetric(it) != null ) { allComparisons += gatherer.getStatusForMetric(it) }
                 values.add(calc)
-                performance=[(it):"${calc};$th_warn;$th_crit;;"]
+                performance.put((it),"${calc};$th_warn;$th_crit;;")
+                Log.debug("Performance entries: $performance")
             }
 
         // No average values, just single readings
@@ -161,7 +173,8 @@ public init(variables1) {
                 if (gatherer.getMessageForMetric(it) != null ) { allMessages += gatherer.getMessageForMetric(it) }
                 if (gatherer.getStatusForMetric(it) != null ) { allComparisons += gatherer.getStatusForMetric(it) }
                 values.add(calc)
-                performance=[(it):"${calc};$th_warn;$th_crit;;"]
+                performance.put((it),"${calc};$th_warn;$th_crit;;")
+                Log.debug("Performance entries: $performance")
             }
         }
         def message="DB Check: $allMessages METRIC_VALUES: $values MESSAGES: $avgMessage STATUS_VALUES(if any): $allComparisons"
@@ -174,6 +187,12 @@ public init(variables1) {
         }
         this.gatherer.disconnect()
         this.gatherer = null
+
+        if (this.metricNames.size() == 0) {
+            Log.info("No rows were returned.")
+            status = "OK"
+            message = "No rows were returned for query - assuming OK status."
+        }
         return super.generateResult(this.initiatorID, this.variables.nagiosServiceName, this.host, status, performance, new Date(), message)
     }
 	

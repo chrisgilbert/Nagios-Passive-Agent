@@ -228,7 +228,10 @@ class DBGatherer extends Gatherer {
     */
      public void validateQuery() {
          def results = getMetricRowResults(null)
-         assert results.size() != 0, "0 rows returned by query!"
+         if (results.size() == 0 ) {
+            Log.info("No rows returned.  Assuming OK status.")
+            return null
+         }
          
          if ( ! results[0].containsKey('METRIC_IDENTIFIER') ) {
              throw new NPAException("Does not contain METRIC_IDENTIFIER column in SQL Output!")

@@ -46,7 +46,7 @@ def total_space_mb = [:]
         this.metricList.add('OS_DISK_MB_TOTAL')
         this.metricList.add('OS_STATS_DISK_BUSY_PCT')
         this.metricList.add('OS_CPU_PCT_USED_TOTAL')
-        //this.metricList.add('OS_MEM_MB_FREE')
+        this.metricList.add('OS_MEMORY_FREE_PCT')
         //this.metricList.add('OS_MEM_MB_USED')
         //this.metricList.add('OS_MEM_MB_TOTAL')
         super.addValidMetricList(this.metricList, 'OS', this.getClass().getName())
@@ -220,7 +220,7 @@ def total_space_mb = [:]
         Log.debug("Getting solaris filesystems.")
         // An alteration to make this work with other filesystem arrangements
         //def cmd = ["sh", "-c", "grep dsk /etc/vfstab | grep -v swap | grep -v \"^#\" | awk '{print \$1}'"]
-        def cmd =["sh", "-c", "df -n | grep -v  libc.so | egrep -e \"nfs|ufs|zfs|lofs\" | cut -f1 -d ' '"]
+        def cmd =["sh", "-c", "df -n | grep -v .so | egrep -e \"nfs|ufs|zfs|lofs\" | cut -f1 -d ' '"]
 
         output = runCmd(cmd)
         Log.debug(output)
@@ -442,7 +442,101 @@ def total_space_mb = [:]
         def m3 = persistMetric(mod, cpu_pct, datestamp)
         return cpu_pct
     }
-    
+
+
+
+
+
+    /**
+     * This method gets a percentage free memory for all operating systems
+    */
+    private OS_MEMORY_FREE_PCT(variables) throws NPAException {
+
+    def mem_pct
+    def output
+    def datestamp = MetricsDB.getNewDateTime()
+    // This is used to group together related metrics
+    def groupID  = UUID.randomUUID();
+
+    // Create a MetricModel object and set the metric properties
+    MetricModel mod = new MetricModel()
+    mod.setMetricName("OS_MEMORY_FREE_PCT")
+    mod.setMetricType("OS")
+    mod.setMetricDataType("Double")
+    mod.setIdentifier("FREE")
+    mod.setHostName(this.host)
+    mod.setInitiatorID(this.initiatorID)
+    mod.setGroupID(groupID)
+
+
+    // Now get on with the actual work of collecting cpu data
+    //
+
+    // We need a command for each os type
+    Log.debug("Detected OS type: ${this.os_name}")
+	// Windows
+	if (this.os_name ==~ /Window.*/ ) {
+		def cmd = ["cmd", "/c", "wmic /node:localhost path Win32_OperatingSystem get FreePhysicalMemory,TotalVisibleMemorySize /format:csv"]
+            output = runCmdWin(cmd)
+            if ( output == null ) {
+                throw new NPAException("No data returned from plugin!");
+            }
+            def output1 = output.toString().trim().tokenize(",")
+            // Get the integer out of the output - in a groovy way :)
+            def outputf = output1.findAll{ it ==~ /^\d+/ }
+            Log.debug("Captured value: $outputf")
+
+
+            if ( outputf == null ) {
+                throw new NPAException("No number captured from output!");
+            }
+            if (outputf == "null" ) {
+                Log.warn("Output capture was null value, using 0 instead.")
+                mem_pct = 0
+            } else {
+                Log.debug("Cmd output: $output")
+                def freeMem = checkValidNumber(outputf[0].toString());
+                def totalMem = checkValidNumber(outputf[1].toString());
+                mem_pct = (freeMem/totalMem * 100)
+            }
+	}
+	// Linux
+        // NOTE: Free memory is not as straightforward in Linux - we need to take into account disk cache
+        // and buffers too.  So don't worry about these figures - they are ones from the buffers/cache line of the free command
+        //
+	if (this.os_name == 'Linux' ) {
+            def cmd, cmd2;
+            cmd = ["sh", "-c", "free | grep \"buffers/cache\" | awk '{print \$3}'"]
+            cmd2 = ["sh", "-c", "free | grep \"buffers/cache\" | awk '{print \$4}'"]
+            def total = runCmd(cmd)
+            def free = runCmd(cmd2)
+
+            if ( total == null || free == null ) {
+                throw new NPAException("No data returned from plugin!");
+            }
+            //Log.debug(total + free)
+            mem_pct = (checkValidNumber(free.toString()) / checkValidNumber(total.toString()) * 100)
+	}
+	// Solaris
+        // TODO: Test on Solaris 9
+	if (this.os_name ==~ /SunO.*/ ) {
+		def cmd = ["sh", "-c", "/usr/sbin/prtconf | grep Mem | cut -f 3 -d ' '"]
+                def cmd2 = ["sh", "-c", "/usr/bin/vmstat -q 1 1 | cut -d ' ' -f 6 | grep -v \"^\$\""]
+            def total = runCmd(cmd)
+            def free = runCmd(cmd2)
+
+            if ( total == null || free == null ) {
+                throw new NPAException("No data returned from plugin!");
+            }
+            //Log.debug(total + free)
+            mem_pct = ((checkValidNumber(free.toString().trim())/1024) / checkValidNumber(total.toString().trim()) * 100)
+	}
+    // Save the metric and return the value
+        def m3 = persistMetric(mod, mem_pct, datestamp)
+        return mem_pct
+    }
+
+
 
     private OS_DISK_MB_FREE(variables) {
         Log.debug(this.free_space_mb)
@@ -513,12 +607,13 @@ def total_space_mb = [:]
             Log.debug("Running command: $cmd" )
             p = cmd.execute()
             p.waitForProcessOutput(stdout, stderr)
-
+            p.waitForOrKill(300000)
+            
             Log.debug("Waiting for command to return...")
             //Log.debug("Trying to get text: $p.text")
             //p.out.flush()
 
-            //p.waitForOrKill(30000)
+            
             //p.out.close()
             Log.debug("Stream: $stdout $stderr")
             return ([p.exitValue(), "$stdout $stderr"])
@@ -546,7 +641,7 @@ def total_space_mb = [:]
             Log.debug("Waiting for command to return...")
             p.waitForProcessOutput(stdout, stderr)
             Log.debug("Wait for 30 secs or kill..")
-            p.waitForOrKill(30000)
+            p.waitForOrKill(300000)
            
 
             if (p.exitValue() == 0 ) {

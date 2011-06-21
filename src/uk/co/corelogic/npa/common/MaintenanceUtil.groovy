@@ -15,7 +15,7 @@ import uk.co.corelogic.npa.nagios.*
 static class MaintenanceUtil {
 	
     static config = NPA.getConfigObject()
-    static npa_version = "1.2_test1"
+    static npa_version = "1.2_rc1"
     //static npa_version = System.getProperty("application.version")
 
     public static getNPAVersion() {
