@@ -46,7 +46,7 @@ public chk_disk_busy_pct() {
     return this.chkDiskBusyPct(this.chk_args.clone(), this.chk_th_warn, this.chk_th_crit, this.chk_th_type)
 }
 
-public chk_mem_free_pct() {
+public chk_mem_used_pct() {
     init()
     return this.chkMemoryFreePct(this.chk_args.clone(), this.chk_th_warn, this.chk_th_crit, this.chk_th_type)
 }
@@ -71,7 +71,9 @@ public CheckResult chkAllDisks(variables, th_warn, th_crit, th_type) {
     Log.debug("Running ALL filesystems check.")
     def avgMessage = ""
 
-        this.gatherer.getVolumes().each{
+        def volList = this.gatherer.getVolumes()
+        Log.debug("Vollist length: " + volList.size())
+        volList.each{
             def vars = variables.clone()
             vars.volume=it
             vars.identifier=it
@@ -239,10 +241,10 @@ public CheckResult chkMemoryFreePct(variables, th_warn, th_crit, th_type) {
 
     if (variables.timePeriodMillis != null ){
         Log.info("Retrieving average results over ${variables.timePeriodMillis}")
-        mem_pct = this.gatherer.avg("OS_MEMORY_FREE_PCT", variables).toFloat()
+        mem_pct = this.gatherer.avg("OS_MEMORY_USED_PCT", variables).toFloat()
         avgMessage = "(average over ${variables.timePeriodMillis} ms)"
     } else {
-        mem_pct = this.gatherer.sample("OS_MEMORY_FREE_PCT", variables).toFloat()
+        mem_pct = this.gatherer.sample("OS_MEMORY_USED_PCT", variables).toFloat()
     }
     // Round to 2 decimal places.
     BigDecimal bd = new BigDecimal(mem_pct);
@@ -296,7 +298,7 @@ public registerChecks() {
     CheckRegister.add("chk_disk_free", "OS", this.getClass().getName())
     CheckRegister.add("chk_cpu_pct", "OS", this.getClass().getName())
     CheckRegister.add("chk_disk_busy_pct", "OS", this.getClass().getName())
-    CheckRegister.add("chk_mem_free_pct", "OS", this.getClass().getName())
+    CheckRegister.add("chk_mem_used_pct", "OS", this.getClass().getName())
 }
 
 

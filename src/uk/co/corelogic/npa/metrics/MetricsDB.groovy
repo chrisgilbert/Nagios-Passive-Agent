@@ -24,8 +24,8 @@ static boolean connected
         Log.info("Initialising MetricsDB connection..")
         conn = groovy.sql.Sql.newInstance("jdbc:sqlite:${location}","org.sqlite.JDBC")
 
-        conn.execute('CREATE TABLE IF NOT EXISTS metrics(id integer primary key, initiatorID, groupID, hostName, instanceName, metricName, metricType, metricDataType, value, identifier, datestamp date)');
-        if ( ! conn.firstRow("SELECT '1', * from metrics").containsKey("description") ) {
+        conn.execute('CREATE TABLE IF NOT EXISTS metrics(id integer primary key, initiatorID, groupID, hostName, instanceName, metricName, metricType, metricDataType, value, identifier, datestamp date, description)');
+        if ( ! conn.firstRow("SELECT count(*), * from metrics").containsKey("description") ) {
             conn.execute("ALTER TABLE metrics ADD COLUMN description")
         }
 

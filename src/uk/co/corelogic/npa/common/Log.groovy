@@ -2,6 +2,9 @@ package uk.co.corelogic.npa.common
 import uk.co.corelogic.npa.NPA
 import org.apache.log4j.*
 import org.apache.log4j.xml.DOMConfigurator;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.PatternLayout;
+import java.io.FileNotFoundException;
 
 class Log {
 
@@ -52,17 +55,35 @@ class Log {
     }
   }
 
-  /**static basic() {
-    def simple = new PatternLayout(STDOUT_PATTERN)
-    BasicConfigurator.configure(new ConsoleAppender(simple))
-    LogManager.rootLogger.level = STDOUT_LEVEL
-  }*/
+  static basic() {
+      println("Cannot find log4j config file - logging to STDOUT instead.")
+      try {
+        BasicConfigurator.configure()
+        LogManager.rootLogger.level = "DEBUG"
+      } catch (e) {
+          println("Failed to start logging!")
+          e.printStackTrace()
+      }
+  }
 
   static logfile() {
-        def confFile = new File(Log.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParent().toString() + "/" + config.log4j.config_file.toString()
-        println("Log4j configuration file specified at: " + confFile)
-        DOMConfigurator.configure(confFile);
-  }
+    def confFile = new File(Log.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParent().toString() + "/" + config.log4j.config_file.toString()
+    println("Log4j configuration file specified at: " + confFile)
+    try {
+        if ( new File(confFile).exists() ) {
+            DOMConfigurator.configure(confFile);
+        } else {
+            basic()
+        }
+    } catch (Throwable e) {
+        if (e instanceof InterruptedException || e instanceof InterruptedIOException) {
+          basic()
+          Thread.currentThread().interrupt();// I know this is miserable...
+          println("Could not parse log: "+ e);
+        }
+    }
+
+}  
 
   static setLevel(level) {
     def Level l = null

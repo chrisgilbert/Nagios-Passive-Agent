@@ -157,7 +157,7 @@
 
     <exec executable="cp">
         <arg value="-r"/>
-        <arg value="${dist.dir}/../config-dist-corelogic"/>
+        <arg value="${dist.dir}/../config-dist-corelogic/*"/>
         <arg value="${dist.dir}/config"/>
     </exec>
         <exec executable="cp">
@@ -177,7 +177,7 @@
     </exec>
     <exec executable="cp">
         <arg value="-r"/>
-        <arg value="${dist.dir}/../db-dist"/>
+        <arg value="${dist.dir}/../db-dist/*"/>
         <arg value="${dist.dir}/db"/>
     </exec>
     <exec executable="cp">

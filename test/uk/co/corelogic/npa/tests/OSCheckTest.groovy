@@ -97,9 +97,9 @@ class OSCheckTest extends NPATest {
     void testChk_mem_pct() {
         this.th_type = "LTE"
         this.variables.nagiosServiceName="TEST"
-        def check = new OSCheck("chk_mem_free_pct", th_warn, th_crit, th_type, variables)
+        def check = new OSCheck("chk_mem_used_pct", th_warn, th_crit, th_type, variables)
         assert check != null
-        def result = check.chk_mem_free_pct()
+        def result = check.chk_mem_used_pct()
         assert result != null
         println("Results is: " + result.status + " Message is: " + result.message)
     }
@@ -108,9 +108,9 @@ class OSCheckTest extends NPATest {
         this.th_type = "LTE"
         this.variables.nagiosServiceName="TEST"
         this.variables.timePeriodMillis="600000"
-        def check = new OSCheck("chk_mem_free_pct", th_warn, th_crit, th_type, variables)
+        def check = new OSCheck("chk_mem_used_pct", th_warn, th_crit, th_type, variables)
         assert check != null
-        def result = check.chk_mem_free_pct()
+        def result = check.chk_mem_used_pct()
         assert result != null
         println("Results is: " + result.status + " Message is: " + result.message)
     }

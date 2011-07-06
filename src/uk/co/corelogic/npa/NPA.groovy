@@ -21,6 +21,7 @@ static void main(String[] args) {
 static ConfigObject getConfigObject() {
 
         if ( System.getProperty("npa.testMode") == "true" ) {
+                println("Test mode ENABLED.")
                 return new ConfigSlurper().parse(
                     new File(new File(
                         NPA.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParent().toString() + "/../config/defaults.groovy").toURL())

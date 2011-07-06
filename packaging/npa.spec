@@ -3,15 +3,14 @@
 #
 Summary: A nagios passive monitoring agent.
 Name: npa
-Version: 1.0_rc1
-Release: 1
+Version: [VERSION]
+Release: [BUILD]
 Copyright: GPL
 Group: System
-Source: ftp://ftp.sourceforge.net/npa/
+Source: http://www.github.com/chrisgilbert/npa/
 URL: http://npa.sourceforge.net/
-Distribution: Centos Linux
 Vendor: Corelogic Ltd
-Packager: Chris Gilbert <chris.gilbert@corelogic.co.uk>
+Packager: Chris Gilbert <disciple3d@gmail.com>
 
 %description
 A Nagios passive monitoring agent.  Unlike other available agents, NPA only needs communication back to a Nagios server via HTTP/S, directly or via a web proxy.
@@ -27,8 +26,8 @@ ant jar
 
 %install
 export INSTALLDIR=/usr/local/npa
-/usr/sbin/groupadd npa
-/usr/sbin/useradd npa -g npa
+/usr/sbin/groupadd npa >2/dev/null
+/usr/sbin/useradd npa -g npa  >2/dev/null
 
 mkdir -p $INSTALLDIR/db
 

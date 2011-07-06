@@ -69,7 +69,7 @@ class CheckScheduler implements Thread.UncaughtExceptionHandler {
     /*
      * Tries to handle uncaught thread exceptions by restarting the thread.
     */
-    synchronized private static void uncaughtException(Thread t, Throwable e) throws ThreadDeath {
+    synchronized public static void uncaughtException(Thread t, Throwable e) throws ThreadDeath {
         // Limit to the number of exceptions which can be thrown before checks are no longer restarted.
         int limit = 50;
 
@@ -96,7 +96,7 @@ class CheckScheduler implements Thread.UncaughtExceptionHandler {
     /*
      * Restarts a check in a new thread, if given an ID of a failed thread.
     */
-    synchronized private static void restartThread(id) {
+    synchronized public static void restartThread(id) {
             Log.warn("Restarting thread with ID " + id )
             Check c = getCheck(id);
             unregisterThread(id)

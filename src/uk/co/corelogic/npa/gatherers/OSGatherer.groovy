@@ -46,7 +46,7 @@ def total_space_mb = [:]
         this.metricList.add('OS_DISK_MB_TOTAL')
         this.metricList.add('OS_STATS_DISK_BUSY_PCT')
         this.metricList.add('OS_CPU_PCT_USED_TOTAL')
-        this.metricList.add('OS_MEMORY_FREE_PCT')
+        this.metricList.add('OS_MEMORY_USED_PCT')
         //this.metricList.add('OS_MEM_MB_USED')
         //this.metricList.add('OS_MEM_MB_TOTAL')
         super.addValidMetricList(this.metricList, 'OS', this.getClass().getName())
@@ -179,28 +179,30 @@ def total_space_mb = [:]
     Log.debug("Detected OS type: ${this.os_name}")
 	// Windows
 	if( this.os_name ==~ /Window.*/ ) {
-    Log.debug("Getting windows filesystems.")
+        Log.debug("Getting windows filesystems.")
         def cmd1 = ["cmd","/u/c","fsutil fsinfo drives"]
 
-            output = runCmd(cmd1)
-
-
+            output = runCmdWin(cmd1)
             Log.debug("Cmd output: ${output.toString()}")
 
-            def s1 = output.toString().trim().tokenize(":\\")
-            def s2 = s1.each{ it.trim() }
-            Log.debug("Split output: $s2")
-            def outputf = []
-            outputf = s2.findAll{ it != /Drives/ }
+            def s1 = output.toString().trim().normalize().replace("\000", ' ').replace("\u0000", ' ').tokenize(":\\")
+            s1.each{ it.trim() }
+            //Log.debug("Split output: $s2")
+            def outputf = s1.findAll{ it != /Drives/ }
+            outputf.collect{ it.toString().trim() }
             Log.debug("Drive list: $outputf")
 
+            def vols = []
             outputf.each {
-                def cmd2 = ["cmd","/u/c","fsutil fsinfo drivetype  ${it.trim()}:"]
-                def output2 = runCmd(cmd2)
+                def cmd2 = ["cmd","/u/c","fsutil fsinfo drivetype  ${it}:"]
+                def output2 = runCmdWin(cmd2).toString().replace("\000", ' ').replace("\u0000", ' ').replace("\t", ' ').normalize().replace("\n", ' ').trim()
                 if ( output2 =~ /Fixed/ ) {
-                    volumes.add(it + ":")
+                    Log.debug("Entering fixed drive for " + it.toString())
+                    Log.debug("Adding volume: $it")
+                    vols.add(it.toString() + ":")
                 }
             }
+            volumes.addAll(vols)
             Log.debug("All fixed disks: $volumes")
 	}
 	// Linux
@@ -448,9 +450,9 @@ def total_space_mb = [:]
 
 
     /**
-     * This method gets a percentage free memory for all operating systems
+     * This method gets a percentage used memory for all operating systems
     */
-    private OS_MEMORY_FREE_PCT(variables) throws NPAException {
+    private OS_MEMORY_USED_PCT(variables) throws NPAException {
 
     def mem_pct
     def output
@@ -460,7 +462,7 @@ def total_space_mb = [:]
 
     // Create a MetricModel object and set the metric properties
     MetricModel mod = new MetricModel()
-    mod.setMetricName("OS_MEMORY_FREE_PCT")
+    mod.setMetricName("OS_MEMORY_USED_PCT")
     mod.setMetricType("OS")
     mod.setMetricDataType("Double")
     mod.setIdentifier("FREE")
@@ -497,7 +499,7 @@ def total_space_mb = [:]
                 Log.debug("Cmd output: $output")
                 def freeMem = checkValidNumber(outputf[0].toString());
                 def totalMem = checkValidNumber(outputf[1].toString());
-                mem_pct = (freeMem/totalMem * 100)
+                mem_pct = (100 - (freeMem/totalMem * 100))
             }
 	}
 	// Linux
@@ -515,7 +517,7 @@ def total_space_mb = [:]
                 throw new NPAException("No data returned from plugin!");
             }
             //Log.debug(total + free)
-            mem_pct = (checkValidNumber(free.toString()) / checkValidNumber(total.toString()) * 100)
+            mem_pct = (100 - (checkValidNumber(free.toString()) / checkValidNumber(total.toString()) * 100))
 	}
 	// Solaris
         // TODO: Test on Solaris 9
@@ -529,7 +531,7 @@ def total_space_mb = [:]
                 throw new NPAException("No data returned from plugin!");
             }
             //Log.debug(total + free)
-            mem_pct = ((checkValidNumber(free.toString().trim())/1024) / checkValidNumber(total.toString().trim()) * 100)
+            mem_pct = (100 - ((checkValidNumber(free.toString().trim())/1024) / checkValidNumber(total.toString().trim()) * 100))
 	}
     // Save the metric and return the value
         def m3 = persistMetric(mod, mem_pct, datestamp)
@@ -589,7 +591,7 @@ def total_space_mb = [:]
                 return stdout
             } else {
                 Log.error("Error occurred: $stderr");
-                return stdout + stderr
+                return stdout.toString() + stderr.toString()
             }
      } catch (e) {
          Log.error("Exception thrown running command!", e)

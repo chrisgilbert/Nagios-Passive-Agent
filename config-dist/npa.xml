@@ -40,6 +40,9 @@ will raise a critical status.
             <nagiosServiceName>chk_disk_busy_pct</nagiosServiceName>
 	</check>
 
+        <check name="chk_mem_used_pct" warn="85" crit="95" type="GTE">
+            <nagiosServiceName>chk_mem_used_pct</nagiosServiceName>
+	</check>
 
 <!-- 
 
@@ -66,29 +69,46 @@ The warning and critical values
 
 </check-group>
 
-<!--  Here's an example of oracle checks.  Note the interval time of 1800000 milliseconds, which is every half hour. 
+<!--  Here's an example of database checks.  Note the interval time of 1800000 milliseconds, which is every half hour. 
 
-<check-group name="orachecks" type="nagios" interval="1800000">
+<check-group name="dbchecks" type="nagios" interval="1800000"> -->
  
-	<check name="chk_tablespace" warn="10" crit="5" type="LTE">
-	    <nagiosServiceName>chk_tablespaces</nagiosServiceName>
-	    <unitType>percent</unitType>
-	    <tablespace_name>ALL</tablespace_name>
-   	    <host>oracle10g.corelogic.local</host>
-	    <user>fw34x</user>
-	    <password>fw34x</password>
-	    <database>ora10test</database>
+	<!-- An example oracle query to check for any slow running SQL 
+
+	<check name="chk_db_metric" warn="60" crit="120" type="GTE">
+	    <nagiosServiceName>chk_slow_sql_fwlive</nagiosServiceName>
+   	    <host>supermarvin</host>
+	    <user>username</user>
+	    <password>password</password>
+	    <database>database</database>
 	    <port>1521</port>
+	    <driver>oracle.jdbc.driver.OracleDriver</driver>
+            <url>jdbc:oracle:thin:@//hostname:1521/database</url>
+	    <sql>
+<![CDATA[
+
+SELECT 'SID: ' || s.sid || ' Serial#: ' || s.serial# || ' Machine: ' || s.machine || ' Start time: ' || start_time ||
+       ' Elapsed: ' || ROUND(sl.elapsed_seconds/60) || ':' || MOD(sl.elapsed_seconds,60) ||
+       ' Remaining: ' || ROUND(sl.time_remaining/60) || ':' || MOD(sl.time_remaining,60) ||
+       ' Progress %: ' || ROUND(sl.sofar/sl.totalwork*100, 2) ||
+       ' SQL: ' || sql_text as message,
+       elapsed_time as metric_value,
+       sql_text as metric_identifier
+FROM   v$session s,
+       v$sql sq,
+       v$session_longops sl
+WHERE  s.sid     = sl.sid
+AND    s.serial# = sl.serial#
+AND    sl.sql_address = sq.address
+AND    time_remaining > 0
+AND    elapsed_time >= 60
+]]>
+</sql>
 	</check>
 
-	<check name="chk_buffer_cache" warn="90" crit="80" type="LTE">
-	    <nagiosServiceName>chk_buffer_cache</nagiosServiceName>
-	    <host>oracle10g.corelogic.local</host>
-            <user>fw34x</user>
-            <password>fw34x</password>      
-            <database>ora10test</database>
-            <port>1521</port>
-	</check> 
+
+
+
 
     </check-group> 
 

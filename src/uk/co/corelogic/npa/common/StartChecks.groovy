@@ -101,6 +101,8 @@ static config
         long delay = 0   // delay for 0 sec.
         //def random = new Random()
         Timer timer = new Timer("ResultsQueue")
+        Timer timer2 = new Timer("HostCheck")
+        Timer timer3 = new Timer("MaintenanceJob")
         def interval = config.npa.flush_queue_ms
         if ( interval == [:] ) { interval = "30000" }
         
@@ -115,15 +117,15 @@ static config
         Log.info("Scheduling results queue to be flushed every $interval")
         timer.scheduleAtFixedRate(new FlushQueue(), delay, interval.toLong())
         Log.info("Scheduling host OK check to run every $hostInt ms")
-        timer.scheduleAtFixedRate(new SubmitHostOK(), delay, hostInt.toLong())
+        timer2.scheduleAtFixedRate(new SubmitHostOK(), delay, hostInt.toLong())
         Log.info("Scheduling maintenance to run every $maintInt ms")
-        timer.scheduleAtFixedRate(new RunMaintenance(), delay, maintInt.toLong())
+        timer3.scheduleAtFixedRate(new RunMaintenance(), delay, maintInt.toLong())
 
 
         // This is a shutdown hook to automatically flush the queue on a JVM shutdown
         def shutdownClosureMap = [run: {
             CheckResultsQueue.flush()
-            println "Shutting down";
+            println "Shutting down...";
         }
         ]
         def interfaces = [Runnable]

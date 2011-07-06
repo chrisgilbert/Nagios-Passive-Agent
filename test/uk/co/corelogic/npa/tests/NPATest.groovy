@@ -4,18 +4,19 @@ import uk.co.corelogic.npa.common.*
 import uk.co.corelogic.npa.metrics.*
 import uk.co.corelogic.npa.gatherers.*
 import uk.co.corelogic.npa.NPA
+import uk.co.corelogic.npa.common.Log
 
 /**
  * Superclass for other tests
 */
-abstract class NPATest extends GroovyTestCase {
+class NPATest extends GroovyTestCase {
 
-def config
+ static config = NPA.getConfigObject()
 
-    public NPATest() {
-        System.setProperty("runPath", new File(NPA.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParent().toString())
-        this.config = NPA.getConfigObject()
+
+    void testNothing() {
+        def test = 1
+        assert test == 1, "Test nothing is testing something!"
     }
-
 }
 

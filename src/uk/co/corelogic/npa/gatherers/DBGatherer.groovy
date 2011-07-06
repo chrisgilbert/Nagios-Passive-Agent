@@ -234,10 +234,10 @@ class DBGatherer extends Gatherer {
          }
          
          if ( ! results[0].containsKey('METRIC_IDENTIFIER') ) {
-             throw new NPAException("Does not contain METRIC_IDENTIFIER column in SQL Output!")
+             throw new NPAException("Does not contain METRIC_IDENTIFIER column in SQL Output! Note: This is case SEnsItive!")
          }
          if ( ! results[0].containsKey('METRIC_VALUE')) {
-             throw new NPAException("Does not contain METRIC_VALUE column in SQL Output!")
+             throw new NPAException("Does not contain METRIC_VALUE column in SQL Output! Note: This is case SEnsItive!")
          }
         
      }

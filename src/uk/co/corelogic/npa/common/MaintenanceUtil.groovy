@@ -15,29 +15,30 @@ import uk.co.corelogic.npa.nagios.*
 static class MaintenanceUtil {
 	
     static config = NPA.getConfigObject()
-    static npa_version = "1.2_rc1"
+    static npa_version = "1.2.0_build2"
+    static hostname = ""
     //static npa_version = System.getProperty("application.version")
 
     public static getNPAVersion() {
         return npa_version;
     }
     public static getHostName() {
-        String hostname
+        if ( hostname == "" ) {
+            if ( config.use_os_hostname_command == "true" ) {
+                hostname = "hostname".execute().text.trim()
+            } else {
 
-        if ( config.use_os_hostname_command == "true" ) {
-            hostname = "hostname".execute().text.trim()
-       } else {
-
-        try {
-            InetAddress addr = InetAddress.getLocalHost();
-            byte[] ipAddr = addr.getAddress();
-            hostname = addr.getHostName();
-                Log.debug("Hostname detected as $hostname")
-            } catch (UnknownHostException e) {
-                Log.error("Hostname lookup failed!  Please check name resolution is working, or set use_os_hostname_command to true")
-                throw e
-            }
-       }
+            try {
+                InetAddress addr = InetAddress.getLocalHost();
+                byte[] ipAddr = addr.getAddress();
+                hostname = addr.getHostName();
+                    Log.debug("Hostname detected as $hostname")
+                } catch (UnknownHostException e) {
+                    Log.error("Hostname lookup failed!  Please check name resolution is working, or set use_os_hostname_command to true")
+                    throw e
+                }
+           }
+        }
         return hostname;
     }
 

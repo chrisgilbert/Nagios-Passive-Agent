@@ -170,37 +170,37 @@ class ExternalGatherer extends Gatherer {
         def groupID  = UUID.randomUUID();
         // Get performance figures if they exist
         if ( output =~ /\|/ ) {
-            def s2 = output.tokenize("|")[1]
+            output.tokenize("|")[1..-1].each { s2 ->
 
-            Log.debug("Found nagios performance figures: $s2")
-            s2.tokenize(" ").each {
+                Log.debug("Found nagios performance figures: $s2")
+                s2.tokenize(" ").each {
 
-                // Get the instance name from the bit before the equals sign
-                def anInstance = it.split("=")[0]
-                perf[anInstance] = it.split("=")[1]
+                    // Get the instance name from the bit before the equals sign
+                    def anInstance = it.split("=")[0]
+                    perf[anInstance] = it.split("=")[1]
 
-                    // The bit after the equals sign contains the metrics
-                    def i = 0
-                    it.split("=")[1].tokenize(";").each {
-                     i++
+                        // The bit after the equals sign contains the metrics
+                        def i = 0
+                        it.split("=")[1].tokenize(";").each {
+                         i++
 
-                     // Make up an indentifier using instance name and a number
-                     def aKey = (anInstance + "_" + i)
-                     def datestamp = MetricsDB.getNewDateTime()
+                         // Make up an indentifier using instance name and a number
+                         def aKey = (anInstance + "_" + i)
+                         def datestamp = MetricsDB.getNewDateTime()
 
-                     // Create a MetricModel for the nagios figure
-                     MetricModel mod = new MetricModel()
-                     mod.setMetricName(aKey)
-                     mod.setMetricType("NAGIOS")
-                     mod.setMetricDataType("String")
-                     mod.setIdentifier(this.scriptName)
-                     mod.setHostName(this.host)
-                     mod.setInitiatorID(this.initiatorID)
-                     mod.setGroupID(groupID)
+                         // Create a MetricModel for the nagios figure
+                         MetricModel mod = new MetricModel()
+                         mod.setMetricName(aKey)
+                         mod.setMetricType("NAGIOS")
+                         mod.setMetricDataType("String")
+                         mod.setIdentifier(this.scriptName)
+                         mod.setHostName(this.host)
+                         mod.setInitiatorID(this.initiatorID)
+                         mod.setGroupID(groupID)
 
-                     persistMetric(mod, it, datestamp)
-                    }
-            
+                         persistMetric(mod, it, datestamp)
+                        }
+                }
             }
 
         } else {
