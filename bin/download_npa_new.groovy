@@ -3,11 +3,13 @@
 // Simple update class, to update NPA to the most recent version.  This will update the npa.jar file and download any new libraries,
 // but not make any changes to configuration
 //
+// Version 2 - 11/07/2011 Chris Gilbert
+//
 
 def npaURL="http://www.disciple3d.co.uk/npa-stable.jar"
 newFile="npa-stable.jar"
 def libList="http://www.disciple3d.co.uk/libs.txt"
-def suffix=123
+def suffix=new Date().format("yyyy-MM-dd-HH24-mm-ss")
 
 def config = new ConfigSlurper().parse(new File("../config/defaults.groovy").toURL())
 
@@ -18,14 +20,16 @@ def proxyUserName=config.npa.proxy_username
 def proxyPasswd=config.npa.proxy_password
 
 if ( proxyHost != null ) {
-	println("Using proxy $proxyHost:$proxyPort")
-        if (config.npa.proxy_enabled == "true" ){
-            System.properties.putAll( ["http.proxyHost":proxyHost, "http.proxyPort":proxyPort,"http.proxyUserName":proxyUserName, "http.proxyPassword":proxyPasswd] )
+        if (config.npa.proxy_enable == "true" ){
+		println("Using proxy $proxyHost:$proxyPort")
+            //println ( ["http.proxyHost":proxyHost, "http.proxyPort":proxyPort,"http.proxyUserName":proxyUserName.toString(), "http.proxyPassword":proxyPasswd.toString()] )
+            System.properties.putAll( ["http.proxyHost":proxyHost.toString(), "http.proxyPort":proxyPort.toString(), "http.proxyUserName":proxyUserName.toString(), "http.proxyPassword":proxyPasswd.toString()] )
         }
 }
 
+println("This script will attempt to download and new version of NPA.  It is an experimental feature, so may have issues..")
+println("-----------------------------------------------------------------------------------------------------------------")
 println("Downloading release from $npaURL")
-download(npaURL, '../')
 download(npaURL, '../')
 
 def oldList = []
@@ -41,21 +45,27 @@ println("System temp is at: " + System.getProperty('java.io.tmpdir'))
 new File(download(libList, System.getProperty('java.io.tmpdir'))).eachLine { newLib->
         //println("Checking Library: " + newLib.tokenize("/")[-1])
 	if ( ! oldList.contains(newLib.tokenize("/")[-1]) ) {
+	  println ("Fetching library: $newLib")
     	  download(newLib, "../lib")
         }
 }
 
 
 stopNpa()
-renameFile("../npa.jar", "../npa.jar.old${suffix}")
-renameFile("../" + newFile, "../npa.jar")
+try {
+	if ( ! (new File("../npa.jar").renameTo(new File("../npa.jar.old${suffix}"))) ) { throw new IOException() }
+	if ( ! (new File("../" + newFile).renameTo(new File("../npa.jar"))) ) { throw new IOException() }
+} catch(e) {
+	println("Failed to rename file!" + e)
+	throw e
+}
 startNpa()
 
 
 def download(address, toDir)
 {
-    println("Downloading to: " + toDir + "/" + new URL(address).getFile())
-    def file = new FileOutputStream(toDir + "/" + new URL(address).getFile())
+    println("Downloading to: " + toDir + "/" + address.tokenize("/")[-1])
+    def file = new FileOutputStream(toDir + "/" + address.tokenize("/")[-1])
     def out = new BufferedOutputStream(file)
     out << new URL(address).openStream()
     out.close()
@@ -63,10 +73,45 @@ def download(address, toDir)
 }
 
 def stopNpa() {
-   "./npa stop".execute()
+   println("Stopping NPA..")
+   try {
+	if (System.getProperty("os.name").startsWith("Windows")) {
+		runCmd(["cmd", "/c", "net stop npa"])
+	} else {
+		runCmd(["sh", "-c", ".\npa stop"])
+	}
+   } catch(e) {
+	println("Failed to stop NPA!" + e)
+   }
 }
 
 
 def startNpa() {
-   "./npa start".execute()
+   println("Starting NPA..")
+   try {
+	if (System.getProperty("os.name").startsWith("Windows")) {
+		runCmd(["cmd", "/c", "net start npa"])
+	} else {
+		runCmd(["sh", "-c", ".\npa start"])
+	}
+
+	println("Update complete! Check for any errors above, and confirm NPA is still working correctly in the npa.log file.")
+	System.exit(0)
+   } catch(e) {
+	println("Failed to start NPA!" + e)
+   }
 }
+
+
+def runCmd(command) {
+	def initialSize = 10000
+	def outStream = new StringBuffer(initialSize)
+	def errStream = new StringBuffer(initialSize)
+	def proc = command.execute()
+	proc.out.flush()
+	proc.out.close()
+	proc.waitForProcessOutput(outStream, errStream)
+}
+
+
+

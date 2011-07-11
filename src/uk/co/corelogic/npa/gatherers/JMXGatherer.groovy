@@ -37,7 +37,7 @@ def sharedMetRes = [:]
     */
 
     public void registerMetrics() {
-        //this.metricList.add('HTTP_MS_RESP_TIME')
+        //this.metricList.add('MBEAN_VALUE')
     }
 
 }

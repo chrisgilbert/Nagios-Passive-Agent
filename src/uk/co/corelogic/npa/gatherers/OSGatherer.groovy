@@ -164,6 +164,13 @@ def total_space_mb = [:]
 
     }
 
+    /*
+     * Simple  method to clean up input strings and return without nasty characters like nul and newline
+     */
+    public cleanOutput(input){
+        return input.toString().trim().normalize().replace("\0", ' ').replace("\r", ' ').replace("\n", ' ').replace("\000", ' ').replace("\u0000", ' ')
+    }
+
 
     /**
      * Get all the volumes on the system
@@ -185,7 +192,7 @@ def total_space_mb = [:]
             output = runCmdWin(cmd1)
             Log.debug("Cmd output: ${output.toString()}")
 
-            def s1 = output.toString().trim().normalize().replace("\000", ' ').replace("\u0000", ' ').tokenize(":\\")
+            def s1 = cleanOutput(output).tokenize(":\\")
             s1.each{ it.trim() }
             //Log.debug("Split output: $s2")
             def outputf = s1.findAll{ it != /Drives/ }
@@ -195,7 +202,7 @@ def total_space_mb = [:]
             def vols = []
             outputf.each {
                 def cmd2 = ["cmd","/u/c","fsutil fsinfo drivetype  ${it}:"]
-                def output2 = runCmdWin(cmd2).toString().replace("\000", ' ').replace("\u0000", ' ').replace("\t", ' ').normalize().replace("\n", ' ').trim()
+                def output2 = cleanOutput(runCmdWin(cmd2))
                 if ( output2 =~ /Fixed/ ) {
                     Log.debug("Entering fixed drive for " + it.toString())
                     Log.debug("Adding volume: $it")
@@ -211,7 +218,7 @@ def total_space_mb = [:]
 
         def cmd = ["sh", "-c", "df -PlT -x tmpfs | grep -v blocks | awk '{print \$7}'"]
 
-        output = runCmd(cmd)
+        output = cleanOutput(runCmd(cmd))
         Log.debug(output)
         volumes = output.toString().split()
         Log.debug("All local volumes (no tmpfs): $volumes" )

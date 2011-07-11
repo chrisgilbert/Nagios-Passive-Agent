@@ -104,9 +104,27 @@ AND    time_remaining > 0
 AND    elapsed_time >= 60
 ]]>
 </sql>
-	</check>
+	</check> -->
 
+<!-- Here if you are only using dba_scheduler jobs, you can set warning and critical values for the time taken to run jobs.  dba_jobs always return 0 for the metric_value. -->
 
+<!--
+	<check name="chk_db_metric" warn="0" crit="0" type="GTE">
+	    <nagiosServiceName>chk_db_jobs</nagiosServiceName>
+   	    <host>supermarvin</host>
+	    <user>username</user>
+	    <password>password</password>
+	    <database>database</database>
+	    <port>1521</port>
+	    <driver>oracle.jdbc.driver.OracleDriver</driver>
+            <url>jdbc:oracle:thin:@//hostname:1521/database</url>
+	    <sql>
+<![CDATA[
+
+select job_name as JOB, 'Job in ' || state || ' state: ' || owner || ':' || job_name || ' ' || coalesce(job_action, program_name)  || ' Last run: ' || LAST_START_DATE || ' - DBA_SCHEDULER_JOBS' as MESSAGE, 'DBA_SCHEDULER JOB' as JOB_TYPE, (EXTRACT(second FROM LAST_RUN_DURATION)  + EXTRACT(minute FROM LAST_RUN_DURATION) * 60 + EXTRACT(hour FROM LAST_RUN_DURATION) * 3600 + EXTRACT(day FROM LAST_RUN_DURATION) * 86400)  as METRIC_VALUE, job_name as METRIC_IDENTIFIER from dba_scheduler_jobs where state in ('FAILED', 'RETRY SCHEDULED', 'BROKEN')
+union all
+select cast(job AS varchar2(30)) as JOB, 'Job broken: ' || job || ' ' || what || ' Last run: ' || LAST_DATE || ' - DBA_JOBS', 'DBA_JOB' as JOB_TYPE, 0 as METRIC_VALUE, cast(job AS varchar2(30)) as METRIC_IDENTIFIER from dba_jobs where broken='Y'; 
+]]>
 
 
 
