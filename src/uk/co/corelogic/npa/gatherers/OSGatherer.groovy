@@ -529,7 +529,7 @@ def total_space_mb = [:]
 	// Solaris
         // TODO: Test on Solaris 9
 	if (this.os_name ==~ /SunO.*/ ) {
-		def cmd = ["sh", "-c", "/usr/sbin/prtconf | grep Mem | cut -f 3 -d ' '"]
+		def cmd = ["sh", "-c", "/usr/sbin/prtconf 2>/dev/null | grep Mem | cut -f 3 -d ' '"]
                 def cmd2 = ["sh", "-c", "/usr/bin/vmstat -q 1 1 | cut -d ' ' -f 6 | grep -v \"^\$\""]
             def total = runCmd(cmd)
             def free = runCmd(cmd2)
