@@ -15,9 +15,9 @@ else
 	echo Copying files to $INSTALLDIR produced errors!
 fi
 
-echo Changing $INSTALL_DIR/bin/npa file..
-sed "s/RUN_AS_USER=npa/RUN_AS_USER=$NPAUSER/" $INSTALL_DIR/bin/npa > $INSTALL_DIR/bin/npa.new
-mv $INSTALL_DIR/bin/npa.new $INSTALL_DIR/bin/npa
+echo Changing $INSTALLDIR/bin/npa file..
+sed "s/RUN_AS_USER=npa/RUN_AS_USER=$NPAUSER/" $INSTALL_DIR/bin/npa > $INSTALLDIR/bin/npa.new
+mv $INSTALLDIR/bin/npa.new $INSTALLDIR/bin/npa
 chmod 755 $INSTALLDIR/bin/*
 
 chown -R npa:npa $INSTALLDIR
