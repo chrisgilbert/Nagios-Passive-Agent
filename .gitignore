@@ -1,4 +1,5 @@
 release-file.sh
+release-stable.sh
 tars/
 config/
 config-dist-corelogic/

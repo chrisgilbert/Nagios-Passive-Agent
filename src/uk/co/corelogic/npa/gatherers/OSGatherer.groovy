@@ -529,16 +529,41 @@ def total_space_mb = [:]
 	// Solaris
         // TODO: Test on Solaris 9
 	if (this.os_name ==~ /SunO.*/ ) {
-		def cmd = ["sh", "-c", "/usr/sbin/prtconf 2>/dev/null | grep Mem | cut -f 3 -d ' '"]
-                def cmd2 = ["sh", "-c", "/usr/bin/vmstat -q 1 1 | cut -d ' ' -f 6 | grep -v \"^\$\""]
-            def total = runCmd(cmd)
-            def free = runCmd(cmd2)
+            def total, free, used
+                // Check for Solaris 10 - if so, we need to know if this is a local zone
+                // as it is more complicated to get information there..
+                if ( runCmd(["sh", "-c", "uname -r"]).toString().trim() == "5.10") {
+                    def zoneName = runCmd(["sh", "-c", "/sbin/zonename"])
+                    if ( zoneName == "global" ) {
+                    		def cmd = ["sh", "-c", "/usr/sbin/prtconf 2>/dev/null | grep Mem | cut -f 3 -d ' '"]
+                                def cmd2 = ["sh", "-c", "/usr/bin/vmstat -q | cut -d ' ' -f 6 | grep -v \"^\$\""]
+
+                                total = checkValidNumber(runCmd(cmd).toString().trim())
+                                free = ( checkValidNumber(runCmd(cmd2).toString().trim()) / 1024)
+                    }
+                    else {
+                            def cmd = ["sh", "-c", "/usr/sbin/prtconf 2>/dev/null | grep Mem | cut -f 3 -d ' '"]
+                            def cmd2 = ["sh", "-c", "/usr/bin/prstat -Z 1 1 | grep -v 'ZONEID' | grep -v 'PID' | awk '{if (NF==\"8\") print \$0;}' | awk '{print \$4}'"]
+
+                            total = checkValidNumber(runCmd(cmd).toString().trim())
+                            used =  checkValidNumber(runCmd(cmd2).toString().trim()[0..-2])
+                            free = (total - used)
+                    }
+                }
+                else {
+                    def cmd = ["sh", "-c", "/usr/sbin/prtconf 2>/dev/null | grep Mem | cut -f 3 -d ' '"]
+                    def cmd2 = ["sh", "-c", "/usr/bin/vmstat -q | cut -d ' ' -f 6 | grep -v \"^\$\""]
+
+                    total = checkValidNumber(runCmd(cmd).toString().trim())
+                    free = ( checkValidNumber(runCmd(cmd2).toString().trim()) / 1024)
+
+                }
 
             if ( total == null || free == null ) {
                 throw new NPAException("No data returned from plugin!");
             }
             //Log.debug(total + free)
-            mem_pct = (100 - ((checkValidNumber(free.toString().trim())/1024) / checkValidNumber(total.toString().trim()) * 100))
+            mem_pct = (100 - ((free / total) * 100))
 	}
     // Save the metric and return the value
         def m3 = persistMetric(mod, mem_pct, datestamp)
