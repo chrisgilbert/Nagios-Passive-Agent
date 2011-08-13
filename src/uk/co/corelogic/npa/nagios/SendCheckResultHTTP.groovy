@@ -90,7 +90,7 @@ def nagiosStatus
    }
 
         // Cleanup message to make sure no dodgy characters have snuck in
-        String message = CheckResult.message.toString().replaceAll("\\s\\s+|\\n|\\r|\\t", " ").replaceAll("\u0000", " ");
+        String message = CheckResult.message.toString().replaceAll("\\s\\s+|\\n|\\r|\\t|%0A", " ").replaceAll("\u0000", " ");
         Log.debug("Message string after character replacement is: " + message);
 
 
