@@ -4,19 +4,26 @@ import groovy.sql.Sql
 import uk.co.corelogic.npa.common.CheckResult
 import uk.co.corelogic.npa.database.*
 import uk.co.corelogic.npa.common.*
-import java.lang.management.*
-import java.lang.management.remote.*
-import java.lang.management.remote.api.*
+//import java.lang.management.*
+//import java.lang.management.remote.*
+//import java.lang.management.remote.api.*
 import oracle.oc4j.admin.jmx.remote.api.JMXConnectorConstant
 import oracle.oc4j.admin.jmx.remote.api.*
+import oracle.oc4j.admin.jmx.remote.*
 import javax.management.ObjectName
-import javax.management.remote.*
+import javax.management.remote.JMXServiceURL
+import javax.management.remote.JMXConnectorFactory
+import javax.management.remote.JMXConnector
+//import javax.management.remote.*
+
 
 /**
  * A class to gather information from Oracle Application Server via JMX
  * @author chris
  */
 class OASGatherer extends JMXGatherer {
+
+    def opmnConfigMBean
 	
     public OASGatherer(variables) {
 
@@ -25,17 +32,20 @@ class OASGatherer extends JMXGatherer {
          * Configure the parameters required to connect to OPMN and OC4J
          *
         */
-        def host = variables.host
-        def port = variables.port
-        def username = variables.username
-        def password = variables.password
-        def instance = variables.instance
+        assert variables.host != null, "Missing host name!"
+        assert variables.port != null, "Missing port number!"
+        assert variables.username != null, "Missing username!"
+        assert variables.password != null, "Missing password!"
+        assert variables.instance != null, "Missing OC4J instance name!"
 
-    
-        def serverPath = 'oc4j:j2eeType=J2EEServer,name=standalone'
-        def jvmPath = 'oc4j:j2eeType=JVM,name=single,J2EEServer=standalone'
+        host = variables.host
+        port = variables.port
+        username = variables.username
+        password = variables.password
+        instance = variables.instance
+
+   
         def provider = 'oracle.oc4j.admin.jmx.remote'
-        def serviceUrl = "service:jmx:rmi:///opmn://$host:$port/$instance"
 
         def credentials = [
             (JMXConnectorConstant.CREDENTIALS_LOGIN_KEY): username,
@@ -46,16 +56,34 @@ class OASGatherer extends JMXGatherer {
             (JMXConnector.CREDENTIALS): credentials
         ]
 
-        // Connect to OPMN managementServer to get further functionality
-        def managementServerUrl = new JMXServiceURL("service:jmx:rmi:///opmn://$host:$port/cluster")
-        def opmnConfigPath='ias:type=OpmnConfig'
+        def managementServerUrl = "service:jmx:rmi:///opmn://$host:$port/cluster"
         def managementServerMbeanPath = "ias:j2eeType=J2EEDomain,name=ias"
-        //def instanceMbeanPath = "ias:j2eeType=J2EEServer,name=$instance,J2EEServerGroup=${getOC4JGroupName()},ASInstance=${getIASInstanceName()}"
 
-        init(env, serviceUrl, serverPath, jvmPath, managementServerUrl, managementServerMbeanPath, instanceMbeanPath)
+        j2eeServerUrl = "service:jmx:rmi:///opmn://$host:$port/$instance"
+        j2eeMbeanPath = "oc4j:j2eeType=J2EEServer,name=standalone"
+        jvmMbeanPath = "oc4j:j2eeType=JVM,name=single,J2EEServer=standalone"
+        
+
+        super.connectManagement(env, managementServerUrl, managementServerMbeanPath)
+        super.connectJ2EE(env, j2eeServerUrl, j2eeMbeanPath, jvmMbeanPath)
     }
 
 
+
+    /**
+    Register a list of metrics which are provided by this gatherer
+
+    These registered here are specific to Oracle Application Server - others are also inherrited from JMXGatherer
+    */
+
+    public void registerMetrics() {
+        super.registerMetrics()
+        this.metricList.add('OAS_HTTP_SESSIONS')
+        this.metricList.add('OAS_OC4J_STATE')
+    }
+
+
+    
     public listJMSQueues() {
         def query = new javax.management.ObjectName('oc4j:*')
         def allNames = conn.queryNames(query, null)
@@ -69,41 +97,62 @@ class OASGatherer extends JMXGatherer {
     }
 
     public getIASInstanceName() {
-        def query = new javax.management.ObjectName('ias:*')
-        def allNames = managementServer.queryNames(query, null)
-        //println(allNames)
-        def dests1 = allNames.findAll{ name ->
-            name.toString().contains('ias:type=OpmnConfig,name=')
+        Log.debug("Getting iAS Instance Name")
+        def data =  getManagementMbean("ias:j2eeType=J2EEDomain,name=ias").servers.find { it =~ instance }.toString()[4..-1]
+
+        // Make a map using the Mbean path string to find an appropriate value
+        def map = [:]
+        data.split(",").each {param ->
+            def nameAndValue = param.split("=")
+            map[nameAndValue[0]] = nameAndValue[1]
         }
-        println dests1
-        def dests = dests1.collect{ new GroovyMBean(managementServer, it) }
-        return dests[0].iasInstanceName
+        return map.ASInstance
     }
 
     public getOC4JGroupName() {
-        def query = new javax.management.ObjectName('ias:*')
-        def allNames = managementServer.queryNames(query, null)
-        //println(allNames)
-        def dests1 = allNames.findAll{ name ->
-            name.toString().contains("ias:j2eeType=J2EEServer,name=$instance,J2EEServerGroup=")
+        Log.debug("Getting OC4J group Name")
+        def data = getManagementMbean("ias:j2eeType=J2EEDomain,name=ias").servers.find { it =~ instance }.toString()[4..-1]
+
+        // Make a map using the Mbean path string to find an appropriate value
+        def map = [:]
+        data.split(",").each {param ->
+            def nameAndValue = param.split("=")
+            map[nameAndValue[0]] = nameAndValue[1]
         }
-        println dests1
-        def dests = dests1.collect{ new GroovyMBean(managementServer, it) }
-        def group = dests[0].name().toString().tokenize(',').get(2).tokenize('=').get(1)
-        return group
+        return map.J2EEServerGroup
     }
+
+
+
+    public getStateString() {
+       def stateList = [0:"STARTING",1:"RUNNING",2:"STOPPING",3:"STOPPED",4:"FAILED"]
+       return stateList.get(getManagementMbean("ias:j2eeType=J2EEServer,name=$instance,J2EEServerGroup=${getOC4JGroupName()},ASInstance=${getIASInstanceName()}").state)
+    }
+
 
     public getState() {
-       def stateList = [0:"STARTING",1:"RUNNING",2:"STOPPING",3:"STOPPED",4:"FAILED"]
-       return stateList.get(this.opmnOC4J.state)
+       return getManagementMbean("ias:j2eeType=J2EEServer,name=$instance,J2EEServerGroup=${getOC4JGroupName()},ASInstance=${getIASInstanceName()}").state
     }
 
+    /*
+     * This returns the path to the ORACLE_HOME as a String
+    */
     public getOracleHome() {
        return this.j2eeServer.oracleHome
     }
 
+    /*
+     * Return an integer count of all the sessions on the container.  This covers all deployed applications.
+    */
+    public getCountHTTPSessions() {
+       Log.debug("Getting HTTP Sessions value.")
+       def value = queryJ2EEMbean("oc4j:j2eeType=ClassLoading,name=singleton,J2EEServer=standalone", "HttpSessions").split("\n").find { it =~ "Total Sessions" }.tokenize(" ").find{ it ==~ /^\d+/ }
+       Log.debug(value)
+       return value
+    }
+
     public getLogDir() {
-       return this.jvm.getproperty("framework.log.dir")
+       return this.jvmInfo[0].getproperty("framework.log.dir")
     }
 
     public installSharedLibrary(file, name, version, source) {
@@ -111,15 +160,15 @@ class OASGatherer extends JMXGatherer {
     }
 
     public checkSharedLibraryExists(name, version) {
-       this.j2eeServer.installSharedLibrary(name, version)
+       this.j2eeServer.checkSharedLibraryExists(name, version)
     }
 
     public stop() {
-       this.opmnOC4J.stop()
+       this.j2eeServer.stop()
     }
 
     public start() {
-       this.opmnOC4J.start()
+       this.j2eeServer.start()
     }
 
 }

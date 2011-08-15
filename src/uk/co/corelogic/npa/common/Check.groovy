@@ -243,4 +243,19 @@ def variables
      }
     }
 
+    /*
+     * Validate a variables map against a list of required parameters and throw
+     * an exception if any are missing
+    */
+    public validateParameters(Map variables, ArrayList required) {
+       def missing
+       required.collect {
+           if (! variables.containsKey(it)) { missing.add(it) }
+       }
+
+        if (! missing.isEmpty() ) {
+            throw new NPAException("Variables do not contain required parameters: $missing")
+        } 
+    }
+
 }
