@@ -6,17 +6,19 @@ import uk.co.corelogic.npa.gatherers.HTTPGatherer
  * Implements HTTP checks using HTTPGatherer
  * @author Chris Gilbert
  */
-class HTTPCheck extends Check {
+class HTTPCheck extends Check implements CheckInterface {
 
 String result
 String host
     
-    public init() {
+    public init(variables) {
         if ( gatherer == null) {
             this.initiatorID  = UUID.randomUUID();
             this.gatherer = new HTTPGatherer(this.initiatorID)
             Log.debug("Gatherer initiator ID is ${this.initiatorID}")
         }
+            // Check for nulls
+            assert variables != null, 'Variables cannot be null!'
     }
 
     synchronized public HTTPCheck clone() {
@@ -42,12 +44,10 @@ String host
 
 
 public chkHTTP(variables, th_warn, th_crit, th_type) {
-    // Check for nulls
-    init()
-    assert variables != null, 'Variables cannot be null!'
+    init(variables)
+
     assert th_warn != null, 'th_warn cannot be null!'
     assert th_crit != null, 'th_crit cannot be null!'
-
     this.host = variables.host
     def URL = variables.url
     def performance = [:]

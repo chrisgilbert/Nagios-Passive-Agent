@@ -105,25 +105,6 @@ class Gatherer {
         }
     }
 
-    /**
-     * Sample a stat using a valid metric ID and return the value - no variables
-    */
-//    public sample(String metricName) throws NPAException {
-//        if (MetricRegister.getClassName(metricName)) {
-//
-//            try {
-//                return this.invokeMethod(metricName)
-//            } catch(e) {
-//                Log.error("Sampling a stat threw an exception.  Oops.", e)
-//                Log.error("STACK:", e)
-//                throw e;
-//            }
-//        } else {
-//            Log.error("No valid metric type registered for " + metricName)
-//            Log.error("Metric list contents: ${this.metricList}")
-//            throw new NPAException("No valid metric type registered for " + metricName)
-//        }
-//    }
 
     /**
      * Return a collection of all metrics

@@ -21,6 +21,14 @@ def initiatorID
 def gatherer
 def variables
 
+/* These values are the required and optional arguments applicable to all class extending Check.
+ * They are be extended by the lists in individual checks.
+ */
+List required = ["nagiosServiceName"]
+List optional = []
+Map requiredWith = ["saveMetrics":"dataType"]
+Map optionalWith = [:]
+
     Check(chk_name, th_warn, th_crit, th_type, args) {
         this.chk_name = chk_name
         this.chk_th_warn = th_warn
@@ -45,6 +53,23 @@ def variables
         clone.gatherer = null;
         clone.variables = this.variables;
         return clone;
+    }
+
+    /*
+     * Initialise the class, checking if the supplied variables match the required ones for given Check
+     *
+     */
+    public init(Map variables, Map required) {
+        if ( this.initiatorID == null ) {
+            this.initiatorID  = UUID.randomUUID();
+        }
+
+         def required = ["nagiosServiceName", "scriptName", "scriptType", "returnType", "scriptArgs", "metricName", "instanceName", "saveMetrics"]
+         def optional = []
+         def requiredWith = ["saveMetrics":"dataType"]
+         def optionalWith = []
+
+
     }
 
 

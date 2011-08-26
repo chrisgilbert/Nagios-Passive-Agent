@@ -130,7 +130,6 @@ class ExternalGatherer extends Gatherer {
     assert variables.scriptName != null, "Supplied scriptname must not be null!"
     assert variables.scriptType != null, "Supplied script type must not be null!"
     assert variables.returnType != null, "Supplied return type must not be null!"
-    assert variables.scriptName != null, "Supplied scriptname must not be null!"
     assert variables.metricName != null, "Supplied metric name must not be null!"
     assert variables.identifier != null, "Supplied identifier must not be null!"
 

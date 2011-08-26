@@ -14,7 +14,7 @@ import uk.co.corelogic.npa.gatherers.*
  *
  * @author Chris Gilbert
  */
-class DBCheck extends Check {
+class DBCheck extends Check implements CheckInterface {
 
 String conn
 String result

@@ -43,6 +43,7 @@ class OASGathererTest extends NPATest {
 
     public void testGetHTTPSessions() {
         println(instantiate().getCountHTTPSessions())
+        println(instantiate().executeMbeanOperation("oc4j:j2eeType=ClassLoading,name=singleton,J2EEServer=standalone", "executeQuery()", { it.split("\n").find { it =~ "Total Sessions" }.tokenize(" ").find{ it ==~ /^\d+/ } }, "HTTPSessions"))
     }
 
     public void testGetState(){

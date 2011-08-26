@@ -8,16 +8,22 @@ import uk.co.corelogic.npa.gatherers.ExternalGatherer
  * 
  * @author Chris Gilbert
  */
-class NagiosCheck extends Check {
+class NagiosCheck extends Check implements CheckInterface {
 
-  
-    public init() {
-        if ( gatherer == null) {
-            this.initiatorID  = UUID.randomUUID();
-            this.gatherer = new ExternalGatherer(this.initiatorID)
-            Log.debug("Gatherer initiator ID is ${this.initiatorID}")
-        }
-    }
+    /*
+     * A set of arguments used by the check or gatherer.  There should be Lists for required and optional, and Maps for requiredWith and optionalWith.
+     * These allow the XML to be appropriately checked for missing configuration
+     *
+     */
+    this.required = ["scriptName", "scriptType", "returnType", "instanceName"]
+    this.optional = ["scriptArgs", "saveMetrics"]
+    this.requiredWith = ["saveMetrics":"dataType","saveMetrics":"metricName"]
+    this.optionalWith = [:]
+    
+
+    def identifier = variables.identifier
+    def datestamp = MetricsDB.getNewDateTime()
+
 
     NagiosCheck(chk_name, args) {
         init()
@@ -33,7 +39,7 @@ class NagiosCheck extends Check {
 
     // Just ignore threshold stuff if it's specified
     public chk_nagios(variables, th_warn, th_crit, th_type) {
-        init()
+        init(variables, required)
         return chk_nagios(variables)
     }
 

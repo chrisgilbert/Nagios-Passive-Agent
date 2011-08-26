@@ -1,8 +1,8 @@
-package uk.co.corelogic.npa.oas
+package uk.co.corelogic.npa.checks
 import uk.co.corelogic.npa.gatherers.*
 import uk.co.corelogic.npa.common.*
 
-class OASCheck extends JMXCheck {
+class OASCheck extends JMXCheck implements CheckInterface {
 
     synchronized public OASCheck clone() {
         OASCheck clone = (OASCheck) super.makeClone(this.chk_name);
