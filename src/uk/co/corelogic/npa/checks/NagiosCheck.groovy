@@ -8,28 +8,27 @@ import uk.co.corelogic.npa.gatherers.ExternalGatherer
  * 
  * @author Chris Gilbert
  */
-class NagiosCheck extends Check implements CheckInterface {
-
-    /*
-     * A set of arguments used by the check or gatherer.  There should be Lists for required and optional, and Maps for requiredWith and optionalWith.
-     * These allow the XML to be appropriately checked for missing configuration
-     *
-     */
-    this.required = ["scriptName", "scriptType", "returnType", "instanceName"]
-    this.optional = ["scriptArgs", "saveMetrics"]
-    this.requiredWith = ["saveMetrics":"dataType","saveMetrics":"metricName"]
-    this.optionalWith = [:]
+class NagiosCheck extends Check {
     
 
-    def identifier = variables.identifier
-    def datestamp = MetricsDB.getNewDateTime()
-
-
-    NagiosCheck(chk_name, args) {
+    NagiosCheck(chk_name, variables) {
+        /*
+        * A set of arguments used by the check or gatherer.  There should be Lists for required and optional, and Maps for requiredWith and optionalWith.
+        * These allow the XML to be appropriately checked for missing configuration
+        *
+        */
+        this.required += ["scriptName", "scriptType", "returnType", "instanceName"]
+        this.optional += ["scriptArgs", "saveMetrics"]
+        this.requiredWith += ["saveMetrics":["dataType","metricName"]]
+        this.optionalWith += [:]
         init()
     }
     NagiosCheck() {
         super()
+        this.required += ["scriptName", "scriptType", "returnType", "instanceName"]
+        this.optional += ["scriptArgs", "saveMetrics"]
+        this.requiredWith += ["saveMetrics":["dataType","metricName"]]
+        this.optionalWith += [:]
     }
 
     synchronized public clone() {
@@ -53,9 +52,6 @@ class NagiosCheck extends Check implements CheckInterface {
     */
     public CheckResult chk_nagios(variables) {
         init()
-        // Check for null values
-        assert variables != null, 'Variables are null!'
-        assert variables.nagiosServiceName != null, 'A nagiosServiceName must be specified!'
 
         int scriptResult
         def output

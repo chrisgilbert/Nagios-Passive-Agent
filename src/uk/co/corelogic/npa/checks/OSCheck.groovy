@@ -5,32 +5,26 @@ import uk.co.corelogic.npa.os.*
 
 public class OSCheck extends Check implements CheckInterface {
 
-this.required = ["unitType", "volume"]
-
-    public init(variables, required) {
-
-        super.init(variables, required)
-
+    // We must call this method each time the check runs, to ensure we are using a new instance of OSGatherer each time
+    @Override
+    public init() {
+        super.init()
+        this.gatherer = null
         this.gatherer = new OSGatherer(this.initiatorID)
         Log.debug("Gatherer initiator ID is ${this.initiatorID}")
-        }
+    }
 
-        OSCheck(chk_name, th_warn, th_crit, th_type, args) {
-            super(chk_name, th_warn, th_crit, th_type, args)
-            init()
-        }
-        OSCheck() {
-            super()
-        }
-
-        synchronized public clone() {
-            OSCheck clone = (OSCheck) super.makeClone(this.chk_name);
-            return clone;
-        }
+    @Override
+    synchronized public clone() {
+        OSCheck clone = (OSCheck) super.makeClone(this.chk_name);
+        return clone;
+    }
 
 
     public chk_disk_free() {
+        this.required += ["unitType", "volume"]
         init()
+
         if ( this.chk_args.volume == "ALL" ) {
             return this.chkAllDisks(this.chk_args.clone(), this.chk_th_warn, this.chk_th_crit, this.chk_th_type)
         } else {
@@ -53,15 +47,8 @@ this.required = ["unitType", "volume"]
     }
 
 
-    public CheckResult chkAllDisks(variables, th_warn, th_crit, th_type) {
-        init()
-        // Check for null values
-        assert variables != null, 'Variables are null!'
-        assert th_warn != null, 'th_warn cannot be null!'
-        assert th_crit != null, 'th_crit cannot be null!'
-        assert th_type != null, 'th_type cannot be null here!'
-        assert variables.nagiosServiceName != null, 'nagiosServiceName cannot be null here!'
-
+    private CheckResult chkAllDisks(variables, th_warn, th_crit, th_type) {
+        
         def free_space_mb = [:]
         def total_space_mb = [:]
         def used_space_mb = [:]
@@ -141,8 +128,8 @@ this.required = ["unitType", "volume"]
         this.gatherer = null;
     }
 
-    public CheckResult chkDiskFree(variables, th_warn, th_crit, th_type) {
-        init()
+    private CheckResult chkDiskFree(variables, th_warn, th_crit, th_type) {
+
         def output
         def free_space_mb
         def total_space_mb
@@ -199,8 +186,8 @@ this.required = ["unitType", "volume"]
     }
 
 
-    public CheckResult chkCpuPct(variables, th_warn, th_crit, th_type) {
-        init()
+    private CheckResult chkCpuPct(variables, th_warn, th_crit, th_type) {
+
         float cpu_pct
         def message = ""
         String status
@@ -230,8 +217,8 @@ this.required = ["unitType", "volume"]
 
     }
 
-    public CheckResult chkMemoryFreePct(variables, th_warn, th_crit, th_type) {
-        init()
+    private CheckResult chkMemoryFreePct(variables, th_warn, th_crit, th_type) {
+
         float mem_pct
         def message = ""
         String status
@@ -263,8 +250,8 @@ this.required = ["unitType", "volume"]
 
 
 
-    public CheckResult chkDiskBusyPct(variables, th_warn, th_crit, th_type) {
-        init()
+    private CheckResult chkDiskBusyPct(variables, th_warn, th_crit, th_type) {
+
         float disk_pct
         def output
         def p

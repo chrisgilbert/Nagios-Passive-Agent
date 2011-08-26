@@ -26,7 +26,7 @@ def variables
  */
 List required = ["nagiosServiceName"]
 List optional = []
-Map requiredWith = ["saveMetrics":"dataType"]
+Map requiredWith = [:]
 Map optionalWith = [:]
 
     Check(chk_name, th_warn, th_crit, th_type, args) {
@@ -36,6 +36,11 @@ Map optionalWith = [:]
         this.chk_th_type = th_type
         this.chk_args = args
         this.variables = args
+
+        if (chk_name == null || th_warn == null || th_crit == null || th_type == null || args == null ) {
+            throw new IllegalArgumentException("Invalid arguments to Check! Require at least chk_name, th_warn, th_crit, th_type, args.");
+        }
+        init()
     }
 
     Check() {
@@ -59,15 +64,36 @@ Map optionalWith = [:]
      * Initialise the class, checking if the supplied variables match the required ones for given Check
      *
      */
-    public init(Map variables, Map required) {
+    public init() {
         if ( this.initiatorID == null ) {
             this.initiatorID  = UUID.randomUUID();
         }
+        validateVariables()
+        if (! this.variables ) { throw new NPAException("Missing required variables property in Check type ${chk_name} Please check code!") }
+    }
 
-         def required = ["nagiosServiceName", "scriptName", "scriptType", "returnType", "scriptArgs", "metricName", "instanceName", "saveMetrics"]
-         def optional = []
-         def requiredWith = ["saveMetrics":"dataType"]
-         def optionalWith = []
+    /*
+     * Validate the variables supplied in npa.xml and ensure they match those required for the check
+     */
+    private void validateVariables()  {
+
+        def missingReq = []
+        def missingOpt = []
+        def missingReqWith = [:]
+        def missingOptWith = [:]
+
+        missingReq = required - variables
+        missingOpt = optional - variables
+
+        def foundParents = requiredWith.eachWithIndex { var, indx -> variables.findAll { idx } }
+        missingReqWith = foundParents.each { it - variables }
+        def foundParents2 = optionalWith.eachWithIndex { var, indx -> variables.findAll { idx } }
+        missingOptWith = foundParents2.each { it - variables }
+        
+        if (missingReq.size() > 0) { Log.warn("Optional elements not specified: ", missingOptWith) }
+        if (missingOpt.size() > 0) { Log.warn("Optional elements not specified: ", missingOptWith) }
+        if (missingReqWith.size() > 0) { Log.error("Required arguments not specified!: ", missingReq); throw new NPAException("Required elements were not specified in $chk_name:", missingReq) }
+        if (missingOptWith.size() > 0) { Log.error("Required arguments not specified!: ", missingReqWith); throw new NPAException("Required elements were not specified in $chk_name:", missingReqWith) }
 
 
     }

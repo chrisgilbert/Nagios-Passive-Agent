@@ -6,9 +6,8 @@ package uk.co.corelogic.npa.checks
  * @author Chris Gilbert
  */
 interface CheckInterface {
-	def init(something)
+	def init()
         def clone()
         def registerChecks()
-        
 }
 
