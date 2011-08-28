@@ -82,18 +82,21 @@ Map optionalWith = [:]
         def missingReqWith = [:]
         def missingOptWith = [:]
 
-        missingReq = required - variables
-        missingOpt = optional - variables
+        missingReq = required - variables.keySet() as List
+        missingOpt = optional - variables.keySet() as List
 
-        def foundParents = requiredWith.eachWithIndex { var, indx -> variables.findAll { idx } }
-        missingReqWith = foundParents.each { it - variables }
-        def foundParents2 = optionalWith.eachWithIndex { var, indx -> variables.findAll { idx } }
-        missingOptWith = foundParents2.each { it - variables }
+
+        def foundParents = (requiredWith.keySet() as List).intersect((variables.keySet() as List))
+        missingReqWith = foundParents.collect { requiredWith.get(it) - (variables.keySet() as List) }.flatten()
+
+        def foundParents2 = (optionalWith.keySet() as List).intersect((variables.keySet() as List))
+        missingOptWith = foundParents2.collect { optionalWith.get(it) - (variables.keySet() as List) }.flatten()
+       
         
-        if (missingReq.size() > 0) { Log.warn("Optional elements not specified: ", missingOptWith) }
-        if (missingOpt.size() > 0) { Log.warn("Optional elements not specified: ", missingOptWith) }
-        if (missingReqWith.size() > 0) { Log.error("Required arguments not specified!: ", missingReq); throw new NPAException("Required elements were not specified in $chk_name:", missingReq) }
-        if (missingOptWith.size() > 0) { Log.error("Required arguments not specified!: ", missingReqWith); throw new NPAException("Required elements were not specified in $chk_name:", missingReqWith) }
+        if (missingOpt.size() > 0) { Log.warn("Optional elements not specified: ", missingOpt) }
+        if (missingOptWith.size() > 0) { Log.warn("Optional elements not specified: ", missingOptWith) }
+        if (missingReq.size() > 0) { Log.error("Required arguments not specified!: ", missingReq); throw new NPAException("Required elements were not specified in $chk_name:", missingReq) }
+        if (missingReqWith.size() > 0) { Log.error("Required arguments not specified!: ", missingReqWith); throw new NPAException("Required elements were not specified in $chk_name:", missingReqWith) }
 
 
     }

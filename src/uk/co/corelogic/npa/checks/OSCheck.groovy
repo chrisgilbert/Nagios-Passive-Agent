@@ -23,6 +23,9 @@ public class OSCheck extends Check implements CheckInterface {
 
     public chk_disk_free() {
         this.required += ["unitType", "volume"]
+        this.optional += ["bla", "bla2"]
+        this.optionalWith += ["unitType":"bla3", "testok":"ok", "unitType":"bla5"]
+        this.requiredWith += ["unitType":"bla4"]
         init()
 
         if ( this.chk_args.volume == "ALL" ) {
