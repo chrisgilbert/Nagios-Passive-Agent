@@ -56,3 +56,11 @@ rem
 if not errorlevel 1 goto :eof
 pause
 
+
+rem
+rem Remove scheduled tasks 
+rem
+schtasks /Delete /TN "Restart Nagios Passive Agent"
+schtasks /Delete /TN "Update Nagios Passive Agent"
+
+

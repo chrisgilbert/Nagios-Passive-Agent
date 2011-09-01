@@ -27,7 +27,7 @@ def c1
         c1.chk_th_warn = 1
         c1.chk_th_crit = 2
         c1.chk_th_type = "GTE"
-        c1.chk_args = variables
+        c1.variables = variables
     }
 
     /**void testCmdShell() {
@@ -44,7 +44,7 @@ def c1
         c1.chk_th_warn = 1
         c1.chk_th_crit = 2
         c1.chk_th_type = "GTE"
-        c1.chk_args = variables
+        c1.variables = variables
 
         // Test greater-than-or-equal (GTE)
         assertEquals("OK", c1.calculateStatus(1, 2, 0, "GTE"))
@@ -83,9 +83,10 @@ def c1
         assertEquals("CRITICAL", c1.calculateStatus(null, "Bla Bla", ["123", "456", "Bla Bla"], "EQ"))
         
         // Test string contains
-        assertEquals("OK", c1.calculateStatus("Bla", "Bla2", "Bla Bla", "CONTAINS"))
+        assertEquals("WARNING", c1.calculateStatus("Bla", "Bla2", "Bla Bla", "CONTAINS"))
         assertEquals("CRITICAL", c1.calculateStatus(null, "Bla", "Bla Bla", "CONTAINS"))
         assertEquals("CRITICAL", c1.calculateStatus(null, "Bla2", "Bla Bla2", "CONTAINS"))
+        assertEquals("WARNING", c1.calculateStatus("Bl2", "Bla", ["Bl1", "Bl3", "Bl Bl2"],"CONTAINS"))
         assertEquals("CRITICAL", c1.calculateStatus(null, "Bla2", ["Bla1", "Bla3", "Bla Bla2"],"CONTAINS"))
         
     }
@@ -101,7 +102,7 @@ def c1
         c1.chk_th_warn = 1
         c1.chk_th_crit = 2
         c1.chk_th_type = "GTE"
-        c1.chk_args = variables
+        c1.variables= variables
 
         def n = c1.generateResult(UUID.randomUUID(), variables.nagiosServiceName, "TEST", status, performance, new Date(), message)
     }
@@ -116,7 +117,7 @@ def c1
         c1.chk_th_warn = 1
         c1.chk_th_crit = 2
         c1.chk_th_type = "GTE"
-        c1.chk_args = variables
+        c1.variables = variables
         def interval = 10000
         c1.schedule(interval)
     }

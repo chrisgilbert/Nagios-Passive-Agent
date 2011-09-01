@@ -52,5 +52,29 @@ static class MaintenanceUtil {
             Log.error("Failed to submit host check back to server!")
         }
     }
+
+    /*
+     * Generate a message saying the NPA agent is shutting down, leaving host in unknown state.
+    */
+    public static void sendShutdownHost(message) {MaintenanceUtil.sendShutdownHost()
+        def hostChk = new CheckResult (null, MaintenanceUtil.getHostName(), "UNKNOWN", null, "none", "$message WARNING: NPA Was shutdown (or crashed) at ${new Date()} - Host is running Nagios Passive Agent version " + MaintenanceUtil.getNPAVersion())
+        def result = SendCheckResultHTTP.submit(hostChk)
+        if (!result) {
+            Log.error("Failed to submit host check back to server!")
+        }
+    }
+
+    /*
+     * Generate a message putting the host in a critical state because of problems with checks
+    */
+    public static void sendCriticalHost() {
+        def hostChk = new CheckResult (null, MaintenanceUtil.getHostName(), "CRITICAL", null, "none", "CRITICAL: Some checks are having problems and may need to be restarted - Host is running Nagios Passive Agent version " + MaintenanceUtil.getNPAVersion())
+        def result = SendCheckResultHTTP.submit(hostChk)
+        if (!result) {
+            Log.error("Failed to submit host check back to server!")
+        }
+    }
+    
+
 }
 

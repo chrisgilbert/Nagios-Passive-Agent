@@ -14,7 +14,15 @@ static void main(String[] args) {
         System.setProperty("runPath", new File(NPA.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParent().toString())
           config = this.getConfigObject()
 
-        StartChecks.start()
+        try {
+          StartChecks.start()
+        }
+        catch (e) {
+            Log.fatal("Eek.  A horrible exception made it all the way back here!", e)
+            e.getStackTrace()
+            MaintenanceUtil.sendShutdownHost(e.message)
+            throw e
+        }
         startListener()
 }
 

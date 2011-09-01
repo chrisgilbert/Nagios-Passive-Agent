@@ -57,22 +57,26 @@ def env, j2eeEnv, serviceUrl, j2eeMbeanPath, j2eeServerUrl, jvmMbeanPath, manage
         this.metricList.add('MBEAN_OPER_VALUE')
     }
 
-    public MBEAN_ATTR_VALUE(mbeanPath, Closure c, attributeName)
+    public MBEAN_ATTR_VALUE(variables)
     {
-        return getMbeanAttributeValue(mbeanPath, c, attributeName)
+        return getMbeanAttributeValue(variables.mbeanPath, variables.closureFunction, varaibles.attributeName)
     }
 
-    public MBEAN_OPER_VALUE(mbeanPath, Closure c, attributeName, String[] args)
+    public MBEAN_OPER_VALUE(variables)
     {
-        return executeMbeanOperation(mbeanPath, operationName, c, args)
+        return executeMbeanOperation(variables.mbeanPath, varaibles.operationName, variables.closureFunction, variables.operationArguments)
     }
 
     void finalize() {
+        this.disconnect()
+    }
+
+
+    void disconnect() {
         Log.debug("Closing open connections to JMX..")
         this.managementServer.close()
         this.j2eeServer.close()
     }
-
     
     public void connectManagement(env, managementServerUrl, managementServerMbeanPath) {
         this.env = env
@@ -120,7 +124,6 @@ def env, j2eeEnv, serviceUrl, j2eeMbeanPath, j2eeServerUrl, jvmMbeanPath, manage
      */
     public getMbeanAttributeValue(mbeanPath, Closure c, attributeName) {
         try {
-            //return getJ2EEMbean(mbeanPath)."$attributeName"
             if (c != null) { return processClosure(getJ2EEMbean(mbeanPath)."$attributeName", c)} else { return getJ2EEMbean(mbeanPath)."$attributeName" }
         } catch( exception ) {
             if( exception instanceof MissingPropertyException ) {

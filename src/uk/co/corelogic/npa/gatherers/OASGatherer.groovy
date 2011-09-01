@@ -4,9 +4,6 @@ import groovy.sql.Sql
 import uk.co.corelogic.npa.common.CheckResult
 import uk.co.corelogic.npa.database.*
 import uk.co.corelogic.npa.common.*
-//import java.lang.management.*
-//import java.lang.management.remote.*
-//import java.lang.management.remote.api.*
 import oracle.oc4j.admin.jmx.remote.api.JMXConnectorConstant
 import oracle.oc4j.admin.jmx.remote.api.*
 import oracle.oc4j.admin.jmx.remote.*
@@ -14,7 +11,6 @@ import javax.management.ObjectName
 import javax.management.remote.JMXServiceURL
 import javax.management.remote.JMXConnectorFactory
 import javax.management.remote.JMXConnector
-//import javax.management.remote.*
 
 
 /**
@@ -24,7 +20,11 @@ import javax.management.remote.JMXConnector
 class OASGatherer extends JMXGatherer {
 
     def opmnConfigMBean
-	
+
+
+    public OASGatherer(){
+        
+    }
     public OASGatherer(variables) {
 
         super()
@@ -32,12 +32,6 @@ class OASGatherer extends JMXGatherer {
          * Configure the parameters required to connect to OPMN and OC4J
          *
         */
-        assert variables.host != null, "Missing host name!"
-        assert variables.port != null, "Missing port number!"
-        assert variables.username != null, "Missing username!"
-        assert variables.password != null, "Missing password!"
-        assert variables.instance != null, "Missing OC4J instance name!"
-
         host = variables.host
         port = variables.port
         username = variables.username

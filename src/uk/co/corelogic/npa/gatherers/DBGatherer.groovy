@@ -43,13 +43,6 @@ class DBGatherer extends Gatherer {
         this.sql = variables.sql
         this.database = variables.database
 
-        // Check for nulls
-        assert this.url != null, 'JDBC URL cannot be null!'
-        assert this.driver != null, 'JDBC driver class cannot be null!'
-        assert this.user  != null, 'Username cannot be null!'
-        assert this.password != null, 'Password cannot be null!'
-        assert this.sql != null, 'SQL statement cannot be null!'
-
         conn(this.url, this.driver, this.user, this.password)
 
     }

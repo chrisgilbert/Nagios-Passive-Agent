@@ -35,7 +35,7 @@ class CheckSchedulerTest extends NPATest {
         c1.chk_th_crit = 2
         c1.chk_th_type = "GTE"
         c1.chk_interval = 10000
-        c1.chk_args = variables
+        c1.variables = variables
 
         CheckScheduler.schedule(c1);
     }
@@ -57,7 +57,7 @@ class CheckSchedulerTest extends NPATest {
         c1.chk_th_crit = 2
         c1.chk_th_type = "GTE"
         c1.chk_interval = 10000
-        c1.chk_args = variables
+        c1.variables = variables
         
         CheckScheduler.schedule(c1);
         CheckScheduler.printThreadState()

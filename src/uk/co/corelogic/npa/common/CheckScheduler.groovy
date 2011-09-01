@@ -24,6 +24,7 @@ class CheckScheduler implements Thread.UncaughtExceptionHandler {
 
         try {
             // Add a random delay of up to 60 seconds, which attempts to stop checks running all at once, each cycle.
+            // This can cause locking issues on Windows WMI checks otherwise
             Random random = new Random();
             long delay = random.nextInt(60000);
             //long delay = 0   // delay for 0 sec.
@@ -36,7 +37,6 @@ class CheckScheduler implements Thread.UncaughtExceptionHandler {
                 e.printStackTrace()
                 timer1.scheduleAtFixedRate(c, delay, interval)
             }
-            
 
         } catch(e) {
             Log.error("Oops.  An exception occurred when scheduling a check.  There's probably a problem with the configuration.", e)

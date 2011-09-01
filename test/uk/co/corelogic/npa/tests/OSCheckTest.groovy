@@ -16,10 +16,10 @@ class OSCheckTest extends NPATest {
 
 
     void testInstatiate() {
-        def check = new OSCheck(chk_name, th_warn, th_crit, th_type, variables)
-        assert check != null
         this.variables.unitType = "percent"
         this.variables.nagiosServiceName="TEST"
+        def check = new OSCheck(chk_name, th_warn, th_crit, th_type, variables)
+        assert check != null
     }
 
     void testRegisterChecks() {

@@ -8,8 +8,13 @@ import uk.co.corelogic.npa.gatherers.HTTPGatherer
  */
 class HTTPCheck extends Check implements CheckInterface {
 
-String result
-String host
+    public HTTPCheck() {
+    }
+    
+    // Use this constructor for all classes extending Check
+    HTTPCheck(String chk_name, int th_warn, int th_crit, String th_type, Map args) {
+        super(chk_name, th_warn, th_crit, th_type, args)
+    }
 
     @Override
     public init() {
@@ -19,37 +24,24 @@ String host
         Log.debug("Gatherer initiator ID is ${this.initiatorID}")
     }
 
-    @Override
-    synchronized public HTTPCheck clone() {
-        HTTPCheck clone = (HTTPCheck)super.makeClone(this.chk_name);
-        clone.result = this.result;
-        clone.host = this.host;
-        return clone;
-    }
-
     HTTPCheck(chk_name, th_warn, th_crit, th_type, args) {
         super(chk_name, th_warn, th_crit, th_type, args)
         this.required += ["serverPath", "url", "host"]
         init()
     }
 
-    HTTPCheck() {
-        super()
-    }
-
-
     public chk_http() {
-        chkHTTP(this.chk_args, this.chk_th_warn, this.chk_th_crit, this.chk_th_type)
+        chkHTTP(this.variables, this.chk_th_warn, this.chk_th_crit, this.chk_th_type)
     }
 
 
     private chkHTTP(variables, th_warn, th_crit, th_type) {
-        init(variables)
+        init()
 
+        def variables1 = variables.clone()
         assert th_warn != null, 'th_warn cannot be null!'
         assert th_crit != null, 'th_crit cannot be null!'
-        this.host = variables.host
-        def URL = variables.url
+        def URL = variables1.url
         def performance = [:]
         def status
         def message
@@ -58,7 +50,7 @@ String host
 
         Log.debug("Running sample check on URL: " + URL)
 
-            respTime = this.gatherer.sample("HTTP_MS_RESP_TIME", variables).toDouble()
+            respTime = this.gatherer.sample("HTTP_MS_RESP_TIME", variables1).toDouble()
 
             if (respTime == -1 ) {
                 Log.error("Failed to get valid response from URL :(")
@@ -67,10 +59,10 @@ String host
                 performance = [('response_time_ms'):"${respTime}ms;$th_warn;$th_crit;;"]
             } else {
 
-                if (variables.timePeriodMillis != null ){
-                    Log.info("Retrieving average results over ${variables1.timePeriodMillis}")
-                    avgMessage = "(average over ${variables.timePeriodMillis} ms)"
-                    respTime = this.gatherer.avg("HTTP_MS_RESP_TIME", variables).toDouble()
+                if (variables1.timePeriodMillis != null ){
+                    Log.info("Retrieving average results over ${variables11.timePeriodMillis}")
+                    avgMessage = "(average over ${variables1.timePeriodMillis} ms)"
+                    respTime = this.gatherer.avg("HTTP_MS_RESP_TIME", variables1).toDouble()
                 }
 
                 Log.info("Received valid response from URL in ${respTime}ms.")
@@ -86,7 +78,7 @@ String host
 
         Log.debug("Status is $status")
         Log.debug(message)
-        return super.generateResult(this.initiatorID, variables.nagiosServiceName, this.host, status, performance, new Date(), message)
+        return super.generateResult(this.initiatorID, variables1.nagiosServiceName, variables1.host, status, performance, new Date(), message)
 
             this.gatherer = null;
     }

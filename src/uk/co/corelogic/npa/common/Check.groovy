@@ -14,7 +14,6 @@ def chk_interval
 def chk_th_warn
 def chk_th_crit
 def chk_th_type
-def chk_args = [:]
 def sockOutput = new StringBuffer()
 def threadID;
 def initiatorID
@@ -29,22 +28,22 @@ List optional = []
 Map requiredWith = [:]
 Map optionalWith = [:]
 
-    Check(chk_name, th_warn, th_crit, th_type, args) {
+    public Check(){
+    }
+
+    Check(String chk_name, int th_warn, int th_crit, String th_type, Map variables) {
         this.chk_name = chk_name
         this.chk_th_warn = th_warn
         this.chk_th_crit = th_crit
         this.chk_th_type = th_type
-        this.chk_args = args
-        this.variables = args
+        this.variables = variables
 
-        if (chk_name == null || th_warn == null || th_crit == null || th_type == null || args == null ) {
-            throw new IllegalArgumentException("Invalid arguments to Check! Require at least chk_name, th_warn, th_crit, th_type, args.");
+        if (chk_name == null || th_warn == null || th_crit == null || th_type == null || variables == null ) {
+            throw new IllegalArgumentException("Invalid arguments to Check! Require at least chk_name, th_warn, th_crit, th_type, variables.");
         }
         init()
     }
 
-    Check() {
-    }
 
     synchronized public Check makeClone(chk_name) {
         Check clone = CheckFactory.getCheck(chk_name)
@@ -54,7 +53,6 @@ Map optionalWith = [:]
         clone.chk_th_warn = this.chk_th_warn;
         clone.chk_th_crit = this.chk_th_crit;
         clone.chk_th_type = this.chk_th_type;
-        clone.chk_args = this.chk_args;
         clone.gatherer = null;
         clone.variables = this.variables;
         return clone;
@@ -82,8 +80,8 @@ Map optionalWith = [:]
         def missingReqWith = [:]
         def missingOptWith = [:]
 
-        missingReq = required - variables.keySet() as List
-        missingOpt = optional - variables.keySet() as List
+        missingReq = required - (variables.keySet() as List)
+        missingOpt = optional - (variables.keySet() as List)
 
 
         def foundParents = (requiredWith.keySet() as List).intersect((variables.keySet() as List))
@@ -120,7 +118,7 @@ Map optionalWith = [:]
                 args.each {
                     def tokens=it.tokenize("=")
                 
-                    this.chk_args[(tokens[0])] = tokens[1]
+                    this.variables[(tokens[0])] = tokens[1]
                 }
             }
             
@@ -149,8 +147,17 @@ Map optionalWith = [:]
             this.threadID = Thread.currentThread().getId();
             CheckScheduler.registerThread(Thread.currentThread(), this.clone());
             Log.debug("Thread $threadID status: " + Thread.currentThread().getState())
-            Log.debug("Running check with parameters: ${this.chk_name}, [${this.chk_args}, ${this.chk_th_warn}, ${this.chk_th_crit}, ${this.chk_th_type}]")
+            Log.debug("Running check with parameters: ${this.chk_name}, [${this.variables}, ${this.chk_th_warn}, ${this.chk_th_crit}, ${this.chk_th_type}]")
                 CheckResultsQueue.add(this.invokeMethod(this.chk_name.trim(), null))
+
+         } catch (OutOfMemoryError e) {
+            Log.error("OutOfMemoryError occurred whilst running $chk_name check: ", e)
+            Log.error("STACK:", e)
+            e.printStackTrace()
+            Log.fatal("OutOfMemory Occurred!  Will now attempt to shutdown agent gracefully and set UNKNOWN status for host..")
+            println("Agent should restart automatically from wrapper process.")
+            MaintenanceUtil.sendShutdownHost("OutofMemoryError in check $chk_name! Shutdown agent.")
+            System.exit(1);
         } catch(e) {
             Log.error("Exception occurred whilst running $chk_name check: ", e)
             Log.error("STACK:", e)
@@ -200,14 +207,16 @@ Map optionalWith = [:]
                             break;
 
             case "EQ":      value = (String) value
+                            if ( th_warn == value ) { status = "WARNING" }
                             if ( th_crit == value ) { status = "CRITICAL" }
-                            if ( th_crit != value ) { status = "OK" }
+                            if ( th_warn != value && th_crit !=value ) { status = "OK" }
                             if ( value == -1 ) { status = "UNKNOWN" }
                             break;
 
             case "CONTAINS": value = (String) value
+                            if ( value =~ th_warn)  { status = "WARNING" }
                             if ( value =~ th_crit)  { status = "CRITICAL" }
-                            else { status = "OK" }
+                            if ( ! value =~ th_warn && ! value =~ th_crit ) { status = "OK" }
                             if ( value == -1 ) { status = "UNKNOWN" }
                             break;
                             

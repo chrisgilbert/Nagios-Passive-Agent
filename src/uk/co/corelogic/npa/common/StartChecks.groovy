@@ -86,13 +86,24 @@ static config
     }
 
     static start() {
+        try {
+            parseConfig()
+        } catch(e) {
+            Log.fatal("Failed to parse npa.xml config file!")
+            throw new NPAException("Failed to parse npa.xml!", e)
+        }
 
-        parseConfig()
 
-        // Inititialise MetricDB
-        MetricsDB.connect()
-        MetricsDB.purgeMetrics()
+        try {
+            // Inititialise MetricDB
+            MetricsDB.connect()
+            MetricsDB.purgeMetrics()
+        } catch(e) {
+            Log.fatal("Failed to init MetricsDB!")
+            throw new NPAException("Failed to init MetricsDB!!!", e)
+        }
 
+        
         checkList.each {
             CheckScheduler.schedule(it);
         }
@@ -125,6 +136,7 @@ static config
         // This is a shutdown hook to automatically flush the queue on a JVM shutdown
         def shutdownClosureMap = [run: {
             CheckResultsQueue.flush()
+            MaintenanceUtil.sendShutdownHost()
             println "Shutting down...";
         }
         ]

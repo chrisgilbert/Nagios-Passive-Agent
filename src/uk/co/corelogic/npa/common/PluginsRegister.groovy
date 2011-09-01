@@ -23,9 +23,8 @@ class PluginsRegister {
         registerPlugin(new ExternalGatherer(), new NagiosCheck())
         registerPlugin(new HTTPGatherer(), new HTTPCheck())
         registerPlugin(new OSGatherer(), new OSCheck())
-        registerPlugin(new OracleGatherer(), new OracleCheck())
-        registerPlugin(new SSGatherer(), new SSCheck())
         registerPlugin(new DBGatherer(), new DBCheck())
+        registerPlugin(new OASGatherer(), new OASCheck())
     }
 
     /**

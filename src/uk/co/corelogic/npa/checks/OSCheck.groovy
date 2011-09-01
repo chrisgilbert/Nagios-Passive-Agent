@@ -5,6 +5,14 @@ import uk.co.corelogic.npa.os.*
 
 public class OSCheck extends Check implements CheckInterface {
 
+    public OSCheck() {
+    }
+
+    // Use this constructor for all classes extending Check
+    OSCheck(String chk_name, int th_warn, int th_crit, String th_type, Map args) {
+        super(chk_name, th_warn, th_crit, th_type, args)
+    }
+    
     // We must call this method each time the check runs, to ensure we are using a new instance of OSGatherer each time
     @Override
     public init() {
@@ -23,30 +31,27 @@ public class OSCheck extends Check implements CheckInterface {
 
     public chk_disk_free() {
         this.required += ["unitType", "volume"]
-        this.optional += ["bla", "bla2"]
-        this.optionalWith += ["unitType":"bla3", "testok":"ok", "unitType":"bla5"]
-        this.requiredWith += ["unitType":"bla4"]
         init()
 
-        if ( this.chk_args.volume == "ALL" ) {
-            return this.chkAllDisks(this.chk_args.clone(), this.chk_th_warn, this.chk_th_crit, this.chk_th_type)
+        if ( this.variables.volume == "ALL" ) {
+            return this.chkAllDisks(this.variables.clone(), this.chk_th_warn, this.chk_th_crit, this.chk_th_type)
         } else {
-            return this.chkDiskFree(this.chk_args.clone(), this.chk_th_warn, this.chk_th_crit, this.chk_th_type)
+            return this.chkDiskFree(this.variables.clone(), this.chk_th_warn, this.chk_th_crit, this.chk_th_type)
         }
     }
     public chk_cpu_pct() {
         init()
-        return this.chkCpuPct(this.chk_args.clone(), this.chk_th_warn, this.chk_th_crit, this.chk_th_type)
+        return this.chkCpuPct(this.variables.clone(), this.chk_th_warn, this.chk_th_crit, this.chk_th_type)
     }
 
     public chk_disk_busy_pct() {
         init()
-        return this.chkDiskBusyPct(this.chk_args.clone(), this.chk_th_warn, this.chk_th_crit, this.chk_th_type)
+        return this.chkDiskBusyPct(this.variables.clone(), this.chk_th_warn, this.chk_th_crit, this.chk_th_type)
     }
 
     public chk_mem_used_pct() {
         init()
-        return this.chkMemoryFreePct(this.chk_args.clone(), this.chk_th_warn, this.chk_th_crit, this.chk_th_type)
+        return this.chkMemoryFreePct(this.variables.clone(), this.chk_th_warn, this.chk_th_crit, this.chk_th_type)
     }
 
 

@@ -8,29 +8,25 @@ import uk.co.corelogic.npa.gatherers.ExternalGatherer
  * 
  * @author Chris Gilbert
  */
-class NagiosCheck extends Check {
+class NagiosCheck extends Check implements CheckInterface {
     
-
+    public NagiosCheck() {
+    }
+    
     NagiosCheck(chk_name, variables) {
-        /*
-        * A set of arguments used by the check or gatherer.  There should be Lists for required and optional, and Maps for requiredWith and optionalWith.
-        * These allow the XML to be appropriately checked for missing configuration
-        *
-        */
-        this.required += ["scriptName", "scriptType", "returnType", "instanceName"]
-        this.optional += ["scriptArgs", "saveMetrics"]
-        this.requiredWith += ["saveMetrics":["dataType","metricName"]]
-        this.optionalWith += [:]
-        init()
-    }
-    NagiosCheck() {
-        super()
-        this.required += ["scriptName", "scriptType", "returnType", "instanceName"]
-        this.optional += ["scriptArgs", "saveMetrics"]
-        this.requiredWith += ["saveMetrics":["dataType","metricName"]]
-        this.optionalWith += [:]
+        this.check_name = chk_name
+        this.variables = variables
     }
 
+    @Override
+    public init() {
+        this.required += ["scriptName", "scriptType", "returnType", "instanceName"]
+        this.optional += ["scriptArgs", "saveMetrics"]
+        this.requiredWith += ["saveMetrics":["dataType","metricName"]]
+        super.init()
+    }
+
+    @Override
     synchronized public clone() {
         NagiosCheck clone = (NagiosCheck) super.makeClone(this.chk_name);
         return clone;
@@ -38,13 +34,13 @@ class NagiosCheck extends Check {
 
     // Just ignore threshold stuff if it's specified
     public chk_nagios(variables, th_warn, th_crit, th_type) {
-        init(variables, required)
+        init()
         return chk_nagios(variables)
     }
 
     public chk_nagios() {
         init()
-        chk_nagios(this.chk_args)
+        chk_nagios(this.variables)
     }
 
     /**

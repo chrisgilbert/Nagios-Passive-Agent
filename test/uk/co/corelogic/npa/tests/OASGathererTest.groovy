@@ -23,9 +23,7 @@ class OASGathererTest extends NPATest {
         variables.port = "6003"
         variables.host = "oas-lon-proj.dev.corelogic.local"
         variables.instance = "forms_dev"
-
         return new OASGatherer(variables)
-
     }
     public testConnect()
     {
