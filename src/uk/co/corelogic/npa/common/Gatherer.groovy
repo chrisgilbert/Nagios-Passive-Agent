@@ -137,6 +137,14 @@ class Gatherer {
         }
     }
 
+     /*
+      * Return a new metric group created with specified groupName
+      */
+     public MetricGroup getMetricGroup(String name, metricList) {
+        MetricGroup grp = new MetricGroup(name, this.initiatorID, metricList)
+        return grp
+     }
+
     /**
      * Retrieve an existing metric value where the groupID is known
     */

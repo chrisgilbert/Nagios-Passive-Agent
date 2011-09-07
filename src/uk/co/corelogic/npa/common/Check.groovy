@@ -31,7 +31,7 @@ Map optionalWith = [:]
     public Check(){
     }
 
-    Check(String chk_name, int th_warn, int th_crit, String th_type, Map variables) {
+    Check(String chk_name, th_warn, th_crit, String th_type, Map variables) {
         this.chk_name = chk_name
         this.chk_th_warn = th_warn
         this.chk_th_crit = th_crit

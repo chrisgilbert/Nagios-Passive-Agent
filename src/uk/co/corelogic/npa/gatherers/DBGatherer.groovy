@@ -42,6 +42,7 @@ class DBGatherer extends Gatherer {
         this.variables = variables
         this.sql = variables.sql
         this.database = variables.database
+        variables.instance = variables.database
 
         conn(this.url, this.driver, this.user, this.password)
 
@@ -78,14 +79,6 @@ class DBGatherer extends Gatherer {
         mod.setGroupID(getMetricGroup("DB_METRICS", this.metricList).groupID)
         return mod
     }
-
-     /*
-      * Return a new metric group created with specified groupName
-      */
-     private MetricGroup getMetricGroup(String name, metricList) {
-        MetricGroup grp = new MetricGroup(name, this.initiatorID, metricList)
-        return grp
-     }
 
 
     /**

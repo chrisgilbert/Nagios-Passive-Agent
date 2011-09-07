@@ -23,7 +23,7 @@ def metricNames = []
     }
 
     // Use this constructor for all classes extending Check
-    DBCheck(String chk_name, int th_warn, int th_crit, String th_type, Map args) {
+    DBCheck(String chk_name, th_warn, th_crit, String th_type, Map args) {
         super(chk_name, th_warn, th_crit, th_type, args)
     }
 
@@ -133,7 +133,7 @@ def metricNames = []
                 if (gatherer.getMessageForMetric(it) != null ) { allMessages += gatherer.getMessageForMetric(it) }
                 if (gatherer.getStatusForMetric(it) != null ) { allComparisons += gatherer.getStatusForMetric(it) }
                 values.add(calc)
-                performance.put((it),"${calc};$th_warn;$th_crit;;")
+                performance.put((it),"${calc};$chk_th_warn;$chk_th_crit;;")
                 Log.debug("Performance entries: $performance")
             }
 
@@ -146,7 +146,7 @@ def metricNames = []
                 if (gatherer.getMessageForMetric(it) != null ) { allMessages += gatherer.getMessageForMetric(it) }
                 if (gatherer.getStatusForMetric(it) != null ) { allComparisons += gatherer.getStatusForMetric(it) }
                 values.add(calc)
-                performance.put((it),"${calc};$th_warn;$th_crit;;")
+                performance.put((it),"${calc};$chk_th_warn;$chk_th_crit;;")
                 Log.debug("Performance entries: $performance")
             }
         }
@@ -154,9 +154,9 @@ def metricNames = []
         Log.debug(message)
 
         if ( allComparisons.size > 0 ) {
-            status = calculateStatus(th_warn, th_crit, allComparisons, th_type)
+            status = calculateStatus(chk_th_warn, chk_th_crit, allComparisons, chk_th_type)
         } else {
-            status = calculateStatus(th_warn, th_crit, values, th_type)
+            status = calculateStatus(chk_th_warn, chk_th_crit, values, chk_th_type)
         }
         this.gatherer.disconnect()
         this.gatherer = null
@@ -166,7 +166,7 @@ def metricNames = []
             status = "OK"
             message = "No rows were returned for query - assuming OK status."
         }
-        return super.generateResult(this.initiatorID, this.variables1.nagiosServiceName, this.variables1.host, status, performance, new Date(), message)
+        return super.generateResult(this.initiatorID, variables1.nagiosServiceName, variables1.host, status, performance, new Date(), message)
     }
 	
 }

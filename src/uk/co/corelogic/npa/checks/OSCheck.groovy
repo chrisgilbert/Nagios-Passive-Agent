@@ -9,7 +9,7 @@ public class OSCheck extends Check implements CheckInterface {
     }
 
     // Use this constructor for all classes extending Check
-    OSCheck(String chk_name, int th_warn, int th_crit, String th_type, Map args) {
+    OSCheck(String chk_name, th_warn, th_crit, String th_type, Map args) {
         super(chk_name, th_warn, th_crit, th_type, args)
     }
     

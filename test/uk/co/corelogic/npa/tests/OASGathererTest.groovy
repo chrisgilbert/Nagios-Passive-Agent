@@ -40,8 +40,8 @@ class OASGathererTest extends NPATest {
     }
 
     public void testGetHTTPSessions() {
-        println(instantiate().getCountHTTPSessions())
-        println(instantiate().executeMbeanOperation("oc4j:j2eeType=ClassLoading,name=singleton,J2EEServer=standalone", "executeQuery()", { it.split("\n").find { it =~ "Total Sessions" }.tokenize(" ").find{ it ==~ /^\d+/ } }, "HTTPSessions"))
+        def f = /{ it -> it.split("\n").find { it =~ "Total Sessions" }.tokenize(' ').find{ it ==~ \/^\d+\/ } }/
+        println(instantiate().executeMbeanOperation("oc4j:j2eeType=ClassLoading,name=singleton,J2EEServer=standalone", "executeQuery", f, "HttpSessions"))
     }
 
     public void testGetState(){

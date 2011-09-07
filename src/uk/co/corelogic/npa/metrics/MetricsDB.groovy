@@ -221,8 +221,16 @@ static boolean connected
        } else {
            row = conn.firstRow("SELECT avg(value) as value from metrics WHERE identifier = ? and metricName = ? and hostName = ? and instanceName = ? and datestamp > ?", [variables.identifier, metricName, variables.host, variables.instance, subtractFromNow(period)])
        }
-       if ( row != null ) { return row.value }
-       else { return null }
+       if ( row != null ) {
+           if (row.value != null) {
+               return row.value 
+           } else {
+               throw new NPAException("An error occurred whilst retrieving the metric - null was returned")
+           }
+       }
+       else { 
+           throw new NPAException("An error occurred whilst retrieving the metric - null was returned")
+       }
 
    }
 

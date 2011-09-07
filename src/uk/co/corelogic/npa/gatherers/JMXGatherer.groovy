@@ -31,7 +31,7 @@ String password
 def instanceName
 def groupName
 
-def conn
+def conn, j2eeConn, manConn
 def managementServer
 def managementServerInfo
 def j2eeServer
@@ -43,6 +43,7 @@ def env, j2eeEnv, serviceUrl, j2eeMbeanPath, j2eeServerUrl, jvmMbeanPath, manage
 
     public JMXGatherer() {
         super()
+        registerMetrics()
     }
 
 
@@ -53,18 +54,21 @@ def env, j2eeEnv, serviceUrl, j2eeMbeanPath, j2eeServerUrl, jvmMbeanPath, manage
     */
 
     public void registerMetrics() {
-        this.metricList.add('MBEAN_ATTR_VALUE')
-        this.metricList.add('MBEAN_OPER_VALUE')
+        this.metricList.add('JMX_ATTR_VALUE')
+        this.metricList.add('JMX_OPER_VALUE')
+        super.addValidMetricList(this.metricList, 'JMX', this.getClass().getName())
     }
 
-    public MBEAN_ATTR_VALUE(variables)
+    public JMX_ATTR_VALUE(variables)
     {
-        return getMbeanAttributeValue(variables.mbeanPath, variables.closureFunction, varaibles.attributeName)
+        Log.debug("Received variables: $variables")
+        return getMbeanAttributeValue(variables.mbeanPath, variables.closureFunction, variables.attributeName)
     }
 
-    public MBEAN_OPER_VALUE(variables)
+    public JMX_OPER_VALUE(variables)
     {
-        return executeMbeanOperation(variables.mbeanPath, varaibles.operationName, variables.closureFunction, variables.operationArguments)
+        Log.debug("Received variables: $variables")
+        return executeMbeanOperation(variables.mbeanPath, variables.operationName, variables.closureFunction, variables.operationArguments)
     }
 
     void finalize() {
@@ -74,8 +78,10 @@ def env, j2eeEnv, serviceUrl, j2eeMbeanPath, j2eeServerUrl, jvmMbeanPath, manage
 
     void disconnect() {
         Log.debug("Closing open connections to JMX..")
-        this.managementServer.close()
-        this.j2eeServer.close()
+        this.j2eeConn.close()
+        this.manConn.close()
+        this.managementServer = null
+        this.j2eeServer = null
     }
     
     public void connectManagement(env, managementServerUrl, managementServerMbeanPath) {
@@ -84,7 +90,8 @@ def env, j2eeEnv, serviceUrl, j2eeMbeanPath, j2eeServerUrl, jvmMbeanPath, manage
         this.managementServerMbeanPath = managementServerMbeanPath
         Log.debug("Connecting to JMX Management URL: $managementServerUrl")
         def jmxUrl = new JMXServiceURL(managementServerUrl)
-        this.managementServer = JMXConnectorFactory.connect(jmxUrl, env).MBeanServerConnection
+        this.manConn = JMXConnectorFactory.connect(jmxUrl, env)
+        this.managementServer = manConn.MBeanServerConnection
         this.managementServerInfo = getManagementMbean(managementServerMbeanPath)
     }
 
@@ -95,7 +102,8 @@ def env, j2eeEnv, serviceUrl, j2eeMbeanPath, j2eeServerUrl, jvmMbeanPath, manage
         this.j2eeMbeanPath = j2eeMbeanPath
         Log.debug("Connecting to JMX Management URL: $j2eeServerUrl")
         def jmxUrl = new JMXServiceURL(j2eeServerUrl)
-        this.j2eeServer = JMXConnectorFactory.connect(jmxUrl, env).MBeanServerConnection
+        this.j2eeConn =  JMXConnectorFactory.connect(jmxUrl, env)
+        this.j2eeServer = j2eeConn.MBeanServerConnection
         this.j2eeServerInfo = getJ2EEMbean(j2eeMbeanPath)
         this.jvmInfo = getJ2EEMbean(jvmMbeanPath)
         printJ2EEInfo()
@@ -122,34 +130,47 @@ def env, j2eeEnv, serviceUrl, j2eeMbeanPath, j2eeServerUrl, jvmMbeanPath, manage
     /*
      * Get a J2EE Mbean attribute using the attribute name and Mbean path as Strings
      */
-    public getMbeanAttributeValue(mbeanPath, Closure c, attributeName) {
+    public getMbeanAttributeValue(mbeanPath, String c, attributeName) {
+        Log.debug("Getting Mbean attribute with: $mbeanPath $c $attributeName")
         try {
-            if (c != null) { return processClosure(getJ2EEMbean(mbeanPath)."$attributeName", c)} else { return getJ2EEMbean(mbeanPath)."$attributeName" }
+            if (c && c != null) { return processClosure(getJ2EEMbean(mbeanPath)."$attributeName", c)} else { return getJ2EEMbean(mbeanPath)."$attributeName" }
         } catch( exception ) {
             if( exception instanceof MissingPropertyException ) {
                 println "invokeGroovyScriptMethod: $exception.message"
                 throw new NPAException("Mbean attribute $attributeName does not exist for Mbean $mbeanPath! : $exception.message", e)
             } else {
                 println "invokeGroovyScriptMethod: $exception.message"
-                throw new NPAException("$exception.message", e)
+                throw new NPAException("$exception.message", exception)
             }
         }
     }
 
+
     /*
      * Execute a J2EE Mbean method using an mbeanPath, operation and arguments
      */
-    Object executeMbeanOperation(mbeanPath, operationName, Closure c, String[] args) {
+    Object executeMbeanOperation(mbeanPath, operationName, String c, String[] args) {
+        Log.debug("Executing Mbean attribute with: $mbeanPath $c $operationName $args")
         try {
             def value
-            if (c != null) { return processClosure(getJ2EEMbean(mbeanPath).invokeMethod(operationName, args), c)} else { return getJ2EEMbean(mbeanPath).invokeMethod(operationName, args) }
+            def ret = getJ2EEMbean(mbeanPath).invokeMethod(operationName, args)
+            // What on earth is happening here??
+            if (ret instanceof Exception) {
+                throw ret
+            }
+            
+            if (c && c != null) { return processClosure(ret, c)} else { return ret }
 
         } catch( exception ) {
             if( exception instanceof MissingMethodException ) {
-                println "invokeGroovyScriptMethod: $exception.message"
-                throw new NPAException("Mbean method $operationName does not exist for Mbean $mbeanPath : $exception.message", exception)
+                Log.error("...Perhaps Mbean method $operationName does not exist for Mbean $mbeanPath : $exception.message", exception)
+                Log.error("Your arguments could also be incorrect")
+                exception.printStackTrace()
+                throw exception
             } else {
                 println "invokeGroovyScriptMethod: $exception.message"
+                Log.error("$exception.message", exception)
+                exception.printStackTrace()
                 throw new NPAException("$exception.message", exception)
             }
         }
@@ -158,9 +179,15 @@ def env, j2eeEnv, serviceUrl, j2eeMbeanPath, j2eeServerUrl, jvmMbeanPath, manage
     /*
      * Process information using a closure passed as an argument
      */
-    public processClosure(input, Closure c) {
+    public processClosure(input, String c) {
         Log.debug("Processing closure $c ")
-        return c(input)
+        try {
+            def c2 = new GroovyShell().evaluate(c)
+            return c2(input)
+        } catch(e) {
+            Log.error("A problem occurred when processing your closure argument: " + e.message)
+            throw e
+        }
     }
 
 

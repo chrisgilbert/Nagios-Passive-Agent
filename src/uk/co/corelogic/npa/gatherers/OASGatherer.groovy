@@ -37,6 +37,7 @@ class OASGatherer extends JMXGatherer {
         username = variables.username
         password = variables.password
         instance = variables.instance
+        registerMetrics()
 
    
         def provider = 'oracle.oc4j.admin.jmx.remote'
@@ -74,6 +75,7 @@ class OASGatherer extends JMXGatherer {
         super.registerMetrics()
         this.metricList.add('OAS_HTTP_SESSIONS')
         this.metricList.add('OAS_OC4J_STATE')
+        super.addValidMetricList(this.metricList, "JMX", this.getClass().getName())
     }
 
 

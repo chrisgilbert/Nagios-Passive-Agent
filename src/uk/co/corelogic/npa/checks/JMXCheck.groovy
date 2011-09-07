@@ -25,7 +25,7 @@ class JMXCheck extends Check implements CheckInterface {
 
     
    // Use this constructor for all classes extending Check
-    JMXCheck(String chk_name, int th_warn, int th_crit, String th_type, Map args) {
+    JMXCheck(String chk_name, th_warn, th_crit, String th_type, Map args) {
         super(chk_name, th_warn, th_crit, th_type, args)
     }
 
@@ -43,7 +43,7 @@ class JMXCheck extends Check implements CheckInterface {
      */
     public chk_jmx_attr() {
         init()
-        return this.getJMXAttr(this.variables.clone(), this.chk_th_warn, this.chk_th_crit, this.chk_th_type)
+        return this.chkJMXAttr(this.variables.clone())
     }
 
     /*
@@ -51,14 +51,13 @@ class JMXCheck extends Check implements CheckInterface {
      */
     public chk_jmx_oper() {
         init()
-        return this.getJMXOper(this.variables.clone(), this.chk_th_warn, this.chk_th_crit, this.chk_th_type)
-
-        .getMbeanAttributeValue("oc4j:j2eeType=J2EEServer,name=standalone", null, "serverVersion")
-
+        return this.chkJMXOper(this.variables.clone())
     }
 
     private chkJMXAttr(vars) {
-        def value
+        def value, avgMessage
+        def performance = [:]
+        def message
         try {
             if (vars.timePeriodMillis != null ){
                 Log.info("Retrieving average results over ${vars.timePeriodMillis}")
@@ -68,8 +67,10 @@ class JMXCheck extends Check implements CheckInterface {
                 avgMessage = "(average over ${vars.timePeriodMillis} ms)"
             } else {
                 value = gatherer.sample("JMX_ATTR_VALUE", vars)
+                performance = [(vars.attributeName):value]
             }
             Log.debug("Value returned: $avgMessage $value for ${vars.attributeName}")
+            message = "Value returned: $avgMessage $value for ${vars.attributeName}"
 
         } catch(e) {
             Log.error("An error occurred when attempting to retrive JMX attribute:", e)
@@ -78,7 +79,7 @@ class JMXCheck extends Check implements CheckInterface {
             throw e
         }
 
-        status = calculateStatus(th_warn, th_crit, value, th_type)
+        def status = calculateStatus(chk_th_warn, chk_th_crit, value, chk_th_type)
 
         this.gatherer.disconnect()
         this.gatherer = null
@@ -89,12 +90,14 @@ class JMXCheck extends Check implements CheckInterface {
             message = "No attribute returned - unknown STATUS."
         }
 
-        return super.generateResult(this.initiatorID, this.variables1.nagiosServiceName, this.variables1.host, status, performance, new Date(), message)
+        return super.generateResult(this.initiatorID, vars.nagiosServiceName, vars.host, status, performance, new Date(), message)
     }
 
 
     private chkJMXOper(vars) {
-        def value
+        def value, avgMessage
+        def performance = [:]
+        def message
         try {
             if (vars.timePeriodMillis != null ){
                 Log.info("Retrieving average results over ${vars.timePeriodMillis}")
@@ -107,15 +110,16 @@ class JMXCheck extends Check implements CheckInterface {
                 performance = [(vars.operationName):value]
             }
             Log.debug("Value returned: $avgMessage $value for ${vars.operationName}")
+            message = "Value returned: $avgMessage $value for ${vars.attributeName}"
 
         } catch(e) {
             Log.error("An error occurred when attempting to retrive JMX attribute:", e)
-                CheckResultsQueue.add(super.generateResult(this.initiatorID, variables.nagiosServiceName, variables.host, "CRITICAL", [:], new Date(), "An error occurred when retrieving JMX operation!"))
+                CheckResultsQueue.add(super.generateResult(this.initiatorID, vars.nagiosServiceName, vars.host, "CRITICAL", [:], new Date(), "An error occurred when retrieving JMX operation!"))
             Log.error("Throwing error up chain")
             throw e
         }
 
-        status = calculateStatus(th_warn, th_crit, value, th_type)
+        def status = calculateStatus(chk_th_warn, chk_th_crit, value, chk_th_type)
 
         this.gatherer.disconnect()
         this.gatherer = null
@@ -131,7 +135,7 @@ class JMXCheck extends Check implements CheckInterface {
             message = "Operation failed - returned FALSE."
         }
 
-        return super.generateResult(this.initiatorID, this.variables1.nagiosServiceName, this.variables1.host, status, performance, new Date(), message)
+        return super.generateResult(this.initiatorID, vars.nagiosServiceName, vars.host, status, performance, new Date(), message)
     }
 
 

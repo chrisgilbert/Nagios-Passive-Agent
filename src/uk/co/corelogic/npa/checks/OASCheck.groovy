@@ -15,7 +15,7 @@ class OASCheck extends JMXCheck implements CheckInterface {
     }
  
     // Use this constructor for all classes extending Check
-    OASCheck(String chk_name, int th_warn, int th_crit, String th_type, Map args) {
+    OASCheck(String chk_name, th_warn, th_crit, String th_type, Map args) {
         super(chk_name, th_warn, th_crit, th_type, args)
     }
 
@@ -33,7 +33,7 @@ class OASCheck extends JMXCheck implements CheckInterface {
     }
 
     public chk_oas_oper() {
-        return super.chk_jmx_attr()
+        return super.chk_jmx_oper()
     }
 
     @Override
@@ -42,7 +42,7 @@ class OASCheck extends JMXCheck implements CheckInterface {
         super.init()
         this.gatherer = null
         try {
-            this.gatherer = new OASGatherer(variables.host, variables.port, variables.database, variables.user, variables.password, this.initiatorID)
+            this.gatherer = new OASGatherer(variables)
         } catch(e) {
             Log.error("An error occurred when creating the gatherer:", e)
             CheckResultsQueue.add(super.generateResult(this.initiatorID, variables.nagiosServiceName, variables.host, "CRITICAL", [:], new Date(), "An error occurred when attempting a JMX connection!"))
