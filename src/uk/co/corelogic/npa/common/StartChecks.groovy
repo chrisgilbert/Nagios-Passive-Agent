@@ -68,14 +68,14 @@ static config
                     if (it.@name.toString().trim() == "chk_nagios" ) {
                         c = CheckFactory.getCheck(it.@name.toString())
                         c.chk_name = it.@name.toString()
-                        c.chk_args = argsmap
+                        c.variables = argsmap
                     } else {
                         c = CheckFactory.getCheck(it.@name.toString())
                         c.chk_name = it.@name.toString()
                         c.chk_th_warn = it.@warn.toDouble()
                         c.chk_th_crit = it.@crit.toDouble()
                         c.chk_th_type = it.@type.toString()
-                        c.chk_args = argsmap
+                        //c.chk_args = argsmap
                         c.variables = argsmap
                     }
                     c.chk_interval = g.@interval.toString().toInteger();

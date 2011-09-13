@@ -167,5 +167,13 @@ class OASGatherer extends JMXGatherer {
        this.j2eeServer.start()
     }
 
+    public retrieveJVMs() {
+        this.jvmInfo = getJVMPaths().collect { getJ2EEMbean(it) }
+    }
+
+    public getJVMPaths() {
+        return this.j2eeServer.javaVMs
+    }
+
 }
 

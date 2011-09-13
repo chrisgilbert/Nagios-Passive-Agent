@@ -58,6 +58,7 @@ class JMXCheck extends Check implements CheckInterface {
         def value, avgMessage
         def performance = [:]
         def message
+        vars.identifier = vars.mBeanPath + "." + vars.attributeName + ",Closure:" + vars.closureFunction
         try {
             if (vars.timePeriodMillis != null ){
                 Log.info("Retrieving average results over ${vars.timePeriodMillis}")
@@ -69,8 +70,8 @@ class JMXCheck extends Check implements CheckInterface {
                 value = gatherer.sample("JMX_ATTR_VALUE", vars)
                 performance = [(vars.attributeName):value]
             }
-            Log.debug("Value returned: $avgMessage $value for ${vars.attributeName}")
-            message = "Value returned: $avgMessage $value for ${vars.attributeName}"
+            Log.debug("Value returned: ${avgMessage ?: ""} $value for ${vars.attributeName}")
+            message = "Value returned: ${avgMessage ?: ""} $value for ${vars.attributeName}"
 
         } catch(e) {
             Log.error("An error occurred when attempting to retrive JMX attribute:", e)
@@ -98,6 +99,7 @@ class JMXCheck extends Check implements CheckInterface {
         def value, avgMessage
         def performance = [:]
         def message
+        vars.identifier = vars.mBeanPath + "." + vars.operationName + ",Closure:" + vars.closureFunction + ',args:' + vars.operationArguments
         try {
             if (vars.timePeriodMillis != null ){
                 Log.info("Retrieving average results over ${vars.timePeriodMillis}")
@@ -109,8 +111,8 @@ class JMXCheck extends Check implements CheckInterface {
                 value = gatherer.sample("JMX_OPER_VALUE", vars)
                 performance = [(vars.operationName):value]
             }
-            Log.debug("Value returned: $avgMessage $value for ${vars.operationName}")
-            message = "Value returned: $avgMessage $value for ${vars.attributeName}"
+            Log.debug("Value returned: ${avgMessage ?: ""} $value for ${vars.operationName}")
+            message = "Value returned: ${avgMessage ?: ""} $value for ${vars.operationName}"
 
         } catch(e) {
             Log.error("An error occurred when attempting to retrive JMX attribute:", e)

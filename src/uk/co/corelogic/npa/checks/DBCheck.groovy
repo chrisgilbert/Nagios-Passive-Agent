@@ -30,6 +30,8 @@ def metricNames = []
     @Override
     public init() {
         super.init()
+        // Make sure this is set..
+        variables.instance=variables.database
         try {
             this.gatherer = new DBGatherer(variables.clone())
         } catch(e) {

@@ -25,10 +25,13 @@ class OASCheckTest extends NPATest {
     }
 
     public createMock() {
-        variables.mbeanPath="oc4j:j2eeType=J2EEServer,name=standalone"
+        variables = [:]
+        //variables.mbeanPath="oc4j:j2eeType=J2EEServer,name=standalone"
+        variables.mbeanPath="oc4j:j2eeType=JVM,name=single,J2EEServer=standalone"
+
         variables.instance="fwtest"
         variables.attribute=""
-        variables.attributeName="serverVersion"
+        variables.attributeName="freeMemory"
         variables.closureFunction = null
         variables.username = "oc4jadmin"
         variables.password = "Alexei12"
@@ -54,6 +57,16 @@ class OASCheckTest extends NPATest {
 
     void testAttrChk() {
         createMock()
+        def check = new OASCheck(chk_name, th_warn, th_crit, th_type, variables)
+        def value = check.chk_oas_attr()
+        assert check != null
+        assert value != null
+    }
+
+
+    void testAttrAvgChk() {
+        createMock()
+        variables.timePeriodMillis = "60000"
         def check = new OASCheck(chk_name, th_warn, th_crit, th_type, variables)
         def value = check.chk_oas_attr()
         assert check != null
@@ -88,6 +101,23 @@ class OASCheckTest extends NPATest {
         assert check != null
         assert value != null
     }
+
+        void testOptWithAvgClosureCheck() {
+        createMock()
+        def check = new OASCheck(chk_name, th_warn, th_crit, th_type, variables)
+        variables.mbeanPath="oc4j:j2eeType=ClassLoading,name=singleton,J2EEServer=standalone"
+        variables.operationName="executeQuery"
+        variables.operation=""
+        variables.remove("attributeName")
+        variables.remove("attribute")
+        variables.timePeriodMillis = "60000"
+        variables.closureFunction=/{ it -> it.split("\n").find { it =~ "Total Sessions" }.tokenize(" ").find{ it ==~ \/^\d+\/ } }/
+        variables.operationArguments="HttpSessions"
+        def value = check.chk_oas_oper()
+        assert check != null
+        assert value != null
+    }
+
 
     void testAttrWithClosureCheck() {
         createMock()
