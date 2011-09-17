@@ -10,5 +10,6 @@ class NPAMBeanAttribute {
     def closureFunction
     def attributeName
     def varName
+    def identifier
 }
 

@@ -33,10 +33,11 @@ class OASCheckTest extends NPATest {
         variables.host = "oas-lon-proj.dev.corelogic.local"
         variables.instance = "forms_dev"
         variables.nagiosServiceName="TEST"
+        variables.mbeanPath = "random"
         return variables
     }
 
-    public createArguments() {
+    public createOperations() {
          def check = '''
              <check name="chk_oas_oper" warn="500" crit="1000" type="GTE">
 	    <nagiosServiceName>chk_http_sessions_home</nagiosServiceName>
@@ -53,7 +54,7 @@ class OASCheckTest extends NPATest {
 	          <mbeanPath>oc4j:j2eeType=ClassLoading,name=singleton,J2EEServer=standalone</mbeanPath>
 		  <operationName>executeQuery</operationName>
 		  <operationArguments>HttpSessions</operationArguments>
-		  <closureFunction>{ it -> it.split("\n").find { it =~ "Total Sessions" }.tokenize(' ').find{ it ==~ /^\\d+/ } }</closureFunction>
+		  <closureFunction>{ it -> it.split("\\n").find { it =~ "Total Sessions" }.tokenize(' ').find{ it ==~ /^\\d+/ } }</closureFunction>
 		</operation>
 
         	<operation>
@@ -61,7 +62,7 @@ class OASCheckTest extends NPATest {
 	          <mbeanPath>oc4j:j2eeType=ClassLoading,name=singleton,J2EEServer=standalone</mbeanPath>
 		  <operationName>executeQuery</operationName>
 		  <operationArguments>HttpSessions</operationArguments>
-		  <closureFunction>{ it -> it.split("\n").find { it =~ "Total Sessions" }.tokenize(' ').find{ it ==~ /^\\d+/ } }</closureFunction>
+		  <closureFunction>{ it -> it.split("\\n").find { it =~ "Total Sessions" }.tokenize(' ').find{ it ==~ /^\\d+/ } }</closureFunction>
 		</operation>
 
 		<!-- Use this closure to perform an operation on the variables you have collected - this represents the final value(s) which will be compared to your thresholds 
@@ -71,6 +72,31 @@ class OASCheckTest extends NPATest {
 	</check>
         '''
         
+        return new XmlSlurper().parseText(check)
+    }
+
+    def createAttributes(){
+        def check = '''
+        	<check name="chk_oas_attr" warn="-1" crit="-1" type="LTE">
+	    <nagiosServiceName>chk_heap_free_pct</nagiosServiceName>
+	    <port>6003</port>
+	    <username>oc4jadmin</username>
+		<password>Alexei12</password>
+		<instance>forms_dev</instance>
+		<attribute>
+                  <varName>freeMemory</varName>
+	          <mbeanPath>ALLJVMS</mbeanPath>
+		  <attributeName>freeMemory</attributeName>
+		</attribute>
+		<attribute>
+                  <varName>totalMemory</varName>
+	          <mbeanPath>ALLJVMS</mbeanPath>
+		  <attributeName>totalMemory</attributeName>
+		</attribute>
+                <collectionClosure>{ it -> ((it[totalMemory] - it[freeMemory]) / it[totalMemory]) * 100 }</collectionClosure>
+	    <host>oas-lon-proj.dev.corelogic.local</host>
+	</check>
+        '''
         return new XmlSlurper().parseText(check)
     }
 
@@ -87,86 +113,48 @@ class OASCheckTest extends NPATest {
         check.registerChecks()
     }
 
-    void testAttrChk() {
+    void testOperChk() {
         createMock()
         def check = new OASCheck(chk_name, th_warn, th_crit, th_type, variables)
-        c.argsAsXML = createArguments()
-        def value = check.chk_oas_attr()
+        check.argsAsXML = createOperations()
+        def value = check.chk_oas()
         assert check != null
         assert value != null
     }
 
 
-    void testAttrAvgChk() {
+    void testOperAvgChk() {
         createMock()
         variables.timePeriodMillis = "60000"
         def check = new OASCheck(chk_name, th_warn, th_crit, th_type, variables)
-        c.argsAsXML = createArguments()
-        def value = check.chk_oas_attr()
+        check.argsAsXML = createOperations()
+        def value = check.chk_oas()
         assert check != null
         assert value != null
     }
 
-    void testOptCheck() {
+    void testAttrCheck() {
         createMock()
+        variables.collectionClosure = "{ it ->  ((it['totalMemory'].sum() - it['freeMemory'].sum()) / it['totalMemory'].sum()) * 100 }"
         def check = new OASCheck(chk_name, th_warn, th_crit, th_type, variables)   
-        variables.mbeanPath="oc4j:j2eeType=J2EEServer,name=standalone"
-        variables.operationName="checkSharedLibraryExists"
-        variables.operation=""
-        variables.remove("attributeName")
-        variables.remove("attribute")
-        variables.operationArguments=["global.libraries","1.0"] as String[]
-        def value = check.chk_oas_oper()
+        check.argsAsXML = createAttributes()
+        def value = check.chk_oas()
         assert check != null
         assert value != null
     }
 
-    void testOptWithClosureCheck() {
-        createMock()
-        def check = new OASCheck(chk_name, th_warn, th_crit, th_type, variables)
-        variables.mbeanPath="oc4j:j2eeType=ClassLoading,name=singleton,J2EEServer=standalone"
-        variables.operationName="executeQuery"
-        variables.operation=""
-        variables.remove("attributeName")
-        variables.remove("attribute")
-        variables.closureFunction=/{ it -> it.split("\n").find { it =~ "Total Sessions" }.tokenize(" ").find{ it ==~ \/^\d+\/ } }/
-        variables.operationArguments="HttpSessions"
-        def value = check.chk_oas_oper()
-        assert check != null
-        assert value != null
-    }
 
-        void testOptWithAvgClosureCheck() {
+    void testAttrAvgCheck() {
         createMock()
-        def check = new OASCheck(chk_name, th_warn, th_crit, th_type, variables)
-        variables.mbeanPath="oc4j:j2eeType=ClassLoading,name=singleton,J2EEServer=standalone"
-        variables.operationName="executeQuery"
-        variables.operation=""
-        variables.remove("attributeName")
-        variables.remove("attribute")
         variables.timePeriodMillis = "60000"
-        variables.closureFunction=/{ it -> it.split("\n").find { it =~ "Total Sessions" }.tokenize(" ").find{ it ==~ \/^\d+\/ } }/
-        variables.operationArguments="HttpSessions"
-        def value = check.chk_oas_oper()
-        assert check != null
-        assert value != null
-    }
-
-
-    void testAttrWithClosureCheck() {
-        createMock()
         def check = new OASCheck(chk_name, th_warn, th_crit, th_type, variables)
-        variables.mbeanPath="oc4j:j2eeType=J2EEServer,name=standalone"
-        variables.remove("operationName")
-        variables.remove("operation")
-        variables.remove("operationArguments")
-        variables.closureFunction=/{ it -> it.each { println(it) } }/
-        variables.attribute=""
-        variables.attributeName="serverVersion"
-        def value = check.chk_oas_attr()
+        check.argsAsXML = createAttributes()
+        def value = check.chk_oas()
         assert check != null
         assert value != null
     }
+
+
 
 }
 

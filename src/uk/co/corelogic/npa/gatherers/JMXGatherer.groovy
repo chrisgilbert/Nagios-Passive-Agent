@@ -33,9 +33,8 @@ def j2eeServer
 def j2eeServerInfo
 def jvmServer = []
 def jvmInfo = []
-String[] jvmPaths
-String[] serverPaths
-String[] nodeNames
+def ALLSERVERS
+def ALLJVMS
 
 def env, j2eeEnv, serviceUrl, j2eeMbeanPath, j2eeServerUrl, jvmMbeanPath, managementServerUrl, managementServerMbeanPath, instanceMbeanPath
 
@@ -61,21 +60,22 @@ def env, j2eeEnv, serviceUrl, j2eeMbeanPath, j2eeServerUrl, jvmMbeanPath, manage
     public JMX_ATTR_VALUE(variables)
     {
         Log.debug("Received variables: $variables")
+        variables.collect { it.value = it.value.toString() }
 
         MetricModel mod = getJMXMetricModel()
         mod.metricName = "JMX_ATTR_VALUE"
         mod.identifier = variables.identifier
         mod.description = "JMX Attribute Value"
-
+        
         def value
         def extraPath = ""
         if ( variables.mbeanPath.startsWith("ALLSERVERS") ) {
-            if ( variables.mbeanPath.tokenize(",")?.get(1) ) {
+            if ( variables.mbeanPath.tokenize(",")?.size() > 1 ) {
                 extraPath = variables.mbeanPath.tokenize(",")[1]
             }
             value = this.ALLSERVERS.collect { getMbeanAttributeValue(it + extraPath, variables.closureFunction, variables.attributeName) }
         } else if ( variables.mbeanPath.startsWith("ALLJVMS") ) {
-            if ( variables.mbeanPath.tokenize(",")?.get(1) ) {
+            if ( variables.mbeanPath.tokenize(",")?.size() > 1) {
                 extraPath =  + variables.mbeanPath.tokenize(",")[1]
             }
             value = this.ALLJVMS.collect { getMbeanAttributeValue(it + extraPath, variables.closureFunction, variables.attributeName) }
@@ -95,24 +95,27 @@ def env, j2eeEnv, serviceUrl, j2eeMbeanPath, j2eeServerUrl, jvmMbeanPath, manage
     public JMX_OPER_VALUE(variables)
     {
         Log.debug("Received variables: $variables")
+        variables.collect { it.value = it.value.toString() }
 
         MetricModel mod = getJMXMetricModel()
         mod.metricName = "JMX_OPER_VALUE"
         mod.identifier = variables.identifier
         mod.description = "JMX Operation Value"
+        def value = []
+        def extraPath
 
         if ( variables.mbeanPath.startsWith("ALLSERVERS") ) {
-            if ( variables.mbeanPath.tokenize(",")?.get(1) ) {
+            if ( variables.mbeanPath.tokenize(",")?.size() > 1 ) {
                 extraPath = variables.mbeanPath.tokenize(",")[1]
             }
             value = this.ALLSERVERS.collect { executeMbeanOperation(it + extraPath, variables.operationName, variables.closureFunction, variables.collectionOperator, variables.operationArguments) }
         } else if ( variables.mbeanPath.startsWith("ALLJVMS") ) {
-            if ( variables.mbeanPath.tokenize(",")?.get(1) ) {
-                extraPath =  + variables.mbeanPath.tokenize(",")[1]
+            if ( variables.mbeanPath.tokenize(",")?.size() > 1 ) {
+                extraPath = variables.mbeanPath.tokenize(",")[1]
             }
             value = this.ALLJVMS.collect { executeMbeanOperation(it + extraPath, variables.operationName, variables.closureFunction, variables.collectionOperator, variables.operationArguments) }
         } else {
-            def value =  executeMbeanOperation(variables.mbeanPath, variables.operationName, variables.closureFunction, variables.collectionOperator, variables.operationArguments)
+            value =  executeMbeanOperation(variables.mbeanPath, variables.operationName, variables.closureFunction, variables.collectionOperator, variables.operationArguments)
         }
 
         value.each { saveMetric(mod, it) }
@@ -210,7 +213,7 @@ def env, j2eeEnv, serviceUrl, j2eeMbeanPath, j2eeServerUrl, jvmMbeanPath, manage
         Log.debug("Getting Mbean attribute with: $mbeanPath $c $attributeName")
 
         try {
-            if (c && c != null) { return getMbean(mbeanPath).collect { it.processClosure(it."$attributeName", c)} } else { return getMbean(mbeanPath).collect { it."$attributeName" } }
+            if (c && c != null && c != "null" ) { return getMbean(mbeanPath).collect { processClosure(it."$attributeName", c)} } else { return getMbean(mbeanPath).collect { it."$attributeName" } }
         } catch( exception ) {
             if( exception instanceof MissingPropertyException ) {
                 println "invokeGroovyScriptMethod: $exception.message"
@@ -231,13 +234,14 @@ def env, j2eeEnv, serviceUrl, j2eeMbeanPath, j2eeServerUrl, jvmMbeanPath, manage
         Log.debug("Executing Mbean attribute with: $mbeanPath $c $operationName $args")
         try {
             def value
-            def ret = getMbean(mbeanPath).collect { it.invokeMethod(operationName, args) }
+            def fixNulls = args.findAll { it != null }.collect { it.toString() } as String[]
+            def ret = getMbean(mbeanPath).collect { it.invokeMethod(operationName, fixNulls) }
             // What on earth is happening here??
             if (ret instanceof Exception) {
                 throw ret
             }
-            
-            if (c && c != null) { return ret.collect { processClosure(it, c) } } else { return ret }
+            // Why???
+            if (c && c != null && c != "null" ) { return ret.collect { processClosure(it, c) } } else { return ret }
 
         } catch( exception ) {
             if( exception instanceof MissingMethodException ) {
@@ -258,9 +262,14 @@ def env, j2eeEnv, serviceUrl, j2eeMbeanPath, j2eeServerUrl, jvmMbeanPath, manage
      * Process information using a closure passed as an argument
      */
     public processClosure(input, String c) {
+
         Log.debug("Processing closure $c ")
+        if ( c == null || c.length() == 0 ) {
+          return input
+        }
         try {
             def c2 = new GroovyShell().evaluate(c)
+            Log.debug("Input is: " + input)
             return c2(input)
         } catch(e) {
             Log.error("A problem occurred when processing your closure argument: " + e.message)
@@ -273,7 +282,8 @@ def env, j2eeEnv, serviceUrl, j2eeMbeanPath, j2eeServerUrl, jvmMbeanPath, manage
     public List<GroovyMBean> getManagementMbean(String mbeanPath) {
         try {
             def query = new ObjectName(mbeanPath)
-            String[] allNames = this.managementServer.queryNames(query, null)
+            Log.debug("Retrieving " + mbeanPath)
+            def allNames = this.managementServer.queryNames(query, null)
             return allNames.collect{ new GroovyMBean(this.managementServer, it) }
         } catch(e) {
             throw e
@@ -284,7 +294,7 @@ def env, j2eeEnv, serviceUrl, j2eeMbeanPath, j2eeServerUrl, jvmMbeanPath, manage
     public List<GroovyMBean> getJ2EEMbean(String mbeanPath) {
         try {
             def query = new ObjectName(mbeanPath)
-            String[] allNames = this.j2eeServer.queryNames(query, null)
+            def allNames = this.j2eeServer.queryNames(query, null)
             return allNames.collect{ new GroovyMBean(this.j2eeServer, it) }
         } catch(e) {
             throw e
@@ -335,7 +345,7 @@ def env, j2eeEnv, serviceUrl, j2eeMbeanPath, j2eeServerUrl, jvmMbeanPath, manage
     /*
      * Save metric to the database
     */
-    private saveMetric(mod, value) {
+    protected saveMetric(mod, value) {
         Log.debug("Metric value: $value")
         def met = persistMetric(mod, value, MetricsDB.getNewDateTime())
     }

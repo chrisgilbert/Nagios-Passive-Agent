@@ -58,12 +58,7 @@ class OASGatherer extends JMXGatherer {
         j2eeMbeanPath = "oc4j:j2eeType=J2EEServer,name=standalone"
         jvmMbeanPath = "oc4j:j2eeType=JVM,name=single,J2EEServer=standalone"
         
-        
-
         super.connectManagement(env, managementServerUrl, managementServerMbeanPath)
-        // Get a list of the Mbean names for each of the JVMs
-        super.getJVMMbeanList("ias:j2eeType=J2EEServer,name=$instance,J2EEServerGroup=${getOC4JGroupName()},ASInstance=${getIASInstanceName()}","javaVMs")
-        //jvmMbeanPath = "ias:ASInstance=${getIASInstanceName()},J2EEServer=$instance,J2EEServerGroup=${getOC4JGroupName()},j2eeType=JVMProxy,name=1"
         super.connectJ2EE(env, j2eeServerUrl, j2eeMbeanPath, jvmMbeanPath)
         setServerPaths()
         setJVMPaths()
@@ -131,11 +126,16 @@ class OASGatherer extends JMXGatherer {
     }
 
     public setJVMPaths() {
-        this.ALLJMS = this.j2eeServer.javaVMs
+        def serverMbeans = this.ALLSERVERS.collect{ getMbean(it) }
+        def vms = serverMbeans.collect { it.javaVMs }
+        this.ALLJVMS = vms.flatten()
+        Log.debug("All JVMS: " + ALLJVMS)
     }
 
     public setServerPaths() {
-        this.ALLSERVERS = getManagementMbean("ias:j2eeType=J2EEDomain,name=ias").servers.findAll { it =~ instance }
+        def servers = getMbean("ias:j2eeType=J2EEDomain,name=ias").collect { it.servers }.flatten()
+        this.ALLSERVERS = servers.findAll { it =~ instance }
+        Log.debug("All J2EE Servers: " + ALLSERVERS)
     }
 
 

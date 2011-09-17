@@ -215,9 +215,9 @@ Map optionalWith = [:]
                             break;
 
             case "CONTAINS": value = (String) value
-                            if ( value =~ th_warn)  { status = "WARNING" }
-                            if ( value =~ th_crit)  { status = "CRITICAL" }
-                            if ( (! value =~ th_warn) && (! value =~ th_crit) ) { status = "OK" }
+                            if ( value.contains(th_warn) )  { status = "WARNING" }
+                            if ( value.contains(th_crit) )  { status = "CRITICAL" }
+                            if ( !(value.contains(th_warn)) && !(value.contains(th_crit)) ) { status = "OK" }
                             if ( value == -1 ) { status = "UNKNOWN" }
                             break;
                             

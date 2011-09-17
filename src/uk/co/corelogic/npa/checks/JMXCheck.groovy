@@ -42,9 +42,6 @@ class JMXCheck extends Check implements CheckInterface {
         this.requiredWith += ["operation":["operationName","varName"], "attribute":["attributeName","varName"]]
         this.optionalWith += ["operation":["operationArguments", "closureFunction"], "attribute":["closureFunction"]]
         super.init()
-
-        this.operations.put( { argsAsXML.each { new NPAMBeanOperation() << it } })
-        this.attributes.put( { argsAsXML.each { new NPAMBeanAttribute() << it } })
     }
 
 
@@ -53,40 +50,53 @@ class JMXCheck extends Check implements CheckInterface {
      */
     public chk_jmx() {
         init()
-        return this.chkJMX(this.variables.clone(), this.arguments, this.operations)
+        argsAsXML.attribute.each { 
+            def argsmap = [:]
+            it.children().each {
+                argsmap["${it.name()}"]=it.text()
+            }
+            this.attributes.add(new NPAMBeanAttribute(argsmap))
+        }   
+        argsAsXML.operation.each { 
+            def argsmap = [:]
+            it.children().each {
+                argsmap["${it.name()}"]=it.text()
+            }
+            this.operations.add(new NPAMBeanOperation(argsmap))
+        }
+        return this.chkJMX(this.variables.clone(), this.attributes, this.operations)
     }
 
     /*
      * Evaluate arguments and operations specified, and retrieve from gatherer, then generate check result
     */
-    private chkJMX(vars, arguments, operations) {
-        def results = []
+    private chkJMX(vars, attributes, operations) {
+        def results = [:]
         def timePeriod = null
         def avgMessage
         def message
 
         if (vars.timePeriodMillis != null ) {
-            timePeriod = vars.timePeriodMillis
             avgMessage = "(average over ${timePeriod} ms)"
         }
 
-        arguments.each {
+        attributes.each {
             def localVars = vars.clone()
-            results += getJMXAttr(timePeriod, it)
+            results.putAll(getJMXAttr(vars, it.properties))
         }
         
         operations.each {
             def localVars = vars.clone()
-            results += getJMXOper(timePeriod, it)
+            results.putAll(getJMXOper(vars, it.properties))
         }
 
-        def values
+        def values = []
         if ( vars.collectionClosure != null) {
             Log.debug("Processing collection closure on all retrieved values.")
             values = this.processClosure(results, vars.collectionClosure)
         } else {
             Log.debug("No collection closure specified - comparing all retrieved values with thresholds")
-            values = result.collect { it.value }
+            values = results.collect { it.value }
         }
 
         def status = calculateStatus(chk_th_warn, chk_th_crit, values, chk_th_type)
@@ -96,8 +106,8 @@ class JMXCheck extends Check implements CheckInterface {
         this.gatherer.disconnect()
         this.gatherer = null
 
-        if (values.isEmpty()) {
-            Log.info("Value was null")
+        if (! values) {
+            Log.info("Value was null or empty")
             status = "UNKNOWN"
             message = "No values returned - unknown STATUS!"
         }
@@ -113,6 +123,7 @@ class JMXCheck extends Check implements CheckInterface {
         Log.debug("Processing closure $c ")
         try {
             def c2 = new GroovyShell().evaluate(c)
+            Log.debug("INPUT is *******************: " + input)
             return c2(input)
         } catch(e) {
             Log.error("A problem occurred when processing your closure argument: " + e.message)
@@ -121,23 +132,26 @@ class JMXCheck extends Check implements CheckInterface {
     }
 
 
-    private Map getJMXAttr(timePeriod, attribute) {
+    protected Map getJMXAttr(vars, attribute) {
         def value, avgMessage
+        def combined = [:]
+        combined.putAll(vars)
+        combined.putAll(attribute)
         def performance = [:]
         def message
-        vars.identifier = attribute.mbeanPath + "." + attribute.attributeName + ",Closure:" + attribute.closureFunction
+        combined.identifier = combined.mbeanPath + "." + combined.attributeName + ",Closure:" + combined?.closureFunction
         try {
-            if (vars.timePeriodMillis != null ){
-                Log.info("Retrieving average results over ${timePeriod}")
-                gatherer.sample("JMX_ATTR_VALUE", attribute)
-                value = gatherer.avg("JMX_ATTR_VALUE", attribute)
-                performance = [(attribute.varName):value]
-                avgMessage = "(average over ${timePeriod} ms)"
+            if ( combined.timePeriodMillis != null ){
+                Log.info("Retrieving average results over ${combined.timePeriodMillis}")
+                gatherer.sample("JMX_ATTR_VALUE", combined)
+                value = gatherer.avg("JMX_ATTR_VALUE", combined)
+                performance = [(combined.varName):value]
+                avgMessage = "(average over ${combined.timePeriodMillis} ms)"
             } else {
-                value = gatherer.sample("JMX_ATTR_VALUE", attribute)
-                performance = [(vars.varName):value]
+                value = gatherer.sample("JMX_ATTR_VALUE", combined)
+                performance = [(combined.varName):value]
             }
-            Log.debug("Value returned: ${avgMessage ?: ""} $value for ${attribute.varName}")
+            Log.debug("Value returned: ${avgMessage ?: ""} $value for ${combined.varName}")
             
 
         } catch(e) {
@@ -148,23 +162,26 @@ class JMXCheck extends Check implements CheckInterface {
         return performance
     }
 
-    private Map getJMXOper(vars) {
+    protected Map getJMXOper(vars, operation) {
         def value, avgMessage
+        def combined = [:]
+        combined.putAll(vars)
+        combined.putAll(operation)
         def performance = [:]
         def message
-        vars.identifier = vars.mBeanPath + "." + vars.attributeName + ",Closure:" + vars.closureFunction
+        combined.identifier = operation.mbeanPath + "." + combined.operationName + ",Closure:" + combined?.closureFunction
         try {
-            if (vars.timePeriodMillis != null ){
-                Log.info("Retrieving average results over ${vars.timePeriodMillis}")
-                gatherer.sample("JMX_OPER_VALUE", vars)
-                value = gatherer.avg("JMX_OPER_VALUE", vars)
-                performance = [(vars.varName):value]
-                avgMessage = "(average over ${vars.timePeriodMillis} ms)"
+            if ( combined.timePeriodMillis != null ){
+                Log.info("Retrieving average results over ${combined.timePeriodMillis}")
+                gatherer.sample("JMX_OPER_VALUE", combined)
+                value = gatherer.avg("JMX_OPER_VALUE", combined)
+                performance = [(combined.varName):value]
+                avgMessage = "(average over ${combined.timePeriodMillis} ms)"
             } else {
-                value = gatherer.sample("JMX_OPER_VALUE", vars)
-                performance = [(vars.varName):value]
+                value = gatherer.sample("JMX_OPER_VALUE", combined)
+                performance = [(combined.varName):value]
             }
-            Log.debug("Value returned: ${avgMessage ?: ""} $value for ${vars.varName}")
+            Log.debug("Value returned: ${avgMessage ?: ""} $value for ${combined.varName}")
 
         } catch(e) {
             Log.error("An error occurred when attempting to retrive JMX attribute:", e)
@@ -173,93 +190,6 @@ class JMXCheck extends Check implements CheckInterface {
         }
         return performance
     }
-
-
-//    private chkJMXAttr(vars) {
-//        def value, avgMessage
-//        def performance = [:]
-//        def message
-//        vars.identifier = vars.mBeanPath + "." + vars.attributeName + ",Closure:" + vars.closureFunction
-//        try {
-//            if (vars.timePeriodMillis != null ){
-//                Log.info("Retrieving average results over ${vars.timePeriodMillis}")
-//                value = gatherer.sample("JMX_ATTR_VALUE", vars).toFloat()
-//                performance = [(vars.attributeName):value]
-//                value = gatherer.avg("JMX_ATTR_VALUE", vars)
-//                avgMessage = "(average over ${vars.timePeriodMillis} ms)"
-//            } else {
-//                value = gatherer.sample("JMX_ATTR_VALUE", vars)
-//                performance = [(vars.attributeName):value]
-//            }
-//            Log.debug("Value returned: ${avgMessage ?: ""} $value for ${vars.attributeName}")
-//            message = "Value returned: ${avgMessage ?: ""} $value for ${vars.attributeName}"
-//
-//        } catch(e) {
-//            Log.error("An error occurred when attempting to retrive JMX attribute:", e)
-//                CheckResultsQueue.add(super.generateResult(this.initiatorID, variables.nagiosServiceName, variables.host, "CRITICAL", [:], new Date(), "An error occurred when retrieving JMX attribute!"))
-//            Log.error("Throwing error up chain")
-//            throw e
-//        }
-//
-//        def status = calculateStatus(chk_th_warn, chk_th_crit, value, chk_th_type)
-//
-//        this.gatherer.disconnect()
-//        this.gatherer = null
-//
-//        if (value == null) {
-//            Log.info("Value was null")
-//            status = "UNKNOWN"
-//            message = "No attribute returned - unknown STATUS."
-//        }
-//
-//        return super.generateResult(this.initiatorID, vars.nagiosServiceName, vars.host, status, performance, new Date(), message)
-//    }
-
-
-//    private chkJMXOper(vars) {
-//        def value, avgMessage
-//        def performance = [:]
-//        def message
-//        vars.identifier = vars.mBeanPath + "." + vars.operationName + ",Closure:" + vars.closureFunction + ',args:' + vars.operationArguments
-//        try {
-//            if (vars.timePeriodMillis != null ){
-//                Log.info("Retrieving average results over ${vars.timePeriodMillis}")
-//                value = gatherer.sample("JMX_OPER_VALUE", vars).toFloat()
-//                performance = [(vars.operationName):value]
-//                value = gatherer.avg("JMX_OPER_VALUE", vars)
-//                avgMessage = "(average over ${vars.timePeriodMillis} ms)"
-//            } else {
-//                value = gatherer.sample("JMX_OPER_VALUE", vars)
-//                performance = [(vars.operationName):value]
-//            }
-//            Log.debug("Value returned: ${avgMessage ?: ""} $value for ${vars.operationName}")
-//            message = "Value returned: ${avgMessage ?: ""} $value for ${vars.operationName}"
-//
-//        } catch(e) {
-//            Log.error("An error occurred when attempting to retrive JMX attribute:", e)
-//                CheckResultsQueue.add(super.generateResult(this.initiatorID, vars.nagiosServiceName, vars.host, "CRITICAL", [:], new Date(), "An error occurred when retrieving JMX operation!"))
-//            Log.error("Throwing error up chain")
-//            throw e
-//        }
-//
-//        def status = calculateStatus(chk_th_warn, chk_th_crit, value, chk_th_type)
-//
-//        this.gatherer.disconnect()
-//        this.gatherer = null
-//
-//        if (value == null) {
-//            Log.info("Return value was null")
-//            message = "No operation value returned."
-//        }
-//
-//        if (value == false) {
-//            Log.info("Return value was FALSE")
-//            status="CRITICAL"
-//            message = "Operation failed - returned FALSE."
-//        }
-//
-//        return super.generateResult(this.initiatorID, vars.nagiosServiceName, vars.host, status, performance, new Date(), message)
-//    }
 
 
 }

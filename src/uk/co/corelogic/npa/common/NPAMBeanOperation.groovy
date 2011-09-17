@@ -15,6 +15,7 @@ class NPAMBeanOperation {
     def operationName
     def operationArguments
     def varName
+    def identifier
 
 }
 
