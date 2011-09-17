@@ -17,3 +17,7 @@ dist/
 src.bak/
 *.properties
 RPMBUILD/
+doc/README.txt
+doc/changelog2.txt
+nohup.out
+release-dev.sh
