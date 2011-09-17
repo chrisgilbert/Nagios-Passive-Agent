@@ -3,12 +3,12 @@
 // Simple update class, to update NPA to the most recent version.  This will update the npa.jar file and download any new libraries,
 // but not make any changes to configuration
 //
-// Version 2 - 11/07/2011 Chris Gilbert
+// Version 2.1 - 13/09/2011 Chris Gilbert
 //
 
-def npaURL="http://www.disciple3d.co.uk/npa-stable.jar"
-newFile="npa-stable.jar"
-def libList="http://www.disciple3d.co.uk/libs.txt"
+def npaURL="http://sourceforge.net/projects/npa/files/npa-dev.jar"
+newFile="npa-dev.jar"
+def libList="http://sourceforge.net/projects/npa/files/dev-libs.txt"
 def suffix=new Date().format("yyyy-MM-dd-HH24-mm-ss")
 
 def config = new ConfigSlurper().parse(new File("../config/defaults.groovy").toURL())

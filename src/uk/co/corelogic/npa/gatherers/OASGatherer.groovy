@@ -58,9 +58,15 @@ class OASGatherer extends JMXGatherer {
         j2eeMbeanPath = "oc4j:j2eeType=J2EEServer,name=standalone"
         jvmMbeanPath = "oc4j:j2eeType=JVM,name=single,J2EEServer=standalone"
         
+        
 
         super.connectManagement(env, managementServerUrl, managementServerMbeanPath)
+        // Get a list of the Mbean names for each of the JVMs
+        super.getJVMMbeanList("ias:j2eeType=J2EEServer,name=$instance,J2EEServerGroup=${getOC4JGroupName()},ASInstance=${getIASInstanceName()}","javaVMs")
+        //jvmMbeanPath = "ias:ASInstance=${getIASInstanceName()},J2EEServer=$instance,J2EEServerGroup=${getOC4JGroupName()},j2eeType=JVMProxy,name=1"
         super.connectJ2EE(env, j2eeServerUrl, j2eeMbeanPath, jvmMbeanPath)
+        setServerPaths()
+        setJVMPaths()
     }
 
 
@@ -78,19 +84,6 @@ class OASGatherer extends JMXGatherer {
         super.addValidMetricList(this.metricList, "JMX", this.getClass().getName())
     }
 
-
-    
-    public listJMSQueues() {
-        def query = new javax.management.ObjectName('oc4j:*')
-        def allNames = conn.queryNames(query, null)
-        def dests1 = allNames.findAll{ name ->
-            name.toString().contains('j2eeType=JMSDestinationResource')
-        }
-        def dests = dests1.collect{ new GroovyMBean(conn, it) }
-
-        println("Found ${dests.size()} JMS destinations. Listing ...")
-        dests.each{ d -> println "$d.name: $d.location" }
-    }
 
     public getIASInstanceName() {
         Log.debug("Getting iAS Instance Name")
@@ -118,23 +111,13 @@ class OASGatherer extends JMXGatherer {
         return map.J2EEServerGroup
     }
 
-
-
-    public getStateString() {
-       def stateList = [0:"STARTING",1:"RUNNING",2:"STOPPING",3:"STOPPED",4:"FAILED"]
-       return stateList.get(getManagementMbean("ias:j2eeType=J2EEServer,name=$instance,J2EEServerGroup=${getOC4JGroupName()},ASInstance=${getIASInstanceName()}").state)
-    }
-
-
-    public getState() {
-       return getManagementMbean("ias:j2eeType=J2EEServer,name=$instance,J2EEServerGroup=${getOC4JGroupName()},ASInstance=${getIASInstanceName()}").state
-    }
-
-    /*
-     * This returns the path to the ORACLE_HOME as a String
-    */
-    public getOracleHome() {
-       return this.j2eeServer.oracleHome
+    @Override
+    public List<GroovyMBean> getMbean(String mbeanPath) {
+        if (mbeanPath.startsWith("ias:")) {
+           return super.getManagementMbean(mbeanPath)
+        } else {
+           return super.getJ2EEMbean(mbeanPath)
+        }
     }
 
     /*
@@ -147,33 +130,15 @@ class OASGatherer extends JMXGatherer {
        return value
     }
 
-    public getLogDir() {
-       return this.jvmInfo[0].getproperty("framework.log.dir")
+    public setJVMPaths() {
+        this.ALLJMS = this.j2eeServer.javaVMs
     }
 
-    public installSharedLibrary(file, name, version, source) {
-       this.j2eeServer.installSharedLibrary(file, name, version, source)
+    public setServerPaths() {
+        this.ALLSERVERS = getManagementMbean("ias:j2eeType=J2EEDomain,name=ias").servers.findAll { it =~ instance }
     }
 
-    public checkSharedLibraryExists(name, version) {
-       this.j2eeServer.checkSharedLibraryExists(name, version)
-    }
 
-    public stop() {
-       this.j2eeServer.stop()
-    }
-
-    public start() {
-       this.j2eeServer.start()
-    }
-
-    public retrieveJVMs() {
-        this.jvmInfo = getJVMPaths().collect { getJ2EEMbean(it) }
-    }
-
-    public getJVMPaths() {
-        return this.j2eeServer.javaVMs
-    }
 
 }
 

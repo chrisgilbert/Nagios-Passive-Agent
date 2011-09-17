@@ -5,17 +5,17 @@ package uk.co.corelogic.npa.checks
 import uk.co.corelogic.npa.gatherers.*
 import uk.co.corelogic.npa.common.*
 
-class OASCheck extends JMXCheck implements CheckInterface {
+class WeblogicCheck extends JMXCheck implements CheckInterface {
 
-    public OASCheck() {
+    public WeblogicCheck() {
     }
 
-    synchronized public OASCheck clone() {
-        OASCheck clone = (OASCheck) super.makeClone(this.chk_name);
+    synchronized public WeblogicCheck clone() {
+        WeblogicCheck clone = (WeblogicCheck) super.makeClone(this.chk_name);
     }
  
     // Use this constructor for all classes extending Check
-    OASCheck(String chk_name, th_warn, th_crit, String th_type, Map args) {
+    WeblogicCheck(String chk_name, th_warn, th_crit, String th_type, Map args) {
         super(chk_name, th_warn, th_crit, th_type, args)
     }
 
@@ -24,20 +24,21 @@ class OASCheck extends JMXCheck implements CheckInterface {
     */
     public registerChecks() {
         super.registerChecks()
-        CheckRegister.add("chk_oas", "JMX", this.getClass().getName())
+        CheckRegister.add("chk_weblogic", "JMX", this.getClass().getName())
     }
 
-    public chk_oas() {
+    public chk_weblogic() {
         return super.chk_jmx()
     }
 
     @Override
     public init() {
-        this.required += ["instance"]
+        this.required += ["applicationName", "serverName"]
+        this.optional += ["jmxProtocol"]
         super.init()
         this.gatherer = null
         try {
-            this.gatherer = new OASGatherer(variables)
+            this.gatherer = new WeblogicGatherer(variables)
         } catch(e) {
             Log.error("An error occurred when creating the gatherer:", e)
             CheckResultsQueue.add(super.generateResult(this.initiatorID, variables.nagiosServiceName, variables.host, "CRITICAL", [:], new Date(), "An error occurred when attempting a JMX connection!"))

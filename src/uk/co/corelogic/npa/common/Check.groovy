@@ -19,6 +19,7 @@ def threadID;
 def initiatorID
 def gatherer
 def variables
+def argsAsXML
 
 /* These values are the required and optional arguments applicable to all class extending Check.
  * They are be extended by the lists in individual checks.
@@ -239,7 +240,8 @@ Map optionalWith = [:]
     */
     public String calculateStatus(th_warn, th_crit, ArrayList values, th_type) {
         def maxstatus = "UNKNOWN"
-        values.each {
+        def flatList = values.flatten()
+        flatList.each {
             def status = this.calculateStatus(th_warn, th_crit, it, th_type)
             
             if ((status == "OK") && (maxstatus != "CRITICAL")  && (maxstatus != "WARNING")) { maxstatus = "OK" }

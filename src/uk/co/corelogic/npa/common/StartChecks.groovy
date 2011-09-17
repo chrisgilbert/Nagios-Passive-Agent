@@ -69,6 +69,7 @@ static config
                         c = CheckFactory.getCheck(it.@name.toString())
                         c.chk_name = it.@name.toString()
                         c.variables = argsmap
+                        c.argsAsXML = args
                     } else {
                         c = CheckFactory.getCheck(it.@name.toString())
                         c.chk_name = it.@name.toString()
@@ -77,6 +78,7 @@ static config
                         c.chk_th_type = it.@type.toString()
                         //c.chk_args = argsmap
                         c.variables = argsmap
+                        c.argsAsXML = args
                     }
                     c.chk_interval = g.@interval.toString().toInteger();
                     checkList.add(c);

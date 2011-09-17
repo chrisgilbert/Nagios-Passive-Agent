@@ -26,13 +26,7 @@ class OASCheckTest extends NPATest {
 
     public createMock() {
         variables = [:]
-        //variables.mbeanPath="oc4j:j2eeType=J2EEServer,name=standalone"
-        variables.mbeanPath="oc4j:j2eeType=JVM,name=single,J2EEServer=standalone"
-
         variables.instance="fwtest"
-        variables.attribute=""
-        variables.attributeName="freeMemory"
-        variables.closureFunction = null
         variables.username = "oc4jadmin"
         variables.password = "Alexei12"
         variables.port = "6003"
@@ -40,6 +34,44 @@ class OASCheckTest extends NPATest {
         variables.instance = "forms_dev"
         variables.nagiosServiceName="TEST"
         return variables
+    }
+
+    public createArguments() {
+         def check = '''
+             <check name="chk_oas_oper" warn="500" crit="1000" type="GTE">
+	    <nagiosServiceName>chk_http_sessions_home</nagiosServiceName>
+	    <port>6003</port>
+	    <username>oc4jadmin</username>
+		<password>Alexei12</password>
+		
+		<instance>forms_dev</instance>
+		
+		<!-- You may specify multiple mbean operations and attributes.  Each needs to be given a varName element to identify it. 
+		     Each may also have a closureFunction to specify how to treat the value returned from the attribute or operation -->
+		<operation>
+		  <varName>HttpSessions</varName>
+	          <mbeanPath>oc4j:j2eeType=ClassLoading,name=singleton,J2EEServer=standalone</mbeanPath>
+		  <operationName>executeQuery</operationName>
+		  <operationArguments>HttpSessions</operationArguments>
+		  <closureFunction>{ it -> it.split("\n").find { it =~ "Total Sessions" }.tokenize(' ').find{ it ==~ /^\\d+/ } }</closureFunction>
+		</operation>
+
+        	<operation>
+		  <varName>HttpSessions2</varName>
+	          <mbeanPath>oc4j:j2eeType=ClassLoading,name=singleton,J2EEServer=standalone</mbeanPath>
+		  <operationName>executeQuery</operationName>
+		  <operationArguments>HttpSessions</operationArguments>
+		  <closureFunction>{ it -> it.split("\n").find { it =~ "Total Sessions" }.tokenize(' ').find{ it ==~ /^\\d+/ } }</closureFunction>
+		</operation>
+
+		<!-- Use this closure to perform an operation on the variables you have collected - this represents the final value(s) which will be compared to your thresholds 
+			It will receive a Map of key:values pairs, with the keys being the varName specified for each operation or attribute -->  
+		<collectionClosure>{ def sum; it.each { value += it.value }; return sum }</collectionClosure>
+   	        <host>oas-lon-proj.dev.corelogic.local</host>
+	</check>
+        '''
+        
+        return new XmlSlurper().parseText(check)
     }
 
     void testInstatiate() {
@@ -58,6 +90,7 @@ class OASCheckTest extends NPATest {
     void testAttrChk() {
         createMock()
         def check = new OASCheck(chk_name, th_warn, th_crit, th_type, variables)
+        c.argsAsXML = createArguments()
         def value = check.chk_oas_attr()
         assert check != null
         assert value != null
@@ -68,6 +101,7 @@ class OASCheckTest extends NPATest {
         createMock()
         variables.timePeriodMillis = "60000"
         def check = new OASCheck(chk_name, th_warn, th_crit, th_type, variables)
+        c.argsAsXML = createArguments()
         def value = check.chk_oas_attr()
         assert check != null
         assert value != null

@@ -33,6 +33,9 @@ def j2eeServer
 def j2eeServerInfo
 def jvmServer = []
 def jvmInfo = []
+String[] jvmPaths
+String[] serverPaths
+String[] nodeNames
 
 def env, j2eeEnv, serviceUrl, j2eeMbeanPath, j2eeServerUrl, jvmMbeanPath, managementServerUrl, managementServerMbeanPath, instanceMbeanPath
 
@@ -64,9 +67,29 @@ def env, j2eeEnv, serviceUrl, j2eeMbeanPath, j2eeServerUrl, jvmMbeanPath, manage
         mod.identifier = variables.identifier
         mod.description = "JMX Attribute Value"
 
-        def value = getMbeanAttributeValue(variables.mbeanPath, variables.closureFunction, variables.attributeName)
-        saveMetric(mod, value)
-        return value
+        def value
+        def extraPath = ""
+        if ( variables.mbeanPath.startsWith("ALLSERVERS") ) {
+            if ( variables.mbeanPath.tokenize(",")?.get(1) ) {
+                extraPath = variables.mbeanPath.tokenize(",")[1]
+            }
+            value = this.ALLSERVERS.collect { getMbeanAttributeValue(it + extraPath, variables.closureFunction, variables.attributeName) }
+        } else if ( variables.mbeanPath.startsWith("ALLJVMS") ) {
+            if ( variables.mbeanPath.tokenize(",")?.get(1) ) {
+                extraPath =  + variables.mbeanPath.tokenize(",")[1]
+            }
+            value = this.ALLJVMS.collect { getMbeanAttributeValue(it + extraPath, variables.closureFunction, variables.attributeName) }
+        } else {
+            value = getMbeanAttributeValue(variables.mbeanPath, variables.closureFunction, variables.attributeName)
+        }
+        
+        value.each { saveMetric(mod, it) }
+
+        if (value.size() == 1) {
+            return value[0]
+        } else {
+            return value
+        }
     }
 
     public JMX_OPER_VALUE(variables)
@@ -78,9 +101,27 @@ def env, j2eeEnv, serviceUrl, j2eeMbeanPath, j2eeServerUrl, jvmMbeanPath, manage
         mod.identifier = variables.identifier
         mod.description = "JMX Operation Value"
 
-        def value =  executeMbeanOperation(variables.mbeanPath, variables.operationName, variables.closureFunction, variables.operationArguments)
-        saveMetric(mod, value)
-        return value
+        if ( variables.mbeanPath.startsWith("ALLSERVERS") ) {
+            if ( variables.mbeanPath.tokenize(",")?.get(1) ) {
+                extraPath = variables.mbeanPath.tokenize(",")[1]
+            }
+            value = this.ALLSERVERS.collect { executeMbeanOperation(it + extraPath, variables.operationName, variables.closureFunction, variables.collectionOperator, variables.operationArguments) }
+        } else if ( variables.mbeanPath.startsWith("ALLJVMS") ) {
+            if ( variables.mbeanPath.tokenize(",")?.get(1) ) {
+                extraPath =  + variables.mbeanPath.tokenize(",")[1]
+            }
+            value = this.ALLJVMS.collect { executeMbeanOperation(it + extraPath, variables.operationName, variables.closureFunction, variables.collectionOperator, variables.operationArguments) }
+        } else {
+            def value =  executeMbeanOperation(variables.mbeanPath, variables.operationName, variables.closureFunction, variables.collectionOperator, variables.operationArguments)
+        }
+
+        value.each { saveMetric(mod, it) }
+
+        if (value.size() == 1) {
+            return value[0]
+        } else {
+            return value
+        }
     }
 
     void finalize() {
@@ -138,14 +179,16 @@ def env, j2eeEnv, serviceUrl, j2eeMbeanPath, j2eeServerUrl, jvmMbeanPath, manage
             Log.debug("Connecting to JMX Management URL: $j2eeServerUrl")
             def jmxUrl = new JMXServiceURL(j2eeServerUrl)
             this.j2eeConn =  JMXConnectorFactory.connect(jmxUrl, env)
+            
             this.j2eeServer = j2eeConn.MBeanServerConnection
+            
             this.j2eeServerInfo = getJ2EEMbean(j2eeMbeanPath)
-            this.jvmInfo = getJ2EEMbean(jvmMbeanPath)
+
         } catch(e) {
             Log.error("ERROR: Unable to connect to JMX J2EE Mbean Server")
         }
     }
-
+    
 
     /*
      * Print some J2EE and JVM information. OAS ONLY
@@ -165,8 +208,9 @@ def env, j2eeEnv, serviceUrl, j2eeMbeanPath, j2eeServerUrl, jvmMbeanPath, manage
      */
     public getMbeanAttributeValue(mbeanPath, String c, attributeName) {
         Log.debug("Getting Mbean attribute with: $mbeanPath $c $attributeName")
+
         try {
-            if (c && c != null) { return processClosure(getJ2EEMbean(mbeanPath)."$attributeName", c)} else { return getJ2EEMbean(mbeanPath)."$attributeName" }
+            if (c && c != null) { return getMbean(mbeanPath).collect { it.processClosure(it."$attributeName", c)} } else { return getMbean(mbeanPath).collect { it."$attributeName" } }
         } catch( exception ) {
             if( exception instanceof MissingPropertyException ) {
                 println "invokeGroovyScriptMethod: $exception.message"
@@ -187,13 +231,13 @@ def env, j2eeEnv, serviceUrl, j2eeMbeanPath, j2eeServerUrl, jvmMbeanPath, manage
         Log.debug("Executing Mbean attribute with: $mbeanPath $c $operationName $args")
         try {
             def value
-            def ret = getJ2EEMbean(mbeanPath).invokeMethod(operationName, args)
+            def ret = getMbean(mbeanPath).collect { it.invokeMethod(operationName, args) }
             // What on earth is happening here??
             if (ret instanceof Exception) {
                 throw ret
             }
             
-            if (c && c != null) { return processClosure(ret, c)} else { return ret }
+            if (c && c != null) { return ret.collect { processClosure(it, c) } } else { return ret }
 
         } catch( exception ) {
             if( exception instanceof MissingMethodException ) {
@@ -226,18 +270,22 @@ def env, j2eeEnv, serviceUrl, j2eeMbeanPath, j2eeServerUrl, jvmMbeanPath, manage
 
 
 
-    public GroovyMBean getManagementMbean(String mbeanPath) {
+    public List<GroovyMBean> getManagementMbean(String mbeanPath) {
         try {
-            return new GroovyMBean(this.managementServer, mbeanPath)
+            def query = new ObjectName(mbeanPath)
+            String[] allNames = this.managementServer.queryNames(query, null)
+            return allNames.collect{ new GroovyMBean(this.managementServer, it) }
         } catch(e) {
-            throw new NPAException("Unable to return Mbean for path: $mbeanPath", e)
+            throw e
+            //throw new NPAException("Unable to return Mbean for path: $mbeanPath", e)
         }
     }
 
-
-    public GroovyMBean getJ2EEMbean(String mbeanPath) {
+    public List<GroovyMBean> getJ2EEMbean(String mbeanPath) {
         try {
-            return new GroovyMBean(this.j2eeServer, mbeanPath)
+            def query = new ObjectName(mbeanPath)
+            String[] allNames = this.j2eeServer.queryNames(query, null)
+            return allNames.collect{ new GroovyMBean(this.j2eeServer, it) }
         } catch(e) {
             throw e
             //throw new NPAException("Unable to return Mbean for path: $mbeanPath", e)
@@ -245,18 +293,11 @@ def env, j2eeEnv, serviceUrl, j2eeMbeanPath, j2eeServerUrl, jvmMbeanPath, manage
     }
 
     /*
-     * Run the Mbean.executeQuery() method on a given Mbean path and set of parameters
-    */
-    public queryJ2EEMbean(mbeanPath, classParmString) {
-        return getJ2EEMbean(mbeanPath).executeQuery(classParmString)
-    }
-
-
-    /*
-     * Return an array of strings for the JVM Mbean locations
+     * Override this method to accept Mbean calls, where they may need to be sent to a different Mbean Server (such as with OC4J)
+     *
      */
-    public getVMs() {
-       return this.j2eeServer.JavaVMs
+    public List<GroovyMBean> getMbean(String mbeanPath) {
+        return this.getJ2EEMbean(mbeanPath)
     }
 
     /*
@@ -273,7 +314,6 @@ def env, j2eeEnv, serviceUrl, j2eeMbeanPath, j2eeServerUrl, jvmMbeanPath, manage
     public listStartupProperties() {
        this.j2eeServer.getPersistentProperties()
     }
-
 
 
     /*
