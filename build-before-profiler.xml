@@ -11,6 +11,7 @@
     <description>Builds, tests, and runs the project npa.</description>
     <import file="nbproject/build-impl.xml"/>
 
+    <import file="nbproject/profiler-build-impl.xml"/>
     <import file="nbproject/management-build-impl.xml"/>
     <import file="nbproject/profiler-build-impl.xml"/>    <!--
 
@@ -124,6 +125,11 @@
         <arg value="${dist.dir}/../config-dist"/>
         <arg value="${dist.dir}/config"/>
     </exec>
+    <exec executable="cp">
+        <arg value="-r"/>
+        <arg value="${dist.dir}/../config-dist/samples"/>
+        <arg value="${dist.dir}/config"/>
+    </exec>
         <exec executable="cp">
         <arg value="-r"/>
         <arg value="${dist.dir}/../install"/>
@@ -157,6 +163,11 @@
     <exec executable="cp">
         <arg value="-r"/>
         <arg value="${dist.dir}/../config-dist-corelogic"/>
+        <arg value="${dist.dir}/config"/>
+    </exec>
+    <exec executable="cp">
+        <arg value="-r"/>
+        <arg value="${dist.dir}/../config-dist/samples"/>
         <arg value="${dist.dir}/config"/>
     </exec>
         <exec executable="cp">
@@ -274,6 +285,28 @@ failureproperty="tests.failed" fork="true" showoutput="true">
   todir="${build.test.results.dir}/../report/html"/>
 </junitreport>
 </target>
+
+<path id="root.dir">
+  <fileset dir="${dist.dir}/..">
+    <include name="**/*.jar" />
+    </fileset>
+</path>
+
+<taskdef name="groovydoc" classname="org.codehaus.groovy.ant.Groovydoc" classpathref = "root.dir"/>
+<groovydoc
+    destdir="docs/gapi"
+    sourcepath="src"
+    packagenames="**.*"
+    use="true"
+    windowtitle="Nagios Passive Agent GroovyDocs"
+    doctitle="Nagios Passive Agent GroovyDocs"
+    header="Nagios Passive Agent GroovyDocs"
+    private="false">
+        <link packages="java.,org.xml.,javax.,org.xml." href="http://java.sun.com/j2se/1.5.0/docs/api"/>
+        <link packages="org.apache.ant.,org.apache.tools.ant." href="http://www.dpml.net/api/ant/1.7.0"/>
+        <link packages="org.junit.,junit.framework." href="http://junit.sourceforge.net/junit3.8.1/javadoc/"/>
+        <link packages="groovy.,org.codehaus.groovy." href="http://groovy.codehaus.org/api/"/>
+</groovydoc>
 
 
         

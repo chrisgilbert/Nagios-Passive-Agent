@@ -44,10 +44,10 @@ class OASGathererTest extends NPATest {
         println(instantiate().executeMbeanOperation("oc4j:j2eeType=ClassLoading,name=singleton,J2EEServer=standalone", "executeQuery", f, "HttpSessions"))
     }
 
-    public void testGetState(){
-        def oas = instantiate()
-        assert oas.getState() in [0,1,2,3,4]
-        println("State is: " + oas.getStateString())
-    }
+//    public void testGetState(){
+//        def oas = instantiate()
+//        assert oas.getState() in [0,1,2,3,4]
+//        println("State is: " + oas.getStateString())
+//    }
 }
 

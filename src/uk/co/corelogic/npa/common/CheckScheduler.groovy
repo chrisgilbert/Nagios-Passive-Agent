@@ -10,6 +10,7 @@ class CheckScheduler implements Thread.UncaughtExceptionHandler {
     static synchronized allThreads = []
     static synchronized checkThreadMap = [:]
     static synchronized int unhandledExceptionsCounter
+    static synchronized allTimers = []
 
     public CheckScheduler() {
         Thread.setUncaughtExceptionHandler(this)
@@ -35,8 +36,11 @@ class CheckScheduler implements Thread.UncaughtExceptionHandler {
                 timer1.scheduleAtFixedRate(c, delay, interval)
             } catch(e) {
                 e.printStackTrace()
+                Log.error("Failed to schedule check - trying once more.")
                 timer1.scheduleAtFixedRate(c, delay, interval)
             }
+            allTimers.add(timer1)
+
 
         } catch(e) {
             Log.error("Oops.  An exception occurred when scheduling a check.  There's probably a problem with the configuration.", e)

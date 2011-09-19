@@ -20,6 +20,7 @@ def initiatorID
 def gatherer
 def variables
 def argsAsXML
+def validation
 
 /* These values are the required and optional arguments applicable to all class extending Check.
  * They are be extended by the lists in individual checks.
@@ -39,12 +40,27 @@ Map optionalWith = [:]
         this.chk_th_type = th_type
         this.variables = variables
 
+
         if (chk_name == null || th_warn == null || th_crit == null || th_type == null || variables == null ) {
             throw new IllegalArgumentException("Invalid arguments to Check! Require at least chk_name, th_warn, th_crit, th_type, variables.");
         }
         init()
     }
 
+
+    Check(String chk_name, th_warn, th_crit, String th_type, groovy.util.slurpersupport.GPathResult args) {
+        this.chk_name = chk_name
+        this.chk_th_warn = th_warn
+        this.chk_th_crit = th_crit
+        this.chk_th_type = th_type
+        this.argsAsXML = args
+        this.variables = flattenXML()
+        
+        if (chk_name == null || th_warn == null || th_crit == null || th_type == null || args == null ) {
+            throw new IllegalArgumentException("Invalid arguments to Check! Require at least chk_name, th_warn, th_crit, th_type, variables.");
+        }
+        init()
+    }
 
     synchronized public Check makeClone(chk_name) {
         Check clone = CheckFactory.getCheck(chk_name)
@@ -56,6 +72,7 @@ Map optionalWith = [:]
         clone.chk_th_type = this.chk_th_type;
         clone.gatherer = null;
         clone.variables = this.variables;
+        clone.argsAsXML = this.argsAsXML;
         return clone;
     }
 
@@ -73,23 +90,28 @@ Map optionalWith = [:]
 
     /*
      * Validate the variables supplied in npa.xml and ensure they match those required for the check
+     *
+     * TODO: Improve this validation for JMX checks
      */
-    private void validateVariables()  {
+    public void validateVariables()  {
 
         def missingReq = []
         def missingOpt = []
         def missingReqWith = [:]
         def missingOptWith = [:]
 
-        missingReq = required - (variables.keySet() as List)
-        missingOpt = optional - (variables.keySet() as List)
+        if ( this.validation == null ) { this.validation =  flattenXML() }
 
+        Log.debug("Printing validation to be validated: " + validation)
+        def mapList = (validation.keySet() as List)
+        missingReq = required - (validation.keySet() as List)
+        missingOpt = optional - (validation.keySet() as List)
 
-        def foundParents = (requiredWith.keySet() as List).intersect((variables.keySet() as List))
-        missingReqWith = foundParents.collect { requiredWith.get(it) - (variables.keySet() as List) }.flatten()
+        def foundParents = (requiredWith.keySet() as List).intersect(validation.keySet() as List)
+        missingReqWith = foundParents.collect { requiredWith.get(it) - (validation.keySet() as List) }.flatten()
 
-        def foundParents2 = (optionalWith.keySet() as List).intersect((variables.keySet() as List))
-        missingOptWith = foundParents2.collect { optionalWith.get(it) - (variables.keySet() as List) }.flatten()
+        def foundParents2 = (optionalWith.keySet() as List).intersect(validation.keySet() as List)
+        missingOptWith = foundParents2.collect { optionalWith.get(it) - (validation.keySet() as List) }.flatten()
        
         
         if (missingOpt.size() > 0) { Log.warn("Optional elements not specified: ", missingOpt) }
@@ -100,6 +122,36 @@ Map optionalWith = [:]
 
     }
 
+    // Small helper function to flatten maps to dot seperated keySet
+    public flattenMap( Map aMap, prefix='' ) {
+      aMap.inject( [:] ) { map, v ->
+        def kstr = "$prefix${ prefix ? '.' : '' }$v.key"
+        if( v.value instanceof Map ) map += flattenMap( v.value, kstr )
+        else                         map[ kstr ] = v.value
+        map
+      }
+    }
+
+
+    public flattenXML() {
+        def argsmap = [:]
+        Log.debug("*********** Attributes found: " + argsAsXML.attributes())
+        argsmap += argsAsXML.attributes()
+        argsAsXML.children().each {
+            if ( it.children().size() > 0 ) {
+                def argsmap2 = [:]
+                it.children().each {
+                    argsmap2["${it.name()}"]=it.text()
+                }
+                argsmap["${it.name()}"]=argsmap2
+                Log.debug(argsmap)
+            }
+            else {
+                argsmap["${it.name()}"]=it.text()
+            }
+        }
+        return flattenMap(argsmap)
+    }
 
 
     // Constructor for checks triggered from interactive shell
@@ -215,9 +267,9 @@ Map optionalWith = [:]
                             break;
 
             case "CONTAINS": value = (String) value
-                            if ( value.contains(th_warn) )  { status = "WARNING" }
-                            if ( value.contains(th_crit) )  { status = "CRITICAL" }
-                            if ( !(value.contains(th_warn)) && !(value.contains(th_crit)) ) { status = "OK" }
+                            if ( value?.contains(th_warn) )  { status = "WARNING" }
+                            if ( value?.contains(th_crit) )  { status = "CRITICAL" }
+                            if ( !(value?.contains(th_warn)) && !(value?.contains(th_crit)) ) { status = "OK" }
                             if ( value == -1 ) { status = "UNKNOWN" }
                             break;
                             

@@ -26,6 +26,7 @@ class PluginsRegister {
         registerPlugin(new DBGatherer(), new DBCheck())
         registerPlugin(new OASGatherer(), new OASCheck())
         registerPlugin(new JMXGatherer(), new JMXCheck())
+        //registerPlugin(new WeblogicGatherer(), new WeblogicCheck())
     }
 
     /**

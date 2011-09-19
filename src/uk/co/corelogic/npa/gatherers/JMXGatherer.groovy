@@ -106,14 +106,14 @@ def env, j2eeEnv, serviceUrl, j2eeMbeanPath, j2eeServerUrl, jvmMbeanPath, manage
 
         if ( variables.mbeanPath.startsWith("ALLSERVERS") ) {
             if ( variables.mbeanPath.tokenize(",")?.size() > 1 ) {
-                extraPath = variables.mbeanPath.tokenize(",")[1]
+                extraPath = variables.mbeanPath.tokenize(",")[1].replace("oc4j:", "")
             }
-            value = this.ALLSERVERS.collect { executeMbeanOperation(it + extraPath, variables.operationName, variables.closureFunction, variables.collectionOperator, variables.operationArguments) }
+            value = this.ALLSERVERS.collect { executeMbeanOperation(it + "," + extraPath, variables.operationName, variables.closureFunction, variables.collectionOperator, variables.operationArguments) }
         } else if ( variables.mbeanPath.startsWith("ALLJVMS") ) {
             if ( variables.mbeanPath.tokenize(",")?.size() > 1 ) {
-                extraPath = variables.mbeanPath.tokenize(",")[1]
+                extraPath = variables.mbeanPath.tokenize(",")[1].replace("oc4j:", "")
             }
-            value = this.ALLJVMS.collect { executeMbeanOperation(it + extraPath, variables.operationName, variables.closureFunction, variables.collectionOperator, variables.operationArguments) }
+            value = this.ALLJVMS.collect { executeMbeanOperation(it + "," + extraPath, variables.operationName, variables.closureFunction, variables.collectionOperator, variables.operationArguments) }
         } else {
             value =  executeMbeanOperation(variables.mbeanPath, variables.operationName, variables.closureFunction, variables.collectionOperator, variables.operationArguments)
         }

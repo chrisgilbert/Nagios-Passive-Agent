@@ -84,10 +84,10 @@ def c1
         
         // Test string contains
         assertEquals("WARNING", c1.calculateStatus("Bla", "Bla2", "Bla Bla", "CONTAINS"))
-        assertEquals("CRITICAL", c1.calculateStatus(null, "Bla", "Bla Bla", "CONTAINS"))
-        assertEquals("CRITICAL", c1.calculateStatus(null, "Bla2", "Bla Bla2", "CONTAINS"))
+        assertEquals("CRITICAL", c1.calculateStatus("zoom", "Bla", "Bla Bla", "CONTAINS"))
+        assertEquals("CRITICAL", c1.calculateStatus("zoom", "Bla2", "Bla Bla2", "CONTAINS"))
         assertEquals("WARNING", c1.calculateStatus("Bl2", "Bla", ["Bl1", "Bl3", "Bl Bl2"],"CONTAINS"))
-        assertEquals("CRITICAL", c1.calculateStatus(null, "Bla2", ["Bla1", "Bla3", "Bla Bla2"],"CONTAINS"))
+        assertEquals("CRITICAL", c1.calculateStatus("zoom", "Bla2", ["Bla1", "Bla3", "Bla Bla2"],"CONTAINS"))
         
     }
 

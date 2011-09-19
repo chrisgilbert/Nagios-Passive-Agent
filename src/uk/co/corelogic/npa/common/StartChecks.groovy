@@ -69,7 +69,7 @@ static config
                         c = CheckFactory.getCheck(it.@name.toString())
                         c.chk_name = it.@name.toString()
                         c.variables = argsmap
-                        c.argsAsXML = args
+                        c.argsAsXML = it
                     } else {
                         c = CheckFactory.getCheck(it.@name.toString())
                         c.chk_name = it.@name.toString()
@@ -78,7 +78,7 @@ static config
                         c.chk_th_type = it.@type.toString()
                         //c.chk_args = argsmap
                         c.variables = argsmap
-                        c.argsAsXML = args
+                        c.argsAsXML = it
                     }
                     c.chk_interval = g.@interval.toString().toInteger();
                     checkList.add(c);
@@ -128,17 +128,18 @@ static config
         if ( maintInt == [:] ) { maintInt = "3600000" }
 
         Log.info("Scheduling results queue to be flushed every $interval")
-        timer.scheduleAtFixedRate(new FlushQueue(), delay, interval.toLong())
+        CheckScheduler.allTimers.add(timer.scheduleAtFixedRate(new FlushQueue(), delay, interval.toLong()))
         Log.info("Scheduling host OK check to run every $hostInt ms")
-        timer2.scheduleAtFixedRate(new SubmitHostOK(), delay, hostInt.toLong())
+        CheckScheduler.allTimers.add(timer2.scheduleAtFixedRate(new SubmitHostOK(), delay, hostInt.toLong()))
         Log.info("Scheduling maintenance to run every $maintInt ms")
-        timer3.scheduleAtFixedRate(new RunMaintenance(), delay, maintInt.toLong())
+        CheckScheduler.allTimers.add(timer3.scheduleAtFixedRate(new RunMaintenance(), delay, maintInt.toLong()))
 
 
         // This is a shutdown hook to automatically flush the queue on a JVM shutdown
         def shutdownClosureMap = [run: {
             CheckResultsQueue.flush()
             MaintenanceUtil.sendShutdownHost()
+            MaintenanceUtil.stopAllTimers()
             println "Shutting down...";
         }
         ]

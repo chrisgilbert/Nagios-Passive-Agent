@@ -65,21 +65,6 @@ class OASGatherer extends JMXGatherer {
     }
 
 
-
-    /**
-    Register a list of metrics which are provided by this gatherer
-
-    These registered here are specific to Oracle Application Server - others are also inherrited from JMXGatherer
-    */
-
-    public void registerMetrics() {
-        super.registerMetrics()
-        this.metricList.add('OAS_HTTP_SESSIONS')
-        this.metricList.add('OAS_OC4J_STATE')
-        super.addValidMetricList(this.metricList, "JMX", this.getClass().getName())
-    }
-
-
     public getIASInstanceName() {
         Log.debug("Getting iAS Instance Name")
         def data =  getManagementMbean("ias:j2eeType=J2EEDomain,name=ias").servers.find { it =~ instance }.toString()[4..-1]

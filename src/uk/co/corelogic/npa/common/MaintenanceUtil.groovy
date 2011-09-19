@@ -56,7 +56,7 @@ static class MaintenanceUtil {
     /*
      * Generate a message saying the NPA agent is shutting down, leaving host in unknown state.
     */
-    public static void sendShutdownHost(message) {MaintenanceUtil.sendShutdownHost()
+    public static void sendShutdownHost(message) {
         def hostChk = new CheckResult (null, MaintenanceUtil.getHostName(), "UNKNOWN", null, "none", "$message WARNING: NPA Was shutdown (or crashed) at ${new Date()} - Host is running Nagios Passive Agent version " + MaintenanceUtil.getNPAVersion())
         def result = SendCheckResultHTTP.submit(hostChk)
         if (!result) {
@@ -74,7 +74,14 @@ static class MaintenanceUtil {
             Log.error("Failed to submit host check back to server!")
         }
     }
-    
+
+
+    /*
+     * Stop all running timers - worth doing before shutdown to allow JVM to exit quickly
+     */
+    public static void stopAllTimers(){
+        CheckScheduler.allTimers.collect { it.cancel() }
+    }
 
 }
 

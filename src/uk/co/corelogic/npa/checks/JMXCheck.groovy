@@ -34,13 +34,18 @@ class JMXCheck extends Check implements CheckInterface {
     JMXCheck(String chk_name, th_warn, th_crit, String th_type, Map args) {
         super(chk_name, th_warn, th_crit, th_type, args)
     }
+    // Use this constructor for all classes extending Check
+    JMXCheck(String chk_name, th_warn, th_crit, String th_type, groovy.util.slurpersupport.NodeChild args) {
+        super(chk_name, th_warn, th_crit, th_type, args)
+    }
+
 
     @Override
     public init() {
-        this.required += ["host", "port", "username", "password", "mbeanPath"]
+        this.required += ["host", "port", "username", "password"]
         this.optional += ["collectionClosure"]
-        this.requiredWith += ["operation":["operationName","varName"], "attribute":["attributeName","varName"]]
-        this.optionalWith += ["operation":["operationArguments", "closureFunction"], "attribute":["closureFunction"]]
+        this.requiredWith += ["operation":["operation.operationName","operation.varName","operation.mbeanPath"], "attribute":["attribute.attributeName","attribute.varName", "attribute.mbeanPath"]]
+        this.optionalWith += ["operation":["operation.operationArguments", "operation.closureFunction"], "attribute":["attribute.closureFunction"]]
         super.init()
     }
 

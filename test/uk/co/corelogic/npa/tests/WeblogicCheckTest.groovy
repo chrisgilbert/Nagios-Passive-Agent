@@ -14,7 +14,7 @@ import uk.co.corelogic.npa.checks.WeblogicCheck
 class WeblogicCheckTest extends NPATest {
 
 
-    def chk_name = "chk_weblogic_attr"
+    def chk_name = "chk_weblogic"
     def th_warn = "10.1.3.4.0"
     def th_crit = "10.1.3.2.0"
     def th_type = "CONTAINS"
@@ -58,7 +58,7 @@ class WeblogicCheckTest extends NPATest {
     void testAttrChk() {
         createMock()
         def check = new WeblogicCheck(chk_name, th_warn, th_crit, th_type, variables)
-        def value = check.chk_weblogic_attr()
+        def value = check.chk_weblogic()
         assert check != null
         assert value != null
     }
@@ -68,7 +68,7 @@ class WeblogicCheckTest extends NPATest {
         createMock()
         variables.timePeriodMillis = "60000"
         def check = new WeblogicCheck(chk_name, th_warn, th_crit, th_type, variables)
-        def value = check.chk_weblogic_attr()
+        def value = check.chk_weblogic()
         assert check != null
         assert value != null
     }
@@ -81,7 +81,7 @@ class WeblogicCheckTest extends NPATest {
         variables.operation=""
         variables.remove("attributeName")
         variables.remove("attribute")
-        def value = check.chk_weblogic_oper()
+        def value = check.chk_weblogic()
         assert check != null
         assert value != null
     }
@@ -95,7 +95,7 @@ class WeblogicCheckTest extends NPATest {
         variables.remove("attributeName")
         variables.remove("attribute")
         variables.closureFunction=/{ it -> println it }/
-        def value = check.chk_weblogic_oper()
+        def value = check.chk_weblogic()
         assert check != null
         assert value != null
     }
@@ -110,7 +110,7 @@ class WeblogicCheckTest extends NPATest {
         variables.remove("attributeName")
         variables.remove("attribute")
         variables.closureFunction=/{ it -> println it }/
-        def value = check.chk_weblogic_oper()
+        def value = check.chk_weblogic()
         assert check != null
         assert value != null
     }
@@ -120,7 +120,7 @@ class WeblogicCheckTest extends NPATest {
         createMock()
         def check = new WeblogicCheck(chk_name, th_warn, th_crit, th_type, variables)
         variables.closureFunction=/{ it -> it.each { println(it) } }/
-        def value = check.chk_weblogic_attr()
+        def value = check.chk_weblogic()
         assert check != null
         assert value != null
     }

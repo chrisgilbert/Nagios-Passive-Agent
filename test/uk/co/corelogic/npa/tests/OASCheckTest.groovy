@@ -33,13 +33,12 @@ class OASCheckTest extends NPATest {
         variables.host = "oas-lon-proj.dev.corelogic.local"
         variables.instance = "forms_dev"
         variables.nagiosServiceName="TEST"
-        variables.mbeanPath = "random"
         return variables
     }
 
     public createOperations() {
          def check = '''
-             <check name="chk_oas_oper" warn="500" crit="1000" type="GTE">
+             <check name="chk_oas" warn="500" crit="1000" type="GTE">
 	    <nagiosServiceName>chk_http_sessions_home</nagiosServiceName>
 	    <port>6003</port>
 	    <username>oc4jadmin</username>
@@ -67,7 +66,7 @@ class OASCheckTest extends NPATest {
 
 		<!-- Use this closure to perform an operation on the variables you have collected - this represents the final value(s) which will be compared to your thresholds 
 			It will receive a Map of key:values pairs, with the keys being the varName specified for each operation or attribute -->  
-		<collectionClosure>{ def sum; it.each { value += it.value }; return sum }</collectionClosure>
+		<collectionClosure>{ it -> def sum = 0; it.each { sum += it.value }; return sum }</collectionClosure>
    	        <host>oas-lon-proj.dev.corelogic.local</host>
 	</check>
         '''
@@ -77,7 +76,7 @@ class OASCheckTest extends NPATest {
 
     def createAttributes(){
         def check = '''
-        	<check name="chk_oas_attr" warn="-1" crit="-1" type="LTE">
+        	<check name="chk_oas" warn="-1" crit="-1" type="LTE">
 	    <nagiosServiceName>chk_heap_free_pct</nagiosServiceName>
 	    <port>6003</port>
 	    <username>oc4jadmin</username>
@@ -93,7 +92,7 @@ class OASCheckTest extends NPATest {
 	          <mbeanPath>ALLJVMS</mbeanPath>
 		  <attributeName>totalMemory</attributeName>
 		</attribute>
-                <collectionClosure>{ it -> ((it[totalMemory] - it[freeMemory]) / it[totalMemory]) * 100 }</collectionClosure>
+                <collectionClosure>{ it ->  ((it['totalMemory'].sum() - it['freeMemory'].sum()) / it['totalMemory'].sum()) * 100 }</collectionClosure>
 	    <host>oas-lon-proj.dev.corelogic.local</host>
 	</check>
         '''
@@ -101,22 +100,23 @@ class OASCheckTest extends NPATest {
     }
 
     void testInstatiate() {
-        def check = new OASCheck(chk_name, th_warn, th_crit, th_type, createMock())
+        def check = new OASCheck(chk_name, th_warn, th_crit, th_type, createOperations())
         assert check != null
     }
 
     void testRegisterChecks() {
         createMock()
         this.variables.nagiosServiceName="TEST"
-        def check = new OASCheck(chk_name, th_warn, th_crit, th_type, variables)
+        def check = new OASCheck(chk_name, th_warn, th_crit, th_type, createAttributes())
         assert check != null
         check.registerChecks()
     }
 
     void testOperChk() {
         createMock()
-        def check = new OASCheck(chk_name, th_warn, th_crit, th_type, variables)
+        def check = new OASCheck(chk_name, th_warn, th_crit, th_type, createOperations())
         check.argsAsXML = createOperations()
+        check.validateVariables()
         def value = check.chk_oas()
         assert check != null
         assert value != null
@@ -126,8 +126,9 @@ class OASCheckTest extends NPATest {
     void testOperAvgChk() {
         createMock()
         variables.timePeriodMillis = "60000"
-        def check = new OASCheck(chk_name, th_warn, th_crit, th_type, variables)
+        def check = new OASCheck(chk_name, th_warn, th_crit, th_type, createOperations())
         check.argsAsXML = createOperations()
+        check.validateVariables()
         def value = check.chk_oas()
         assert check != null
         assert value != null
@@ -135,9 +136,10 @@ class OASCheckTest extends NPATest {
 
     void testAttrCheck() {
         createMock()
-        variables.collectionClosure = "{ it ->  ((it['totalMemory'].sum() - it['freeMemory'].sum()) / it['totalMemory'].sum()) * 100 }"
-        def check = new OASCheck(chk_name, th_warn, th_crit, th_type, variables)   
+        //variables.collectionClosure = "{ it ->  ((it['totalMemory'].sum() - it['freeMemory'].sum()) / it['totalMemory'].sum()) * 100 }"
+        def check = new OASCheck(chk_name, th_warn, th_crit, th_type, createOperations())
         check.argsAsXML = createAttributes()
+        check.validateVariables()
         def value = check.chk_oas()
         assert check != null
         assert value != null
@@ -147,8 +149,9 @@ class OASCheckTest extends NPATest {
     void testAttrAvgCheck() {
         createMock()
         variables.timePeriodMillis = "60000"
-        def check = new OASCheck(chk_name, th_warn, th_crit, th_type, variables)
+        def check = new OASCheck(chk_name, th_warn, th_crit, th_type, createOperations())
         check.argsAsXML = createAttributes()
+        check.validateVariables()
         def value = check.chk_oas()
         assert check != null
         assert value != null

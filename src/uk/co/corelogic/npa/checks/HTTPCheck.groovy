@@ -15,6 +15,10 @@ class HTTPCheck extends Check implements CheckInterface {
     HTTPCheck(String chk_name, int th_warn, int th_crit, String th_type, Map args) {
         super(chk_name, th_warn, th_crit, th_type, args)
     }
+    // Use this constructor for all classes extending Check
+    HTTPCheck(String chk_name, th_warn, th_crit, String th_type, groovy.util.slurpersupport.NodeChild args) {
+        super(chk_name, th_warn, th_crit, th_type, args)
+    }
 
     @Override
     public init() {
