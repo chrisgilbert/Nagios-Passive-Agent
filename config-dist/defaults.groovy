@@ -39,7 +39,7 @@ npa {
 
     // Persistence settings for MetricsDB
     metrics_db_location="/db/metrics.db"
-    metrics_db_purge_days=30
+    metrics_db_purge_days=1
 }
 
 log4j {

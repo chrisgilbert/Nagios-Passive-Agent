@@ -1,6 +1,7 @@
 release-file.sh
 release-stable.sh
 release-internal.sh
+remote_update.sh
 tars/
 config/
 config-dist-corelogic/

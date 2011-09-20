@@ -21,7 +21,7 @@ class WeblogicGathererTest extends NPATest {
         variables.username = "weblogic"
         variables.password = "c0r3l0g1c"
         variables.port = "7001"
-        variables.host = "mscunix.corelogic.co.uk"
+        variables.host = "rel-wls11g.mscunix.corelogic.local"
         variables.serverName = "AdminServer"
         variables.applicationName = "mosaic"
         return new WeblogicGatherer(variables)
