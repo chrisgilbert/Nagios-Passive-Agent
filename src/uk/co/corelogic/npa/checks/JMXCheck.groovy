@@ -55,19 +55,23 @@ class JMXCheck extends Check implements CheckInterface {
      */
     public chk_jmx() {
         init()
-        argsAsXML.attribute.each { 
-            def argsmap = [:]
-            it.children().each {
-                argsmap["${it.name()}"]=it.text()
+
+        if ( attributes.size() == 0 && operations.size() == 0 )
+        {
+            argsAsXML.attribute.each {
+                def argsmap = [:]
+                it.children().each {
+                    argsmap["${it.name()}"]=it.text()
+                }
+                this.attributes.add(new NPAMBeanAttribute(argsmap))
             }
-            this.attributes.add(new NPAMBeanAttribute(argsmap))
-        }   
-        argsAsXML.operation.each { 
-            def argsmap = [:]
-            it.children().each {
-                argsmap["${it.name()}"]=it.text()
+            argsAsXML.operation.each {
+                def argsmap = [:]
+                it.children().each {
+                    argsmap["${it.name()}"]=it.text()
+                }
+                this.operations.add(new NPAMBeanOperation(argsmap))
             }
-            this.operations.add(new NPAMBeanOperation(argsmap))
         }
         return this.chkJMX(this.variables.clone(), this.attributes, this.operations)
     }

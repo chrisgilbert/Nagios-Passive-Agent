@@ -2,4 +2,31 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <data xmlns="http://www.netbeans.org/ns/profiler/1" version="0.9.1"/>
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/1"/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/1">
+        <file>file:/home/chris/bigdrive/chris/work/projects/npa_git_repo/src/uk/co/corelogic/npa/checks/JMXCheck.groovy</file>
+        <file>file:/home/chris/bigdrive/chris/work/projects/npa_git_repo/src/uk/co/corelogic/npa/gatherers/JMXGatherer.groovy</file>
+        <file>file:/home/chris/bigdrive/chris/work/projects/npa_git_repo/src/uk/co/corelogic/npa/common/MaintenanceUtil.groovy</file>
+        <file>file:/home/chris/bigdrive/chris/work/projects/npa_git_repo/nbproject/project.properties</file>
+        <file>file:/home/chris/bigdrive/chris/work/projects/npa_git_repo/test/uk/co/corelogic/npa/tests/WeblogicCheckTest.groovy</file>
+        <file>file:/home/chris/bigdrive/chris/work/projects/npa_git_repo/src/uk/co/corelogic/npa/common/NPAException.groovy</file>
+        <file>file:/home/chris/bigdrive/chris/work/projects/npa_git_repo/src/uk/co/corelogic/npa/common/StartChecks.groovy</file>
+        <file>file:/home/chris/bigdrive/chris/work/projects/npa_git_repo/src/uk/co/corelogic/npa/common/Check.groovy</file>
+        <file>file:/home/chris/bigdrive/chris/work/projects/npa_git_repo/src/uk/co/corelogic/npa/checks/HTTPCheck.groovy</file>
+        <file>file:/home/chris/bigdrive/chris/work/projects/npa_git_repo/src/uk/co/corelogic/npa/checks/DBCheck.groovy</file>
+        <file>file:/home/chris/bigdrive/chris/work/projects/npa_git_repo/src/uk/co/corelogic/npa/checks/WeblogicCheck.groovy</file>
+        <file>file:/home/chris/bigdrive/chris/work/projects/npa_git_repo/src/uk/co/corelogic/npa/checks/OSCheck.groovy</file>
+        <file>file:/home/chris/bigdrive/chris/work/projects/npa_git_repo/src/uk/co/corelogic/npa/checks/NagiosCheck.groovy</file>
+        <file>file:/home/chris/bigdrive/chris/work/projects/npa_git_repo/src/uk/co/corelogic/npa/gatherers/OASGatherer.groovy</file>
+        <file>file:/home/chris/bigdrive/chris/work/projects/npa_git_repo/test/uk/co/corelogic/npa/tests/OASCheckTest.groovy</file>
+        <file>file:/home/chris/bigdrive/chris/work/projects/npa_git_repo/test/uk/co/corelogic/npa/tests/CheckTest.groovy</file>
+        <file>file:/home/chris/bigdrive/chris/work/projects/npa_git_repo/src/uk/co/corelogic/npa/common/PluginsRegister.groovy</file>
+        <file>file:/home/chris/bigdrive/chris/work/projects/npa_git_repo/test/uk/co/corelogic/npa/tests/MaintenanceUtilTest.groovy</file>
+        <file>file:/home/chris/bigdrive/chris/work/projects/npa_git_repo/src/uk/co/corelogic/npa/common/CheckFactory.groovy</file>
+        <file>file:/home/chris/bigdrive/chris/work/projects/npa_git_repo/src/uk/co/corelogic/npa/common/CheckResultsQueue.groovy</file>
+        <file>file:/home/chris/bigdrive/chris/work/projects/npa_git_repo/src/uk/co/corelogic/npa/common/CheckScheduler.groovy</file>
+        <file>file:/home/chris/bigdrive/chris/work/projects/npa_git_repo/build.xml</file>
+        <file>file:/home/chris/bigdrive/chris/work/projects/npa_git_repo/test/uk/co/corelogic/npa/tests/HTTPCheckTest.groovy</file>
+        <file>file:/home/chris/bigdrive/chris/work/projects/npa_git_repo/test/uk/co/corelogic/npa/tests/OASGathererTest.groovy</file>
+        <file>file:/home/chris/bigdrive/chris/work/projects/npa_git_repo/test/uk/co/corelogic/npa/tests/WeblogicGathererTest.groovy</file>
+    </open-files>
 </project-private>
