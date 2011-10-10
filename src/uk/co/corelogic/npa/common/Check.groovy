@@ -6,7 +6,7 @@ import java.util.timer.*
 import java.util.Random
 
 
-abstract class Check extends TimerTask implements Cloneable {
+abstract class Check extends Thread implements Cloneable {
 
 def chk_name
 def chk_category
@@ -40,7 +40,7 @@ Map optionalWith = [:]
         this.chk_th_type = th_type
         this.variables = variables
         this.validation = variables.clone()
-
+        this.setName(chk_name + new Date())
 
         if (chk_name == null || th_warn == null || th_crit == null || th_type == null || variables == null ) {
             throw new InvalidCheckArgumentsException("Invalid arguments to Check! Require at least chk_name, th_warn, th_crit, th_type, variables.");

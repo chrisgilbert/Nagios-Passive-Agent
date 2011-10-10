@@ -5,7 +5,13 @@ import uk.co.corelogic.npa.metrics.MetricsDB
  * TimerTask to run maintenance methods
  * @author Chris Gilbert
  */
-class RunMaintenance extends TimerTask {
+class RunMaintenance extends Thread {
+
+    RunMaintenance()
+    {
+        super()
+        this.setName("MaintenanceJob")
+    }
 
     void run() {
         MetricsDB.purgeMetrics()

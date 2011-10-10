@@ -7,6 +7,7 @@ import javax.xml.XMLConstants
 import javax.xml.transform.stream.StreamSource
 import javax.xml.validation.SchemaFactory
 import uk.co.corelogic.npa.metrics.*
+import java.util.concurrent.*
 
 
 public class StartChecks {
@@ -113,9 +114,11 @@ static config
         // Start a timer to flush the queue at the scheduled interval
         long delay = 0   // delay for 0 sec.
         //def random = new Random()
-        Timer timer = new Timer("ResultsQueue")
-        Timer timer2 = new Timer("HostCheck")
-        Timer timer3 = new Timer("MaintenanceJob")
+
+        ScheduledExecutorService timer1 = Executors.newSingleThreadScheduledExecutor();
+        ScheduledExecutorService timer2 = Executors.newSingleThreadScheduledExecutor();
+        ScheduledExecutorService timer3 = Executors.newSingleThreadScheduledExecutor();
+
         def interval = config.npa.flush_queue_ms
         if ( interval == [:] ) { interval = "30000" }
         
@@ -128,11 +131,11 @@ static config
         if ( maintInt == [:] ) { maintInt = "3600000" }
 
         Log.info("Scheduling results queue to be flushed every $interval")
-        CheckScheduler.allTimers.add(timer.scheduleAtFixedRate(new FlushQueue(), delay, interval.toLong()))
+        CheckScheduler.allTimers.add(timer1.scheduleWithFixedDelay(new FlushQueue(), delay, interval.toLong(),  TimeUnit.MILLISECONDS))
         Log.info("Scheduling host OK check to run every $hostInt ms")
-        CheckScheduler.allTimers.add(timer2.scheduleAtFixedRate(new SubmitHostOK(), delay, hostInt.toLong()))
+        CheckScheduler.allTimers.add(timer2.scheduleWithFixedDelay(new SubmitHostOK(), delay, hostInt.toLong(),  TimeUnit.MILLISECONDS))
         Log.info("Scheduling maintenance to run every $maintInt ms")
-        CheckScheduler.allTimers.add(timer3.scheduleAtFixedRate(new RunMaintenance(), delay, maintInt.toLong()))
+        CheckScheduler.allTimers.add(timer3.scheduleWithFixedDelay(new RunMaintenance(), delay, maintInt.toLong(),  TimeUnit.MILLISECONDS))
 
 
         // This is a shutdown hook to automatically flush the queue on a JVM shutdown

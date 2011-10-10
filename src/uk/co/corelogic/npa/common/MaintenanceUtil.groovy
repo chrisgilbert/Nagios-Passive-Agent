@@ -15,7 +15,7 @@ import uk.co.corelogic.npa.nagios.*
 static class MaintenanceUtil {
 	
     static config = NPA.getConfigObject()
-    static npa_version = "1.3_beta1_b3"
+    static npa_version = "1.3_beta1_b4"
     static hostname = ""
     //static npa_version = System.getProperty("application.version")
 
@@ -81,7 +81,7 @@ static class MaintenanceUtil {
      */
     public static void stopAllTimers(){
         CheckScheduler.allTimers.collect {
-            if (it) { it.cancel() }
+            if (it) { it.shutdown() }
         }
     }
 
