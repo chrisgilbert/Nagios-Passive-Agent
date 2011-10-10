@@ -25,7 +25,6 @@ class CheckSchedulerTest extends NPATest {
         Log.info("Registerd metricList:" + MetricRegister.getMetricNames())
         Log.info("Registerd metric classNames:" + MetricRegister.getClassRegister())
 
-        def variables = [:]
         variables = [nagiosServiceName:"TEST"]
         variables.volume="ALL"
         variables.unitType="percent"
@@ -47,7 +46,6 @@ class CheckSchedulerTest extends NPATest {
         Log.info("Registerd metricList:" + MetricRegister.getMetricNames())
         Log.info("Registerd metric classNames:" + MetricRegister.getClassRegister())
 
-        def variables = [:]
         variables = [nagiosServiceName:"TEST"]
         variables.volume="ALL"
         variables.unitType="percent"
@@ -64,17 +62,19 @@ class CheckSchedulerTest extends NPATest {
     }
 
     void testRestartThread() {
-        this.variables.volume="ALL"
-        this.variables.nagiosServiceName="TEST"
-        this.variables.unitType="percent"
-        def check = new OSCheck(chk_name, th_warn, th_crit, th_type, variables)
-        assert check != null
-        def result = check.chk_disk_free()
-        assert result != null
-        println("Results is: " + result.status + " Message is: " + result.message)
+
+        variables = [nagiosServiceName:"TEST"]
+        variables.volume="ALL"
+        variables.unitType="percent"
 
         def c1 = CheckFactory.getCheck("chk_disk_free")
-        check.schedule(10000)
+        c1.chk_name = "chk_disk_free"
+        c1.chk_th_warn = 1
+        c1.chk_th_crit = 2
+        c1.chk_th_type = "GTE"
+        c1.chk_interval = 10000
+        c1.variables = variables
+        c1.schedule(10000)
 
         CheckScheduler.checkThreadMap.clone().each{
             def id = it.key

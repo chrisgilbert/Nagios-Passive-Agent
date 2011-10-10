@@ -28,6 +28,7 @@ class CheckFactory {
         } catch(e) {
             Log.error("An exception occurred when building a new check.", e)
             Log.error("STACK:", e)
+            throw e
         }
     }
 

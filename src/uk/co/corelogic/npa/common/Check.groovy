@@ -39,10 +39,11 @@ Map optionalWith = [:]
         this.chk_th_crit = th_crit
         this.chk_th_type = th_type
         this.variables = variables
+        this.validation = variables.clone()
 
 
         if (chk_name == null || th_warn == null || th_crit == null || th_type == null || variables == null ) {
-            throw new IllegalArgumentException("Invalid arguments to Check! Require at least chk_name, th_warn, th_crit, th_type, variables.");
+            throw new InvalidCheckArgumentsException("Invalid arguments to Check! Require at least chk_name, th_warn, th_crit, th_type, variables.");
         }
         init()
     }
@@ -100,6 +101,7 @@ Map optionalWith = [:]
         def missingReqWith = [:]
         def missingOptWith = [:]
 
+
         if ( this.validation == null ) { this.validation =  flattenXML() }
 
         Log.debug("Printing validation to be validated: " + validation)
@@ -114,13 +116,14 @@ Map optionalWith = [:]
         missingOptWith = foundParents2.collect { optionalWith.get(it) - (validation.keySet() as List) }.flatten()
        
         
-        if (missingOpt.size() > 0) { Log.warn("Optional elements not specified: ", missingOpt) }
-        if (missingOptWith.size() > 0) { Log.warn("Optional elements not specified: ", missingOptWith) }
-        if (missingReq.size() > 0) { Log.error("Required arguments not specified!: ", missingReq); throw new NPAException("Required elements were not specified in $chk_name:", missingReq) }
-        if (missingReqWith.size() > 0) { Log.error("Required arguments not specified!: ", missingReqWith); throw new NPAException("Required elements were not specified in $chk_name:", missingReqWith) }
+        if (missingOpt.size() > 0) { Log.warn("Optional elements not specified: " + missingOpt) }
+        if (missingOptWith.size() > 0) { Log.warn("Optional elements not specified: " + missingOptWith) }
+        if (missingReq.size() > 0) { throw new InvalidCheckArgumentsException("!!! !!! Required elements were not specified in $chk_name:" + missingReq) }
+        if (missingReqWith.size() > 0) { throw new InvalidCheckArgumentsException("!!! !!! Required elements were not specified in $chk_name:" + missingReqWith) }
 
 
     }
+
 
     // Small helper function to flatten maps to dot seperated keySet
     public flattenMap( Map aMap, prefix='' ) {
@@ -135,20 +138,25 @@ Map optionalWith = [:]
 
     public flattenXML() {
         def argsmap = [:]
-        Log.debug("*********** Attributes found: " + argsAsXML.attributes())
-        argsmap += argsAsXML.attributes()
-        argsAsXML.children().each {
-            if ( it.children().size() > 0 ) {
-                def argsmap2 = [:]
-                it.children().each {
-                    argsmap2["${it.name()}"]=it.text()
+
+        if (argsAsXML) {
+            Log.debug("*********** Attributes found: " + argsAsXML.attributes())
+            argsmap += argsAsXML.attributes()
+            argsAsXML.children().each {
+                if ( it.children().size() > 0 ) {
+                    def argsmap2 = [:]
+                    it.children().each {
+                        argsmap2["${it.name()}"]=it.text()
+                    }
+                    argsmap["${it.name()}"]=argsmap2
+                    Log.debug(argsmap)
                 }
-                argsmap["${it.name()}"]=argsmap2
-                Log.debug(argsmap)
+                else {
+                    argsmap["${it.name()}"]=it.text()
+                }
             }
-            else {
-                argsmap["${it.name()}"]=it.text()
-            }
+        } else {
+            Log.debug("*********** No Attributes found")
         }
         return flattenMap(argsmap)
     }
@@ -211,8 +219,13 @@ Map optionalWith = [:]
             println("Agent should restart automatically from wrapper process.")
             MaintenanceUtil.sendShutdownHost("OutofMemoryError in check $chk_name! Shutdown agent.")
             System.exit(1);
-        } catch(e) {
+        } catch(Exception e) {
             Log.error("Exception occurred whilst running $chk_name check: ", e)
+            Log.error("STACK:", e)
+            e.printStackTrace()
+            Log.error("A SERIOUS ERROR OCCURRED IN CHECK!")
+        } catch(Throwable e) {
+            Log.error("Thowable (exception) occurred whilst running $chk_name check: ", e)
             Log.error("STACK:", e)
             e.printStackTrace()
             Log.error("A SERIOUS ERROR OCCURRED IN CHECK!")
