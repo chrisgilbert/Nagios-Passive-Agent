@@ -140,7 +140,6 @@ static config
 
         // This is a shutdown hook to automatically flush the queue on a JVM shutdown
         def shutdownClosureMap = [run: {
-            CheckResultsQueue.flush()
             MaintenanceUtil.sendShutdownHost()
             MaintenanceUtil.stopAllTimers()
             CheckResultsQueue.flush()

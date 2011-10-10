@@ -15,7 +15,7 @@ import uk.co.corelogic.npa.nagios.*
 static class MaintenanceUtil {
 	
     static config = NPA.getConfigObject()
-    static npa_version = "1.3_beta1_b4"
+    static npa_version = "1.3_beta1_b5"
     static hostname = ""
     //static npa_version = System.getProperty("application.version")
 
@@ -80,8 +80,16 @@ static class MaintenanceUtil {
      * Stop all running timers - worth doing before shutdown to allow JVM to exit quickly
      */
     public static void stopAllTimers(){
+
+        CheckScheduler.allFutures.collect {
+            Log.warn("Cancelling check thread..")
+            try {
+                it.cancel()
+            } catch(e) { }
+        }
+
         CheckScheduler.allTimers.collect {
-            Log.warn("Stopping timer thread.." + it)
+            Log.warn("Stopping timer thread..")
             try {
                 it.shutdownNow()
             } catch(e) { }
