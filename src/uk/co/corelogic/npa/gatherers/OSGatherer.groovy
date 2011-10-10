@@ -515,7 +515,7 @@ def total_space_mb = [:]
         //
 	if (this.os_name == 'Linux' ) {
             def cmd, cmd2;
-            cmd = ["sh", "-c", "free | grep \"buffers/cache\" | awk '{print \$3}'"]
+            cmd = ["sh", "-c", "grep \"MemTotal:\" /proc/meminfo | awk '{print \$2}'"]
             cmd2 = ["sh", "-c", "free | grep \"buffers/cache\" | awk '{print \$4}'"]
             def total = runCmd(cmd)
             def free = runCmd(cmd2)

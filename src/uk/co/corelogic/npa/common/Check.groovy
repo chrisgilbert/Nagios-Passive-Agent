@@ -56,6 +56,7 @@ Map optionalWith = [:]
         this.chk_th_type = th_type
         this.argsAsXML = args
         this.variables = flattenXML()
+        this.setName(chk_name + new Date())
         
         if (chk_name == null || th_warn == null || th_crit == null || th_type == null || args == null ) {
             throw new IllegalArgumentException("Invalid arguments to Check! Require at least chk_name, th_warn, th_crit, th_type, variables.");
@@ -205,11 +206,8 @@ Map optionalWith = [:]
     */
     public void run() {
          try {
-            this.threadID = Thread.currentThread().getId();
-            CheckScheduler.registerThread(Thread.currentThread(), this.clone());
-            Log.debug("Thread $threadID status: " + Thread.currentThread().getState())
             Log.debug("Running check with parameters: ${this.chk_name}, [${this.variables}, ${this.chk_th_warn}, ${this.chk_th_crit}, ${this.chk_th_type}]")
-                CheckResultsQueue.add(this.invokeMethod(this.chk_name.trim(), null))
+            CheckResultsQueue.add(this.invokeMethod(this.chk_name.trim(), null))
 
          } catch (OutOfMemoryError e) {
             Log.error("OutOfMemoryError occurred whilst running $chk_name check: ", e)
