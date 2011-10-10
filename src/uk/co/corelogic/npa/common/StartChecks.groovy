@@ -143,6 +143,7 @@ static config
             CheckResultsQueue.flush()
             MaintenanceUtil.sendShutdownHost()
             MaintenanceUtil.stopAllTimers()
+            CheckResultsQueue.flush()
             println "Shutting down...";
         }
         ]

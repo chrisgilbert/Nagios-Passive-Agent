@@ -4,7 +4,7 @@ import uk.co.corelogic.npa.nagios.*
 
 public class CheckResultsQueue {
 
-static def queue = []
+synchronized static def queue = []
 
 synchronized public static void add (result) {
         try {

@@ -81,7 +81,10 @@ static class MaintenanceUtil {
      */
     public static void stopAllTimers(){
         CheckScheduler.allTimers.collect {
-            if (it) { it.shutdown() }
+            Log.warn("Stopping timer thread.." + it)
+            try {
+                it.shutdownNow()
+            } catch(e) { }
         }
     }
 
