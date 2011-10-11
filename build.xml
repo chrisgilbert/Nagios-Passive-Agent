@@ -117,101 +117,117 @@
  </junitreport>
 </target>
 
-<target name="external-tar" depends="jar" description="build a tarball of the distribution">
+<target name="copy-common-files" depends="jar" description="copy files common to dists">
+
+    <mkdir dir="${dist.dir}/logs"/>
+
+    <copy todir="${dist.dir}/install/">
+        <fileset dir="${dist.dir}/../install" />
+    </copy>
+
+    <copy todir="${dist.dir}/nagios-plugins/">
+        <fileset dir="${dist.dir}/../nagios-plugins" />
+    </copy>
+
+    <copy todir="${dist.dir}/doc/">
+        <fileset dir="${dist.dir}/../doc" />
+    </copy>
+
+    <copy todir="${dist.dir}/wrapper-lib/">
+        <fileset dir="${dist.dir}/../wrapper-lib" />
+    </copy>
+
+    <copy todir="${dist.dir}/db/">
+        <fileset dir="${dist.dir}/../db-dist" />
+    </copy>
+
+    <copy todir="${dist.dir}/bin/">
+        <fileset dir="{dist.dir}/../bin" />
+    </copy>
+
+</target>
+
+
+
+<target name="external-tar" depends="copy-common-files" description="build a tarball of the distribution">
 
     <mkdir dir="${dist.dir}/logs"/>
     
-    <exec executable="cp">
-        <arg value="-r"/>
-        <arg value="${dist.dir}/../config-dist"/>
-        <arg value="${dist.dir}/config"/>
-    </exec>
-    <exec executable="cp">
-        <arg value="-r"/>
-        <arg value="${dist.dir}/../config-dist/samples"/>
-        <arg value="${dist.dir}/config"/>
-    </exec>
-        <exec executable="cp">
-        <arg value="-r"/>
-        <arg value="${dist.dir}/../install"/>
-        <arg value="${dist.dir}"/>
-    </exec>
-    <exec executable="cp">
-        <arg value="-r"/>
-        <arg value="${dist.dir}/../db-dist"/>
-        <arg value="${dist.dir}/db"/>
-    </exec>
-    <exec executable="cp">
-        <arg value="-r"/>
-        <arg value="${dist.dir}/../wrapper-lib"/>
-        <arg value="${dist.dir}"/>
-    </exec>
+    <copy todir="${dist.dir}/config/">
+        <fileset dir="${dist.dir}/../config-dist/" />
+    </copy>
 
-    <exec executable="cp">
-        <arg value="-r"/>
-        <arg value="${dist.dir}/../bin"/>
-        <arg value="${dist.dir}"/>
-    </exec>
-
+    <copy todir="${dist.dir}/config/samples/">
+        <fileset dir="${dist.dir}/../config-dist/samples/" />
+    </copy>
 
     <tar basedir="${dist.dir}" destfile="${dist.dir}/../tars/npa-${application.version}.tar.gz" compression="gzip"/>
 </target>
 
-<target name="corelogic-tar" depends="jar" description="build a tarball of the distribution for corelogic use">
 
-    <mkdir dir="${dist.dir}/logs"/>
+<target name="corelogic-tar" depends="copy-common-files" description="build a tarball of the distribution for corelogic use">
 
-    <exec executable="cp">
-        <arg value="-r"/>
-        <arg value="${dist.dir}/../config-dist-corelogic"/>
-        <arg value="${dist.dir}/config"/>
-    </exec>
-    <exec executable="cp">
-        <arg value="-r"/>
-        <arg value="${dist.dir}/../config-dist/samples"/>
-        <arg value="${dist.dir}/config"/>
-    </exec>
-        <exec executable="cp">
-        <arg value="-r"/>
-        <arg value="${dist.dir}/../install"/>
-        <arg value="${dist.dir}"/>
-    </exec>
-    <exec executable="cp">
-        <arg value="-r"/>
-        <arg value="${dist.dir}/../nagios-plugins"/>
-        <arg value="${dist.dir}"/>
-    </exec>
-    <exec executable="cp">
-        <arg value="-r"/>
-        <arg value="${dist.dir}/../doc"/>
-        <arg value="${dist.dir}"/>
-    </exec>
-    <exec executable="cp">
-        <arg value="-r"/>
-        <arg value="${dist.dir}/../db-dist"/>
-        <arg value="${dist.dir}/db"/>
-    </exec>
-    <exec executable="cp">
-        <arg value="-r"/>
-        <arg value="${dist.dir}/../wrapper-lib"/>
-        <arg value="${dist.dir}"/>
-    </exec>
-    <exec executable="cp">
-        <arg value="-r"/>
-        <arg value="${dist.dir}/../bin"/>
-        <arg value="${dist.dir}"/>
-    </exec>
+    <copy todir="${dist.dir}/config/">
+        <fileset dir="${dist.dir}/../config-dist-corelogic/" />
+    </copy>
+    
+    <copy todir="${dist.dir}/config/samples/">
+        <fileset dir="${dist.dir}/../config-dist-corelogic/samples/" />
+    </copy>
 
-        <tar basedir="${dist.dir}" destfile="${dist.dir}/../tars/npa-${application.version}-corelogic.tar.gz" compression="gzip"/>
+    <tar basedir="${dist.dir}" destfile="${dist.dir}/../tars/npa-${application.version}-corelogic.tar.gz" compression="gzip"/>
 
 </target>
+
 
 <target name="external-zip" depends="external-tar" description="build a zip of the distribution for external use">
     <zip basedir="${dist.dir}" destfile="${dist.dir}/../zips/npa-${application.version}.zip"/>
 </target>
 
+
 <target name="corelogic-zip" depends="corelogic-tar" description="build a zip of the distribution for corelogic use">
     <zip basedir="${dist.dir}" destfile="${dist.dir}/../zips/npa-${application.version}-corelogic.zip"/>
+</target>
+
+
+<target name="build-all" depends="external-zip,corelogic-zip" description="build all distributions">
+    <exec executable="echo">
+        <arg value="Built all distributions"/>
+    </exec>
+</target>
+
+
+<target name="release-internal" depends="corelogic-zip" description="release corelogic files">
+    <exec executable="${dist.dir}/../release-internal.sh">
+        <arg value="${dist.dir}/../tars/npa-${application.version}-corelogic.tar.gz"/>
+    </exec>
+
+    <exec executable="${dist.dir}/../release-internal.sh">
+        <arg value="${dist.dir}/../zips/npa-${application.version}-corelogic.zip"/>
+    </exec>
+</target>
+
+<target name="release-external" depends="external-zip" description="release external files">
+    <exec executable="${dist.dir}/../release-external.sh">
+        <arg value="${dist.dir}/../tars/npa-${application.version}.tar.gz"/>
+    </exec>
+
+    <exec executable="${dist.dir}/../release-external.sh">
+        <arg value="${dist.dir}/../zips/npa-${application.version}.zip"/>
+    </exec>
+</target>
+
+
+
+<target name="release-all" depends="release-external,release-internal" description="release all files">
+    <exec executable="${dist.dir}/../release-internal.sh">
+        <arg value="${dist.dir}/../tars/npa-${application.version}-corelogic.tar.gz"/>
+    </exec>
+
+    <exec executable="${dist.dir}/../release-internal.sh">
+        <arg value="${dist.dir}/../zips/npa-${application.version}-corelogic.zip"/>
+    </exec>
+
 </target>
 
 
@@ -227,7 +243,7 @@
 <mkdir dir="${rpm.build.root}/SRPMS" />
 
 <copy file="${dist.dir}/../tars/npa-${application.version}.tar.gz" todir="${rpm.build.root}/SOURCES"/>
-<copy file="${build.dir}/../npa.spec" todir="${rpm.build.root}/SPECS"/>
+<copy file="${build.dir}/../packaging/npa.spec" todir="${rpm.build.root}/SPECS"/>
 <rpm specFile="npa.spec" topDir="${rpm.build.root}" command="-ba" failOnError="true" cleanBuildDir="true" />
 </target>
 
