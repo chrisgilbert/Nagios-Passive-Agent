@@ -41,14 +41,15 @@ class OASCheck extends JMXCheck implements CheckInterface {
     public init() {
         this.required += ["instance"]
         super.init()
-        this.gatherer = null
-        try {
-            this.gatherer = new OASGatherer(variables)
-        } catch(e) {
-            Log.error("An error occurred when creating the gatherer:", e)
-            CheckResultsQueue.add(super.generateResult(this.initiatorID, variables.nagiosServiceName, variables.host, "CRITICAL", [:], new Date(), "An error occurred when attempting a JMX connection!"))
-            Log.error("Throwing error up chain")
-            throw e
+        if ( ! gatherer ) {
+            try {
+                this.gatherer = new OASGatherer(variables)
+            } catch(e) {
+                Log.error("An error occurred when creating the gatherer:", e)
+                CheckResultsQueue.add(super.generateResult(this.initiatorID, variables.nagiosServiceName, variables.host, "CRITICAL", [:], new Date(), "An error occurred when attempting a JMX connection!"))
+                Log.error("Throwing error up chain")
+                throw e
+            }
         }
     }
 

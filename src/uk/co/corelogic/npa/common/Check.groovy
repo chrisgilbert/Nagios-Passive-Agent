@@ -25,8 +25,8 @@ def validation
 /* These values are the required and optional arguments applicable to all class extending Check.
  * They are be extended by the lists in individual checks.
  */
-List required = ["nagiosServiceName"]
-List optional = []
+HashSet required = ["nagiosServiceName"]
+HashSet optional = []
 Map requiredWith = [:]
 Map optionalWith = [:]
 
@@ -331,7 +331,7 @@ Map optionalWith = [:]
 
     public schedule(interval) {
         this.chk_interval = interval;
-        CheckScheduler.schedule(this.clone());
+        CheckScheduler.schedule(this);
      }
 
 

@@ -4,7 +4,7 @@ import uk.co.corelogic.npa.nagios.*
 
 public class CheckResultsQueue {
 
-synchronized static def queue = []
+static def queue = []
 
 synchronized public static void add (result) {
         try {
@@ -52,12 +52,14 @@ synchronized public static void flush() {
                     }
                 }
             }
+            if ( queue &&  queue.size() == 0 ) { queue = null }
 
         } catch(e) {
                 Log.error("Exception occured whilst flushing queue!", e)
                 Log.error("STACK:", e)
                 e.printStackTrace();
-                //queue.clear()
+                queue.clear()
+                if ( queue && queue.size() == 0 ) { queue = null }
         }
         
 }

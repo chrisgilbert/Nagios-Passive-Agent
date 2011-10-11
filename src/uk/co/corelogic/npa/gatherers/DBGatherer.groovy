@@ -64,6 +64,10 @@ class DBGatherer extends Gatherer {
         this.conn.close();
     }
 
+    public void finalizer() {
+        this.disconnect();
+    }
+
     /*
      * Create a new metric model for a given name which stores a string
      */
@@ -153,7 +157,8 @@ class DBGatherer extends Gatherer {
            validateQuery()
            this.results = getRowResults()
         }
-        return this.results.find { it.METRIC_IDENTIFIER == metricName }.METRIC_VALUE
+        def val = this.results.find { it.METRIC_IDENTIFIER == metricName }.METRIC_VALUE
+        return val
     }
 
     /*

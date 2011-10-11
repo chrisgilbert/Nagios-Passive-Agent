@@ -33,15 +33,17 @@ def metricNames = []
         super.init()
         // Make sure this is set..
         variables.instance=variables.database
-        try {
-            this.gatherer = new DBGatherer(variables.clone())
-        } catch(e) {
-            Log.error("An error occurred when creating the gatherer:", e)
-            CheckResultsQueue.add(super.generateResult(this.initiatorID, variables.nagiosServiceName, variables.host, "CRITICAL", [:], new Date(), "An error occurred when attempting a DB connection!"))
-            Log.error("Throwing error up chain")
-            throw e
+        if (! gatherer ) {
+            try {
+                this.gatherer = new DBGatherer(variables.clone())
+            } catch(e) {
+                Log.error("An error occurred when creating the gatherer:", e)
+                CheckResultsQueue.add(super.generateResult(this.initiatorID, variables.nagiosServiceName, variables.host, "CRITICAL", [:], new Date(), "An error occurred when attempting a DB connection!"))
+                Log.error("Throwing error up chain")
+                throw e
+            }
         }
-
+        
         try {
             gatherer.validateQuery()
             this.metricNames = gatherer.getMetricNames()
@@ -161,8 +163,7 @@ def metricNames = []
         } else {
             status = calculateStatus(chk_th_warn, chk_th_crit, values, chk_th_type)
         }
-        this.gatherer.disconnect()
-        this.gatherer = null
+        this.gatherer.results = null
 
         if (this.metricNames.size() == 0) {
             Log.info("No rows were returned.")

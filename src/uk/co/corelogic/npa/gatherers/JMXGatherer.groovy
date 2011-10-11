@@ -86,9 +86,9 @@ def env, j2eeEnv, serviceUrl, j2eeMbeanPath, j2eeServerUrl, jvmMbeanPath, manage
         value.each { saveMetric(mod, it) }
 
         if (value.size() == 1) {
-            return value[0]
+            return value[0].clone()
         } else {
-            return value
+            return value.clone()
         }
     }
 
@@ -129,17 +129,52 @@ def env, j2eeEnv, serviceUrl, j2eeMbeanPath, j2eeServerUrl, jvmMbeanPath, manage
 
     void finalize() {
         this.disconnect()
+        env = null
+        j2eeEnv = null
+        serviceUrl = null
+        j2eeMbeanPath = null
+        j2eeServerUrl = null
+        jvmMbeanPath = null
+        managementServerUrl = null
+        managementServerMbeanPath = null
+        instanceMbeanPath = null
     }
 
 
     void disconnect() {
         Log.debug("Closing open connections to JMX..")
         try {
-            this.j2eeConn.close()
-            this.manConn.close()
+            this.j2eeConn?.close()
+            this.manConn?.close()
+            //this.j2eeServer.close()
+            //this.managementServer.close()
             this.managementServer = null
             this.j2eeServer = null
-        } catch(e) {}
+            this.conn = null
+            this.j2eeConn = null
+            this.manConn = null
+            this.managementServerInfo = null
+            this.j2eeServerInfo = null
+            this.jvmServer = null
+            this.jvmInfo = null
+            this.ALLSERVERS = null
+            this.ALLJVMS = null
+
+        } catch(e) {
+            Log.error("Failed to disconnect from JMX", e)
+            this.managementServer = null
+            this.j2eeServer = null
+            this.conn = null
+            this.j2eeConn = null 
+            this.manConn = null
+            this.managementServerInfo = null
+            this.j2eeServerInfo = null
+            this.jvmServer = null
+            this.jvmInfo = null
+            this.ALLSERVERS = null
+            this.ALLJVMS = null
+            throw e
+        }
     }
 
     /*
@@ -348,6 +383,7 @@ def env, j2eeEnv, serviceUrl, j2eeMbeanPath, j2eeServerUrl, jvmMbeanPath, manage
     protected saveMetric(mod, value) {
         Log.debug("Metric value: $value")
         def met = persistMetric(mod, value, MetricsDB.getNewDateTime())
+        met = null
     }
 
 

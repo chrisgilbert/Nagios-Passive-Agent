@@ -100,5 +100,20 @@ class WeblogicGatherer extends JMXGatherer {
     }
 
 
+    public setJVMPaths() {
+        def serverMbeans = this.ALLSERVERS.collect{ getMbean(it) }
+        def vms = serverMbeans.collect { it.javaVMs }
+        this.ALLJVMS = vms.flatten()
+        Log.debug("All JVMS: " + ALLJVMS)
+    }
+
+    public setServerPaths() {
+        def servers = getMbean("ias:j2eeType=J2EEDomain,name=ias").collect { it.servers }.flatten()
+        this.ALLSERVERS = servers.findAll { it =~ instance }
+        Log.debug("All J2EE Servers: " + ALLSERVERS)
+    }
+
+
+
 }
 

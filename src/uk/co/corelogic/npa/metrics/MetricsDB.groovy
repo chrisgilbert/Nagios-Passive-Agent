@@ -55,7 +55,9 @@ static boolean connected
             INSERT INTO metrics(id, initiatorID, groupID, hostName, instanceName, metricName, metricType, metricDataType, value, identifier, description, datestamp)
             values (null, $m.initiatorID, $m.groupID, $m.hostName, $m.instanceName, $m.metricName, $m.metricType, $m.metricDataType, $m.value, $m.identifier, $m.description, $m.datestamp)
         """)
+            m = null
             return conn.firstRow("SELECT last_insert_rowid()")[0]
+
     }
 
     /**

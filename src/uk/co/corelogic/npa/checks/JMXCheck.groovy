@@ -73,7 +73,7 @@ class JMXCheck extends Check implements CheckInterface {
                 this.operations.add(new NPAMBeanOperation(argsmap))
             }
         }
-        return this.chkJMX(this.variables.clone(), this.attributes, this.operations)
+        return this.chkJMX(this.variables, this.attributes, this.operations)
     }
 
     /*
@@ -90,12 +90,10 @@ class JMXCheck extends Check implements CheckInterface {
         }
 
         attributes.each {
-            def localVars = vars.clone()
             results.putAll(getJMXAttr(vars, it.properties))
         }
         
         operations.each {
-            def localVars = vars.clone()
             results.putAll(getJMXOper(vars, it.properties))
         }
 
@@ -112,8 +110,8 @@ class JMXCheck extends Check implements CheckInterface {
 
         message = "Values returned: ${avgMessage ?: ""} $results"
 
-        this.gatherer.disconnect()
-        this.gatherer = null
+        //this.gatherer.disconnect()
+        //this.gatherer = null
 
         if (! values) {
             Log.info("Value was null or empty")
@@ -121,7 +119,7 @@ class JMXCheck extends Check implements CheckInterface {
             message = "No values returned - unknown STATUS!"
         }
 
-        return super.generateResult(this.initiatorID, vars.nagiosServiceName, vars.host, status, results, new Date(), message)
+        return super.generateResult(this.initiatorID, vars.nagiosServiceName, vars.host, status, results.clone(), new Date(), message)
     }
 
 
@@ -168,7 +166,8 @@ class JMXCheck extends Check implements CheckInterface {
             Log.error("Throwing error up chain")
             throw e
         }
-        return performance
+        combined = null
+        return performance.clone()
     }
 
     protected Map getJMXOper(vars, operation) {
@@ -197,7 +196,8 @@ class JMXCheck extends Check implements CheckInterface {
             Log.error("Throwing error up chain")
             throw e
         }
-        return performance
+        combined = null
+        return performance.clone()
     }
 
 
