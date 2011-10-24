@@ -10,6 +10,7 @@ import uk.co.corelogic.npa.common.*
 import javax.management.ObjectName
 import javax.management.remote.JMXServiceURL
 import javax.management.remote.JMXConnectorFactory
+import java.util.concurrent.*
 
 
 class JMXGatherer extends Gatherer {
@@ -138,6 +139,24 @@ def env, j2eeEnv, serviceUrl, j2eeMbeanPath, j2eeServerUrl, jvmMbeanPath, manage
         managementServerUrl = null
         managementServerMbeanPath = null
         instanceMbeanPath = null
+        conn = null
+        j2eeConn = null
+        manConn = null
+        managementServer = null
+        managementServerInfo = null
+        j2eeServer = null
+        j2eeServerInfo = null
+        jvmServer = null
+        jvmInfo = null
+        ALLSERVERS = null
+        ALLJVMS = null
+        result = null
+        host = null
+        port = null
+        username = null
+        instance = null
+        password = null
+        instanceName = null
     }
 
 
@@ -187,7 +206,7 @@ def env, j2eeEnv, serviceUrl, j2eeMbeanPath, j2eeServerUrl, jvmMbeanPath, manage
             this.managementServerMbeanPath = managementServerMbeanPath
             Log.debug("Connecting to JMX Management URL: $managementServerUrl")
             def jmxUrl = new JMXServiceURL(managementServerUrl)
-            this.manConn = JMXConnectorFactory.connect(jmxUrl, env)
+            this.manConn = connectURLOrTimeout(jmxUrl, env)
             this.managementServer = manConn.MBeanServerConnection
             this.managementServerInfo = getManagementMbean(managementServerMbeanPath)
         } catch(e) {
@@ -216,7 +235,7 @@ def env, j2eeEnv, serviceUrl, j2eeMbeanPath, j2eeServerUrl, jvmMbeanPath, manage
             this.j2eeMbeanPath = j2eeMbeanPath
             Log.debug("Connecting to JMX Management URL: $j2eeServerUrl")
             def jmxUrl = new JMXServiceURL(j2eeServerUrl)
-            this.j2eeConn =  JMXConnectorFactory.connect(jmxUrl, env)
+            this.j2eeConn = connectURLOrTimeout(jmxUrl, env)
             
             this.j2eeServer = j2eeConn.MBeanServerConnection
             
@@ -387,6 +406,25 @@ def env, j2eeEnv, serviceUrl, j2eeMbeanPath, j2eeServerUrl, jvmMbeanPath, manage
     }
 
 
+    /*
+     * Try to get a JMXConnection, but timeout after 30 seconds to avoid hangs
+     */
+    private connectURLOrTimeout(jmxUrl, env) {
+        ScheduledExecutorService timer1 = Executors.newSingleThreadScheduledExecutor();
+        def connection
+        try {
+            // Submit a job and wait up to 30 seconds for the connection to be returned, or timeout
+            connection = timer1.submit(new Callable() {
+                public call() {
+                        return JMXConnectorFactory.connect(jmxUrl, env)
+                }
+            }).get(30, TimeUnit.SECONDS);
+        } catch(e) {
+             Log.error("Exception occurred whilst waiting for a JMX connection!")
+             throw e
+        }
+        return connection
+    }
 
 }
 

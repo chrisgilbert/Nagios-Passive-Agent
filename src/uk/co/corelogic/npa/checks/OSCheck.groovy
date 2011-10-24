@@ -113,8 +113,8 @@ public class OSCheck extends Check implements CheckInterface {
                 } else {
                     val_type = "MB"
                     value = free_space_mb[it]
-                    Log.debug("Free on $drive $free_space_mb[it] MB")
-                    message = message + " $drive $free_space_mb[it] MB free"
+                    Log.debug("Free on $drive ${free_space_mb[it]} MB")
+                    message = message + " $drive ${free_space_mb[it]} MB free"
                 }
 
                 // Create a performance line

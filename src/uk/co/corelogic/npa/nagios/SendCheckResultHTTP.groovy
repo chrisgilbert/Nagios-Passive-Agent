@@ -8,6 +8,7 @@ import static groovyx.net.http.Method.GET
 import static groovyx.net.http.ContentType.HTML
 import org.apache.http.auth.*
 import org.apache.http.*
+import org.apache.http.params.HttpConnectionParams
 
 /* This is an implementation of the HTTP curl submission script in groovy.
    It avoids having to use the external program to submit nagios results.
@@ -17,13 +18,21 @@ import org.apache.http.*
 
 class SendCheckResultHTTP {
 
-static boolean submit(CheckResult) {
+    // Force singleton
+    private SendCheckResultHTTP() { }
+
+synchronized static boolean submit(CheckResult) {
 
 def config = NPA.getConfigObject()
 
 def args
 Log.debug("Submitting to URL: " + config.npa.submit_url)
 def http = new HTTPBuilder(config.npa.submit_url)
+
+// Set connection timeout to stop hangs
+int timeout = config.npa.http_timeout ?: 10000
+HttpConnectionParams.setConnectionTimeout(http.client.getParams(), timeout)
+HttpConnectionParams.setSoTimeout(http.client.getParams(), timeout)
 
 // If a proxy is needed.
 if (config.npa.proxy_enable == "true") {
@@ -131,17 +140,15 @@ http.request( GET, HTML ) {
     } else if ( html =~ /and verify that you entered all required information correctly/  ) {
         Log.error("Failed to submit check! Nagios returned invalid properties error.  Check the DEBUG log for the GET string being used.")
         Log.error(html)
+        return false
     }  else if ( html =~ /An error occurred/ ) {
         Log.error("Failed to submit check! Nagios/Icinga returned a general processing error.  Check the DEBUG log for the GET string being used.")
         Log.error(html)
+        return false
     } else { return true }
   }
 
-    response.failure = { resp ->
-        Log.error("Unexpected failure: ${resp.statusLine}")
-        Log.debug(resp)
-        return false
-    }
+
     response.'404' = { resp ->
         Log.error('Page Not Found')
         return false
@@ -150,6 +157,12 @@ http.request( GET, HTML ) {
         Log.error('Credentials NOT accepted.')
         return false
     }
+    response.failure = { resp ->
+        Log.error("Unexpected failure: ${resp.statusLine}")
+        Log.debug(resp)
+        return false
+    }
+    
 }
 }
 

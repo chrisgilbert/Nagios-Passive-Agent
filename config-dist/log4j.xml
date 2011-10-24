@@ -3,27 +3,45 @@
 
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/" debug="false">
 
+
    <appender name="consoleAppender" class="org.apache.log4j.ConsoleAppender">
       <param name="Threshold" value="FATAL" />   
       <layout class="org.apache.log4j.PatternLayout">
-         <param name="ConversionPattern" value="[%t] %d{ABSOLUTE} %-5p [%c{1}] %m%n" />
+         <param name="ConversionPattern" value="[%t] %d %-5p [%c{1}] %m%n" />
       </layout>
    </appender>
 
    <appender name="fileAppender" class="org.apache.log4j.RollingFileAppender">
       <param name="Threshold" value="DEBUG" />
       <param name="File" value="${runPath}/logs/npa.log"/>
+      <param name="MaxFileSize" value="10MB"/>
+      <param name="MaxBackupIndex" value="5"/>
       <layout class="org.apache.log4j.PatternLayout">
-         <param name="ConversionPattern" value="[%t] %d{ABSOLUTE} %-5p [%c{1}] %m%n" />
+         <param name="ConversionPattern" value="[%t] %d %-5p [%c{1}] %m%n" />
       </layout>
    </appender>
 
-   <logger name="groovyx.net.http">
-	<level value="INFO"/>
-   </logger>
+
+   <category name="groovyx.net.http">
+     <priority value="warn"/>
+     <appender-ref ref="fileAppender"/>
+     <appender-ref ref="consoleAppender"/>
+   </category>
+
+   <category name="org.apache.http">
+     <priority value="warn"/>
+     <appender-ref ref="fileAppender"/>
+     <appender-ref ref="consoleAppender"/>
+   </category>
+
+   <category name="uk.co.corelogic.npa.common.CheckScheduler">
+     <priority value="debug"/>
+     <appender-ref ref="fileAppender"/>
+     <appender-ref ref="consoleAppender"/>
+   </category>
 
    <root>   
-      <priority value ="info" /> 
+      <priority value = "info" /> 
       <appender-ref ref="consoleAppender"/>      
       <appender-ref ref="fileAppender"/>      
    </root>

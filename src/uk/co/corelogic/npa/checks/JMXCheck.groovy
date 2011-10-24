@@ -73,7 +73,12 @@ class JMXCheck extends Check implements CheckInterface {
                 this.operations.add(new NPAMBeanOperation(argsmap))
             }
         }
-        return this.chkJMX(this.variables, this.attributes, this.operations)
+        try {
+            return this.chkJMX(this.variables, this.attributes, this.operations)
+        } catch (IOException e) {
+            Log.error("Failed to retrieve JMX values! IOException was thrown.")
+            throw e
+        }
     }
 
     /*
@@ -108,10 +113,8 @@ class JMXCheck extends Check implements CheckInterface {
 
         def status = calculateStatus(chk_th_warn, chk_th_crit, values, chk_th_type)
 
-        message = "Values returned: ${avgMessage ?: ""} $results"
+        message = "Values returned: ${avgMessage ?: ""} $results - $values"
 
-        //this.gatherer.disconnect()
-        //this.gatherer = null
 
         if (! values) {
             Log.info("Value was null or empty")
@@ -150,9 +153,9 @@ class JMXCheck extends Check implements CheckInterface {
         try {
             if ( combined.timePeriodMillis != null ){
                 Log.info("Retrieving average results over ${combined.timePeriodMillis}")
-                gatherer.sample("JMX_ATTR_VALUE", combined)
+                def real = gatherer.sample("JMX_ATTR_VALUE", combined)
                 value = gatherer.avg("JMX_ATTR_VALUE", combined)
-                performance = [(combined.varName):value]
+                performance = [(combined.varName):real]
                 avgMessage = "(average over ${combined.timePeriodMillis} ms)"
             } else {
                 value = gatherer.sample("JMX_ATTR_VALUE", combined)
@@ -181,9 +184,9 @@ class JMXCheck extends Check implements CheckInterface {
         try {
             if ( combined.timePeriodMillis != null ){
                 Log.info("Retrieving average results over ${combined.timePeriodMillis}")
-                gatherer.sample("JMX_OPER_VALUE", combined)
+                def real = gatherer.sample("JMX_OPER_VALUE", combined)
                 value = gatherer.avg("JMX_OPER_VALUE", combined)
-                performance = [(combined.varName):value]
+                performance = [(combined.varName):real]
                 avgMessage = "(average over ${combined.timePeriodMillis} ms)"
             } else {
                 value = gatherer.sample("JMX_OPER_VALUE", combined)

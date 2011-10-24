@@ -81,7 +81,7 @@ private HTTP_MS_RESP_TIME(variables) {
         }
         response.'404' = { resp ->
             Log.error('Page Not Found')
-            sucess=false
+            success=false
         }
         response.'401' = { resp ->
             Log.error('Credentials NOT accepted.')

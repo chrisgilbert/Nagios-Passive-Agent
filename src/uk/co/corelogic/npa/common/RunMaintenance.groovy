@@ -2,19 +2,32 @@ package uk.co.corelogic.npa.common
 import uk.co.corelogic.npa.metrics.MetricsDB
 
 /**
- * TimerTask to run maintenance methods
+ * thread to run maintenance methods
  * @author Chris Gilbert
  */
 class RunMaintenance extends Thread {
 
-    RunMaintenance()
+    private Long timer = 30000
+
+    RunMaintenance(timer)
     {
-        super()
-        this.setName("MaintenanceJob")
+        super("MaintenanceJob")
+        this.timer = timer
     }
 
     void run() {
-        MetricsDB.purgeMetrics()
+        while (true) {
+            try {
+                Log.info("Running maintenance job..")
+                MetricsDB.purgeMetrics()
+                CheckScheduler.checkStatus()
+                this.sleep(timer)
+                Log.info("Completed maintenance job.")
+            } catch(e) {
+                Log.fatal("Maintenance thread has died!", e)
+                MaintenanceUtil.sendCriticalHost()
+            }
+        }
     }
 }
 

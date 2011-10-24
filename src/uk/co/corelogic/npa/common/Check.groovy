@@ -15,12 +15,12 @@ def chk_th_warn
 def chk_th_crit
 def chk_th_type
 def sockOutput = new StringBuffer()
-def threadID;
 def initiatorID
 def gatherer
 def variables
 def argsAsXML
 def validation
+private failCount = -1
 
 /* These values are the required and optional arguments applicable to all class extending Check.
  * They are be extended by the lists in individual checks.
@@ -187,7 +187,7 @@ Map optionalWith = [:]
             this.run()
 
         } catch(e) {
-            Log.error("Error parsing FMD command. ", e)
+            Log.error("Error parsing NPA command. ", e)
             this.sockOutput << e.toString()
             this.sockOutput << "Invalid check arguments!\n"
             this.sockOutput << "Please checks you have supplied all the required arguments for the check."
@@ -205,28 +205,34 @@ Map optionalWith = [:]
      * Generic run method which executes the check
     */
     public void run() {
+
+        def allowedFails = MaintenanceUtil.config.allowed_check_failures ?: 5
          try {
             Log.debug("Running check with parameters: ${this.chk_name}, [${this.variables}, ${this.chk_th_warn}, ${this.chk_th_crit}, ${this.chk_th_type}]")
             CheckResultsQueue.add(this.invokeMethod(this.chk_name.trim(), null))
+            failCount=0
 
          } catch (OutOfMemoryError e) {
             Log.error("OutOfMemoryError occurred whilst running $chk_name check: ", e)
-            Log.error("STACK:", e)
-            e.printStackTrace()
-            Log.fatal("OutOfMemory Occurred!  Will now attempt to shutdown agent gracefully and set UNKNOWN status for host..")
-            println("Agent should restart automatically from wrapper process.")
-            MaintenanceUtil.sendShutdownHost("OutofMemoryError in check $chk_name! Shutdown agent.")
-            System.exit(1);
+            throw e
         } catch(Exception e) {
             Log.error("Exception occurred whilst running $chk_name check: ", e)
-            Log.error("STACK:", e)
-            e.printStackTrace()
             Log.error("A SERIOUS ERROR OCCURRED IN CHECK!")
+            if (failCount == -1) {
+                Log.warn("**** Auto restart disabled for this check (it failed the first time it ran - check config).")
+            } else {
+                failCount++
+            }
+            if (failCount > allowedFails) {
+                MaintenanceUtil.sendCriticalHost()
+            }
         } catch(Throwable e) {
             Log.error("Thowable (exception) occurred whilst running $chk_name check: ", e)
-            Log.error("STACK:", e)
-            e.printStackTrace()
             Log.error("A SERIOUS ERROR OCCURRED IN CHECK!")
+            failCount++
+            if (failCount > allowedFails) {
+                MaintenanceUtil.sendCriticalHost()
+            }
         }
     }
 

@@ -24,25 +24,31 @@ will raise a critical status.
 -->
 
 <npa-checks>
-    <check-group name="os" type="nagios" interval="120000">
+
+    <check-group name="os" type="nagios" interval="60000">
         
-	<check name="chk_disk_free" warn="10" crit="5" type="LTE">
-            <nagiosServiceName>chk_disk_free</nagiosServiceName>
-	    <unitType>percent</unitType>
+	<check name="chk_disk_free" warn="5000" crit="1000" type="LTE">
+            <nagiosServiceName>chk_disk_free_mb</nagiosServiceName>
+	    <unitType>megabytes</unitType>
             <volume>ALL</volume>
          </check> 
 	
 	<check name="chk_cpu_pct" warn="90" crit="95" type="GTE">
             <nagiosServiceName>chk_cpu_pct</nagiosServiceName>
+	    <!-- Average over 5 mins to avoid spurious status changes -->
+	    <timePeriodMillis>300000</timePeriodMillis>
 	</check>
 
         <check name="chk_disk_busy_pct" warn="85" crit="95" type="GTE">
             <nagiosServiceName>chk_disk_busy_pct</nagiosServiceName>
+	    <!-- Average over 5 mins to avoid spurious status changes -->
+	    <timePeriodMillis>300000</timePeriodMillis>
 	</check>
 
-        <check name="chk_mem_used_pct" warn="85" crit="95" type="GTE">
+        <check name="chk_mem_used_pct" warn="90" crit="95" type="GTE">
             <nagiosServiceName>chk_mem_used_pct</nagiosServiceName>
 	</check>
+
 
 <!-- 
 

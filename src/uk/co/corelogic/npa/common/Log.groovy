@@ -9,9 +9,11 @@ import java.io.FileNotFoundException;
 class Log {
 
   static config = NPA.getConfigObject()
-  
 
-  private static boolean initialized = false
+  // Force singleton
+  private Log() { }
+
+  private synchronized static boolean initialized = false
   
     
   private static logger() {
@@ -25,23 +27,15 @@ class Log {
 		break
 	}
    }
-   if (!initialized)  {
-        logfile()
-        initialized = true
-   }
+       synchronized(this) {
+           if (!initialized)  {
+                logfile()
+                initialized = true
+           }
+      }
 
    return [Logger.getInstance(loggerClass), meth]
   }
-
-
-//private static log(String level, Throwable t, Object... messages) {
-//  if (messages) {
-//    def log = logger()
-//    if (level.equals("Warn") || level.equals("Error") || level.equals("Fatal") || log."is${level}Enabled" ()) {
-//      log."${level.toLowerCase()}" (messages.join(), t)
-//    }
-//  }
-//}
 
     private static log(String level, Throwable t, Object... messages) {
     if (messages) {
@@ -66,7 +60,7 @@ class Log {
       }
   }
 
-  static logfile() {
+  synchronized static logfile() {
     def confFile = new File(Log.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParent().toString() + "/" + config.log4j.config_file.toString()
     println("Log4j configuration file specified at: " + confFile)
     try {
@@ -95,11 +89,12 @@ class Log {
     if (l) LogManager.rootLogger.level = l
   }
 
-  static trace(Object... messages) { log("Trace", null, messages) }
-  static trace(Throwable t, Object... messages) { log("Trace", t, messages) }
+  static trace(Object... messages) { log("Trace", null, messages.toString())  }
+  static trace(Throwable t, Object... messages) { log("Trace", t, messages.tostring()) }
 
-  static debug(Object... messages) { log("Debug", null, messages) }
-  static debug(Throwable t, Object... messages) { log("Debug", t, messages) }
+  static debug(Object... messages) { log("Debug", null, messages.toString())   }
+
+  static debug(Throwable t, Object... messages) { log("Debug", t, messages.toString()) }
 
   static info(Object... messages) { log("Info", null, messages) }
   static info(Throwable t, Object... messages) { log("Info", t, messages) }

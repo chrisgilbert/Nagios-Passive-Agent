@@ -13,10 +13,13 @@ import java.util.concurrent.*
 public class StartChecks {
 
 
-static def checkList = []
-static config
+    private static def checkList = []
+    private static config
 
-    private static parseConfig() {
+    //Force singleton
+    private StartChecks() { }
+
+    synchronized private static parseConfig() {
 
         /*def factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI)
         def schema = factory.newSchema(new StreamSource(new StringReader(xsd)))
@@ -92,8 +95,9 @@ static config
         try {
             parseConfig()
         } catch(e) {
-            Log.fatal("Failed to parse npa.xml config file!")
-            throw new NPAException("Failed to parse npa.xml!", e)
+            Log.fatal("******* Failed to parse npa.xml config file! **********")
+            println("******* Failed to parse npa.xml config file! **********")
+            System.exit(1)
         }
 
 
@@ -126,16 +130,12 @@ static config
         def hostInt = config.npa.submit_host_ok_ms
         if ( hostInt == [:] ) { hostInt = "60000" }
 
-        // Check for a variable setting the period to run maintenance jobs - default to 60 minutes
-        def maintInt = config.npa.submit_host_ok_ms
-        if ( maintInt == [:] ) { maintInt = "3600000" }
 
         Log.info("Scheduling results queue to be flushed every $interval")
-        CheckScheduler.allTimers.add(timer1.scheduleWithFixedDelay(new FlushQueue(), delay, interval.toLong(),  TimeUnit.MILLISECONDS))
+        CheckScheduler.schedule(new FlushQueue(interval))
         Log.info("Scheduling host OK check to run every $hostInt ms")
-        CheckScheduler.allTimers.add(timer2.scheduleWithFixedDelay(new SubmitHostOK(), delay, hostInt.toLong(),  TimeUnit.MILLISECONDS))
-        Log.info("Scheduling maintenance to run every $maintInt ms")
-        CheckScheduler.allTimers.add(timer3.scheduleWithFixedDelay(new RunMaintenance(), delay, maintInt.toLong(),  TimeUnit.MILLISECONDS))
+        CheckScheduler.schedule(new SubmitHostOK(hostInt))
+
 
 
         // This is a shutdown hook to automatically flush the queue on a JVM shutdown
@@ -143,6 +143,7 @@ static config
             MaintenanceUtil.sendShutdownHost()
             MaintenanceUtil.stopAllTimers()
             CheckResultsQueue.flush()
+            Log.warn "Shutting down...";
             println "Shutting down...";
         }
         ]
@@ -150,7 +151,16 @@ static config
         def shutdownListener = ProxyGenerator.instantiateAggregate(shutdownClosureMap, interfaces, Thread.class)
 
         Runtime.getRuntime().addShutdownHook((Thread)shutdownListener);
+        
+    }
 
+    public static startMaintenance(){
+        // Check for a variable setting the period to run maintenance jobs - default to 60 seconds
+        def maintInt = config.npa.submit_host_ok_ms
+        if ( maintInt == [:] ) { maintInt = 60000 }
+        Log.info("Scheduling maintenance to run every $maintInt ms")
+        RunMaintenance t = new RunMaintenance(maintInt)
+        t.start()
     }
 
 

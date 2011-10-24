@@ -5,10 +5,12 @@ package uk.co.corelogic.npa.common
  * @author Chris Gilbert
  */
 class SubmitHostOK extends Thread {
+    private timer = 30000
 
-    SubmitHostOK()
+    SubmitHostOK(timer)
     {
         super()
+        this.timer = timer
         this.setName("HostCheckSubmitJob")
     }
     void run() {

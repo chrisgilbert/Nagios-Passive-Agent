@@ -22,3 +22,6 @@ doc/README.txt
 doc/changelog2.txt
 nohup.out
 release-dev.sh
+bin/generate_config.groovy
+copy_to_bpcunix.sh
+

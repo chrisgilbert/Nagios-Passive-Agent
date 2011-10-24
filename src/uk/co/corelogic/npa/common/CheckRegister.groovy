@@ -9,9 +9,8 @@ class CheckRegister {
 private static checkList = [:];
 private static classRegister = [:]
 
-    private CheckRegister() {
-
-    }
+    // Force singleton
+    private CheckRegister() {  }
 
     /**
      * Add a new metric to the public list

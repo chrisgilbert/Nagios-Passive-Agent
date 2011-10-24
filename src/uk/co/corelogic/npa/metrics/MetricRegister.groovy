@@ -9,9 +9,8 @@ class MetricRegister {
 private static metricList = [:];
 private static classRegister = [:]
 
-    private MetricRegister() {
-        
-    }
+    // Force singleton
+    private MetricRegister() { }
 
     /**
      * Add a new metric to the public list

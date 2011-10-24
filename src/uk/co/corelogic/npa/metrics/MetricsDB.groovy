@@ -11,15 +11,17 @@ and purging data approrpriately.
 */
 static class MetricsDB {
 
+     // Enforce singleton
      private MetricDB() { }
 
-static config = NPA.getConfigObject()
 
-static conn
-static purgeInterval = config.npa.metrics_db_purge_days.toString()
-static boolean connected
+    static config = NPA.getConfigObject()
 
-    public static void connect() {
+    static conn
+    static purgeInterval = config.npa.metrics_db_purge_days.toString()
+    static boolean connected
+
+    synchronized public static void connect() {
         def location = new File(NPA.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParent().toString() + "/" + config.npa.metrics_db_location
         Log.info("Initialising MetricsDB connection..")
         conn = groovy.sql.Sql.newInstance("jdbc:sqlite:${location}","org.sqlite.JDBC")
@@ -44,7 +46,7 @@ static boolean connected
         connected = true
     }
 
-    public static int persistMetric(Metric m) {
+    synchronized public static int persistMetric(Metric m) {
         if ( ! connected ) { connect() }
         // Workaround for bug in SQLlite driver
         if ( m.value.class == Float ) {
@@ -63,7 +65,7 @@ static boolean connected
     /**
      * Add a new group to the database
     */
-    public static addGroup(groupName, initiatorID) {
+    synchronized public static addGroup(groupName, initiatorID) {
         if ( ! connected ) { connect() }
         def keys = conn.executeUpdate(
             """INSERT INTO groups(id, groupName, initiatorID) values(null, ?, ?)""", [groupName, initiatorID])
@@ -75,7 +77,7 @@ static boolean connected
     /**
      * Get the group ID of an existing group
     */
-    public static retrieveGroupID(groupName, initiatorID) {
+    synchronized public static retrieveGroupID(groupName, initiatorID) {
         if ( ! connected ) { connect() }
         def result = conn.firstRow("SELECT ID from groups WHERE groupName = $groupName and initiatorID = $initiatorID")
         if ( result != null ) { return result[0] }
@@ -83,7 +85,7 @@ static boolean connected
     }
 
 
-    public static void saveLogPosition(variables, pos) {
+    synchronized public static void saveLogPosition(variables, pos) {
         if ( ! connected ) { connect() }
         def fileName = variables.filename
         def entry = conn.firstRow("SELECT * from logPositions WHERE fileName = $fileName")
@@ -101,7 +103,7 @@ static boolean connected
         conn.executeUpdate("DELETE FROM logPositions WHERE lastAccessed < ?", [oldDate])
     }
 
-    public static int retrieveLogPosition(variables) {
+    synchronized public static int retrieveLogPosition(variables) {
         if ( ! connected ) { connect() }
         def fileName = variables.filename
         def pos
@@ -115,7 +117,7 @@ static boolean connected
         return pos
     }
     
-    public static void  purgeMetrics() {
+    synchronized public static void  purgeMetrics() {
         if ( ! connected ) { connect() }
         Log.debug("Purging metrics data older than $purgeInterval days.")
         def stmt = /DELETE FROM groups where id in (select id from metrics WHERE datestamp < date('now','-/ + purgeInterval +/ day'))/
@@ -127,7 +129,7 @@ static boolean connected
     /**
     * Retrieve a persisted metric value using it's ID
     */
-    public static retrieveWithID(id) {
+    synchronized public static retrieveWithID(id) {
         if ( ! connected ) { connect() }
         Log.debug("Retrieving metric from DB with ID $id")
         def row = conn.firstRow("SELECT * from metrics WHERE id = $id")
@@ -156,7 +158,7 @@ static boolean connected
     /**
      * Search the database for a group ID in the current initiator, when you do not have group name
     */
-    public static String findGroupID(initiatorID, identifier, instance) {
+    synchronized public static String findGroupID(initiatorID, identifier, instance) {
         if ( ! connected ) { connect() }
         Log.debug("Retrieving groupID from DB with initiator $initiatorID, identifier $identifier, instance $instance")
         def row = conn.firstRow("SELECT DISTINCT groupID from metrics WHERE initiatorID = $initiatorID AND instanceName = $instance AND identifier = $identifier")
@@ -167,7 +169,7 @@ static boolean connected
     /**
      * Search the database for a metric with given groupID
     */
-    public static String findGroupMetric(groupID, identifier, instance) {
+    synchronized public static String findGroupMetric(groupID, identifier, instance) {
         if ( ! connected ) { connect() }
         Log.debug("Retrieving metric value from DB with group $groupID, identifier $identifier, instance $instance")
         conn.firstRow("SELECT DISTINCT value from metrics WHERE groupID = ? AND instanceName = ? AND identifier = ?"
@@ -181,7 +183,7 @@ static boolean connected
     /**
      * Get available metrics for a given groupID
     */
-    public static getAvailableMetrics(groupID) {
+    synchronized public static getAvailableMetrics(groupID) {
         if ( ! connected ) { connect() }
         Log.debug("Retrieving metric values from DB with group $groupID")
         def row = conn.select("SELECT * from metrics WHERE groupID = ?", [groupID])
@@ -191,7 +193,7 @@ static boolean connected
     /**
     * Get metric value for a given groupID and metricName
     */
-    public static getGroupMetric(groupID, metricName) {
+    synchronized public static getGroupMetric(groupID, metricName) {
         if ( ! connected ) { connect() }
         Log.debug("Retrieving metric values from DB with group $groupID, metricName $metricName")
         def row = conn.firstRow("SELECT value from metrics WHERE groupID = ? and metricName = ?", [groupID, metricName])
@@ -201,7 +203,7 @@ static boolean connected
 
   
 
-    public static void deleteTestData() {
+    synchronized public static void deleteTestData() {
         if ( ! connected ) { connect() }
         Log.debug("Deleting all test metrics..")
         conn.executeUpdate("DELETE FROM metrics WHERE metricType='TEST'")
@@ -212,7 +214,7 @@ static boolean connected
     /*
     * Get average metric value over time
     */
-   public static getAvgMetricValue(metricName, variables, period) {
+   synchronized public static getAvgMetricValue(metricName, variables, period) {
        if ( ! connected ) { connect() }
        assert variables.identifier != null, "Identifier must be specified for check!"
 
