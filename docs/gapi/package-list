@@ -1,7 +1,7 @@
+DefaultPackage
 uk.co.corelogic.npa
 uk.co.corelogic.npa.checks
 uk.co.corelogic.npa.common
-uk.co.corelogic.npa.database
 uk.co.corelogic.npa.gatherers
 uk.co.corelogic.npa.metrics
 uk.co.corelogic.npa.nagios

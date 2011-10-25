@@ -1,48 +1,100 @@
-<npa-checks>
-    <check-group name="os" type="nagios" interval="120000">
-        
-	 <check name="chk_disk_free" warn="10" crit="5" type="LTE">
-            <nagiosServiceName>chk_disk_free</nagiosServiceName>
-	    <unitType>percent</unitType>
-            <volume>ALL</volume>
-         </check> 
-	
-	<check name="chk_cpu_pct" warn="95" crit="100" type="GTE">
-            <nagiosServiceName>chk_cpu_pct</nagiosServiceName>
-	</check>
-       
-<!--	<check name="chk_nagios">
-	    <nagiosServiceName>chk_test</nagiosServiceName>
-	    <saveMetrics>true</saveMetrics>
-	    <scriptName>/home/chris/work/projects/monitoring/dummy-nagios.sh</scriptName>
-	    <scriptType>shell</scriptType>
-	    <scriptArgs>-t -U -p</scriptArgs>
-	</check>-->
 
-    </check-group>
+<!--  Here's an example of oracle database checks.  These checks are suitable to run each minute. Make sure you fill in the username, password, db and hostname in all relevant places -->
 
-<check-group name="orachecks" type="nagios" interval="1800000">
- 
-	<check name="chk_tablespace" warn="10" crit="5" type="LTE">
-	    <nagiosServiceName>chk_tablespaces</nagiosServiceName>
-	    <unitType>percent</unitType>
-	    <tablespace_name>ALL</tablespace_name>
-   	    <host>localhost</host>
-	    <user>fw</user>
-	    <password>fw</password>
-	    <database>ftest1</database>
+<check-group name="alldb-1min" type="nagios" interval="60000">
+
+<check name="chk_db_metric" warn="60" crit="120" type="GTE">
+	    <nagiosServiceName>chk_slow_sql_[database]</nagiosServiceName>
+   	    <host>[hostname]</host>
+	    <user>[username]</user>
+	    <password>[password]</password>
+	    <database>[database]</database>
 	    <port>1521</port>
+	    <driver>oracle.jdbc.driver.OracleDriver</driver>
+            <url>jdbc:oracle:thin:@//localhost:1521/[database]</url>
+	    <sql>
+<![CDATA[
+
+SELECT 'SID: ' || s.sid || ' Serial#: ' || s.serial# || ' Machine: ' || s.machine || ' Start time: ' || start_time ||
+       ' Elapsed: ' || ROUND(sl.elapsed_seconds/60) || ':' || MOD(sl.elapsed_seconds,60) ||
+       ' Remaining: ' || ROUND(sl.time_remaining/60) || ':' || MOD(sl.time_remaining,60) ||
+       ' Progress %: ' || ROUND(sl.sofar/sl.totalwork*100, 2) ||
+       ' SQL: ' || sql_text as message,
+       elapsed_time as metric_value,
+       sql_text as metric_identifier
+FROM   v$session s,
+       v$sql sq,
+       v$session_longops sl
+WHERE  s.sid     = sl.sid
+AND    s.serial# = sl.serial#
+AND    sl.sql_address = sq.address
+AND    time_remaining > 0
+AND    elapsed_time >= 60
+]]>
+</sql>
 	</check>
 
-	<check name="chk_buffer_cache" warn="90" crit="80" type="LTE">
-	    <nagiosServiceName>chk_buffer_cache</nagiosServiceName>
-	    <host>localhost</host>
-            <user>fw</user>
-            <password>fw</password>      
-            <database>ftest1</database>
+
+<check name="chk_db_metric" warn="1" crit="2" type="GTE">
+            <nagiosServiceName>chk_blocking_sql_[database]</nagiosServiceName>
+            <host>[hostname]</host>
+            <user>[username]</user>
+            <password>[password]</password>
+            <database>[database]</database>
             <port>1521</port>
-	</check> 
+            <driver>oracle.jdbc.driver.OracleDriver</driver>
+            <url>jdbc:oracle:thin:@//localhost:1521/[database]</url>
+            <sql>
+<![CDATA[
+select s1.username || '@' || s1.machine || ' ( SID=' || s1.sid || ' )  is blocking ' || s2.username || '@' || 
+
+s2.machine ||
+' ( SID=' || s2.sid || ' ) ' AS message,
+(select count(1) from v$lock l1, v$session s1, v$lock l2, v$session s2
+where s1.sid=l1.sid and s2.sid=l2.sid) as metric_value,
+'BLOCKING_QUERIES' as metric_identifier
+from v$lock l1, v$session s1, v$lock l2, v$session s2
+where s1.sid=l1.sid and s2.sid=l2.sid
+and l1.BLOCK=1 and l2.request > 0
+and l1.id1 = l2.id1
+and l2.id2 = l2.id2
+]]>
+</sql>
+
+</check>
 
 </check-group>
 
-</npa-checks>
+
+
+<!-- These checks are for all databases and should be run less frequently -->
+
+<check-group name="alldb-60min" type="nagios" interval="3600000">
+
+
+<!-- Here if you are only using dba_scheduler jobs, you can set warning and critical values for the time taken to run jobs.  dba_jobs always return 0 for the metric_value. -->
+<!-- You could modify the query if you wished to check the time a particular job took. -->
+
+<check name="chk_db_metric" warn="0" crit="0" type="GTE">
+	    <nagiosServiceName>chk_db_jobs_[database]</nagiosServiceName>
+   	    <host>[hostname]</host>
+	    <user>[username]</user>
+	    <password>[password]</password>
+	    <database>[database]</database>
+	    <port>1521</port>
+	    <driver>oracle.jdbc.driver.OracleDriver</driver>
+            <url>jdbc:oracle:thin:@//localhost:1521/[database]</url>
+	    <sql>
+<![CDATA[
+
+select job_name as JOB, 'Job in ' || state || ' state: ' || owner || ':' || job_name || ' ' || coalesce(job_action, program_name)  || ' Last run: ' || LAST_START_DATE || ' - DBA_SCHEDULER_JOBS' as MESSAGE, 'DBA_SCHEDULER JOB' as JOB_TYPE, (EXTRACT(second FROM LAST_RUN_DURATION)  + EXTRACT(minute FROM LAST_RUN_DURATION) * 60 + EXTRACT(hour FROM LAST_RUN_DURATION) * 3600 + EXTRACT(day FROM LAST_RUN_DURATION) * 86400)  as METRIC_VALUE, job_name as METRIC_IDENTIFIER from dba_scheduler_jobs where state in ('FAILED', 'RETRY SCHEDULED', 'BROKEN')
+union all
+select cast(job AS varchar2(30)) as JOB, 'Job broken: ' || job || ' ' || what || ' Last run: ' || LAST_DATE || ' - DBA_JOBS', 'DBA_JOB' as JOB_TYPE, 0 as METRIC_VALUE, cast(job AS varchar2(30)) as METRIC_IDENTIFIER from dba_jobs where broken='Y'
+]]>
+</sql>
+</check>
+
+
+
+</check-group>
+

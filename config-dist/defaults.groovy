@@ -40,6 +40,12 @@ npa {
     // Persistence settings for MetricsDB
     metrics_db_location="/db/metrics.db"
     metrics_db_purge_days=1
+
+    // Settings for automatic updates
+    update_url="http://sourceforge.net/projects/npa/files/npa-prod.jar"
+    update_file="npa-prod.jar"
+    libs_list="http://sourceforge.net/projects/npa/files/prod-libs.txt"
+
 }
 
 log4j {

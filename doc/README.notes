@@ -4,6 +4,21 @@ Post Release Notes and Amendments
 Have a look here for information on how to resolve common issues.
 
 
+Windows Errors on 2008 Server 64-bit
+-------------------------------------
+You may receive the error below in the npa.log on windows:
+
+ERROR [OSGatherer] runCmdWin(): Error occurred: Invalid XSL format (or) file name.
+
+This is a windows bug caused by the wmic command being unable to find XSL files.  You can resolve the issue by running the following commands:
+
+32-bit:
+
+copy %SYSTEMROOT%\System32\en-US\*.xsl %SYSTEMROOT%\system32
+
+64-bit:
+
+copy %SYSTEMROOT%\System32\en-US\*.xsl %SYSTEMROOT%\SysWOW64\wbem
 
 
 Trusted SSL Certs - Importing an SSL certificate:

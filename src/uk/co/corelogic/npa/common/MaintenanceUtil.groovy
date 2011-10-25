@@ -68,7 +68,6 @@ static class MaintenanceUtil {
         if (!result) {
             Log.error("Failed to submit host check back to server!")
         }
-        println("Wrapper should restart agent now!")
     }
 
     /*
