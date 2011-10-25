@@ -155,9 +155,9 @@ public class StartChecks {
     }
 
     public static startMaintenance(){
-        // Check for a variable setting the period to run maintenance jobs - default to 60 seconds
+        // Check for a variable setting the period to run maintenance jobs - default to 300 seconds
         def maintInt = config.npa.submit_host_ok_ms
-        if ( maintInt == [:] ) { maintInt = 60000 }
+        if ( maintInt == [:] ) { maintInt = 300000 }
         Log.info("Scheduling maintenance to run every $maintInt ms")
         RunMaintenance t = new RunMaintenance(maintInt)
         t.start()

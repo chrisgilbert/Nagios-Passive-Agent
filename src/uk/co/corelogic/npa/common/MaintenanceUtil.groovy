@@ -5,6 +5,9 @@
 package uk.co.corelogic.npa.common
 import uk.co.corelogic.npa.NPA
 import uk.co.corelogic.npa.nagios.*
+import java.lang.management.ThreadMXBean
+import java.lang.management.ThreadInfo
+import java.lang.management.ManagementFactory
 
 /**
  * This class deals with maintenance jobs that need to be run regularly and utility methods.
@@ -15,7 +18,7 @@ import uk.co.corelogic.npa.nagios.*
 static class MaintenanceUtil {
 	
     static config = NPA.getConfigObject()
-    static npa_version = "1.3_beta2_b2"
+    static npa_version = "1.3.0_rc1"
     private static hostname = ""
     //static npa_version = System.getProperty("application.version")
     
@@ -86,6 +89,22 @@ static class MaintenanceUtil {
      */
     public synchronized static void stopAllTimers(){
         CheckScheduler.stopAllTimers()
+    }
+
+    public static void detectDeadlocks() {
+        ThreadMXBean bean = ManagementFactory.getThreadMXBean();
+        long[] threadIds = bean.findDeadlockedThreads(); // Returns null if no threads are deadlocked.
+
+        if (threadIds != null) {
+            ThreadInfo[] infos = bean.getThreadInfo(threadIds);
+
+            for (ThreadInfo info : infos) {
+                Log.fatal("Deadlocks detected!! Triggering restart..")
+                StackTraceElement[] stack = info.getStackTrace();
+                Log.fatal(stack)
+                MaintenanceUtil.sendCriticalHost()
+            }
+        }
     }
 
 }

@@ -219,7 +219,7 @@ Map optionalWith = [:]
             Log.error("Exception occurred whilst running $chk_name check: ", e)
             Log.error("A SERIOUS ERROR OCCURRED IN CHECK!")
             if (failCount == -1) {
-                Log.warn("**** Auto restart disabled for this check (it failed the first time it ran - check config).")
+                Log.warn("**** Auto restart disabled for this check (it failed the first time it ran - check config!).")
             } else {
                 failCount++
             }
@@ -230,7 +230,9 @@ Map optionalWith = [:]
             Log.error("Thowable (exception) occurred whilst running $chk_name check: ", e)
             Log.error("A SERIOUS ERROR OCCURRED IN CHECK!")
             failCount++
+            Log.error("**** Fail count of this check is $failCount time(s) in a row.  Allowed fails before restart is $allowedFails")
             if (failCount > allowedFails) {
+                Log.error("**** Fail count of this check is $failCount time(s) in a row.  Greater than allowed failures - triggering agent restart.")
                 MaintenanceUtil.sendCriticalHost()
             }
         }

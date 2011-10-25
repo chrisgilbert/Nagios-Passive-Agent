@@ -7,7 +7,7 @@ import uk.co.corelogic.npa.metrics.MetricsDB
  */
 class RunMaintenance extends Thread {
 
-    private Long timer = 30000
+    private Long timer = 180000
 
     RunMaintenance(timer)
     {
@@ -21,6 +21,8 @@ class RunMaintenance extends Thread {
                 Log.info("Running maintenance job..")
                 MetricsDB.purgeMetrics()
                 CheckScheduler.checkStatus()
+                Log.info("Running deadlock detection.")
+                MaintenanceUtil.detectDeadlocks()
                 this.sleep(timer)
                 Log.info("Completed maintenance job.")
             } catch(e) {
