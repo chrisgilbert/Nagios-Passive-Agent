@@ -1,0 +1,93 @@
+
+<!--  Here's an example of SQL Server database checks.  These checks are suitable to run each minute. Make sure you fill in the username, password, db and hostname in all relevant places -->
+
+<check-group name="alldb-1min" type="nagios" interval="60000">
+
+<check name="chk_db_metric" warn="60" crit="120" type="GTE">
+	    <nagiosServiceName>chk_slow_sql_[database]</nagiosServiceName>
+   	    <host>[hostname]</host>
+	    <user>[username]</user>
+	    <password>[password]</password>
+	    <database>[database]</database>
+	    <port>1433</port>
+	    <driver>net.sourceforge.jtds.jdbc.Driver</driver>
+            <url>jdbc:jtds:sqlserver://localhost/[database];cachemetadata=true;useCursors=true;sendStringParametersAsUnicode=false</url>
+	    <sql>
+<![CDATA[
+select 'spid: ' + cast(spid as varchar(30)) + 
+' kpid: ' + cast(kpid as varchar(30)) + 
+' blocked: '  + cast(blocked as varchar(30)) + 
+' waittime: ' + cast(waittime as varchar(30)) + 
+' waitresource: ' + cast(waitresource as varchar(30)) + 
+text as MESSAGE,
+'BLOCKING_QUERIES' as "METRIC_IDENTIFIER",
+(select count(1) from sys.sysprocesses where blocked > 0) as "METRIC_VALUE"
+from sys.sysprocesses qs
+CROSS APPLY sys.dm_exec_sql_text(qs.sql_handle) as st
+where blocked > 0
+]]>
+</sql>
+	</check>
+
+
+<check name="chk_db_metric" warn="1" crit="2" type="GTE">
+            <nagiosServiceName>chk_blocking_sql_[database]</nagiosServiceName>
+            <host>[hostname]</host>
+            <user>[username]</user>
+            <password>[password]</password>
+            <database>[database]</database>
+            <port>1433</port>
+            <driver>net.sourceforge.jtds.jdbc.Driver</driver>
+            <url>jdbc:jtds:sqlserver://localhost/[database];cachemetadata=true;useCursors=true;sendStringParametersAsUnicode=false</url>
+            <sql>
+<![CDATA[
+'BLOCKING_QUERIES' as metric_identifier
+
+]]>
+</sql>
+
+</check>
+
+</check-group>
+
+
+
+<!-- These checks are for all databases and should be run less frequently -->
+
+<check-group name="alldb-60min" type="nagios" interval="3600000">
+
+
+<!-- Here you can set warning and critical values for the time taken to run jobs.  These will trigger if any job takes longer than the specified time (or shorter if you use LTE, etc) -->
+<!-- You could modify the query if you wished to check the time a particular job took. -->
+
+<check name="chk_db_metric" warn="0" crit="0" type="GTE">
+	    <nagiosServiceName>chk_db_jobs_[database]</nagiosServiceName>
+   	    <host>[hostname]</host>
+	    <user>[username]</user>
+	    <password>[password]</password>
+	    <database>[database]</database>
+	    <port>1433</port>
+	    <driver>net.sourceforge.jtds.jdbc.Driver</driver>
+            <url>jdbc:jtds:sqlserver://localhost/[database];cachemetadata=true;useCursors=true;sendStringParametersAsUnicode=false</url>
+	    <sql>
+<![CDATA[
+SELECT 'Job:' + cast(j.name as varchar(30)) +
+' Last run:' + CONVERT(VARCHAR(500), ja.run_requested_date) +
+' Next run date:' + CONVERT(VARCHAR(500), ja.next_scheduled_run_date) +
+' Run duration +' + (CONVERT(VARCHAR(10),CONVERT(DATETIME,RTRIM(19000101))+(jh.run_duration * 9 + jh.run_duration % 10000 * 6 + jh.run_duration % 100 * 10) / 216e4,108)) +
+' Step desc:' + CONVERT(VARCHAR(500),jh.message) as "MESSAGE",
+cast(j.name as varchar(100)) as "METRIC_IDENTIFIER",
+((run_duration/10000*3600) + (((run_duration/100)%100)*60) + ((run_duration%100)))  as "METRIC_VALUE"
+FROM
+(msdb.dbo.sysjobactivity ja LEFT JOIN msdb.dbo.sysjobhistory jh ON ja.job_history_id = jh.instance_id)
+join msdb.dbo.sysjobs_view j on ja.job_id = j.job_id
+WHERE ja.session_id=(SELECT MAX(session_id)  from msdb.dbo.sysjobactivity)  
+AND jh.run_status = 0 AND  j.enabled = 1
+ORDER BY j.name 
+]]>
+</sql>
+</check>
+
+
+</check-group>
+

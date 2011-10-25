@@ -1,0 +1,76 @@
+<!--
+
+Two default checks are defined for disk space and CPU usage.  Note that you can define arbitrary groups which contain any number of checks, 
+and designate how often these checks are run.  The interval property is designated in milliseconds.
+
+
+Breakdown of a check:
+
+<check name="chk_disk_free" 	< Check name, must match exactly 
+warn="10" 			< Warning level 
+crit="5" 			< Critical level 
+leveltype="LTE"> 		< This is the comparison type - LTE- Less than or equal.
+            
+<nagiosServiceName>chk_disk_free</nagiosServiceName>	< This is the name of the check according to nagios.  It must match a check for the host, in order for the result to be returned.
+<unitType>percent</unitType>				< The type of unit used in the comparison operator.  Checks usually hold a default of percent.
+<volume>ALL</volume>					< The volume to be checked.  ALL designates all volumes.  You can also use a drive letter, or filesystem mountpoint here.  E.g. C: or /home
+<host>chrisglaptop</host>				< This defaults to the fully qualified hostname, and corresponds to the nagios hostname for the checks.
+
+</check>
+
+So, this example will perform a disk check, and if the free space in any of the volumes is less than or equal to 10%, it will raise a warning status.  If they are less than or equal to 5%, then it
+will raise a critical status.
+
+-->
+
+<check-group name="os" type="nagios" interval="120000">
+        
+	<check name="chk_disk_free" warn="5000" crit="1000" type="LTE">
+            <nagiosServiceName>chk_disk_free_mb</nagiosServiceName>
+	    <unitType>megabytes</unitType>
+            <volume>ALL</volume>
+         </check> 
+	
+	<check name="chk_cpu_pct" warn="90" crit="95" type="GTE">
+            <nagiosServiceName>chk_cpu_pct</nagiosServiceName>
+	    <!-- Average over 5 mins to avoid spurious status changes -->
+	    <timePeriodMillis>300000</timePeriodMillis>
+	</check>
+
+        <check name="chk_disk_busy_pct" warn="85" crit="95" type="GTE">
+            <nagiosServiceName>chk_disk_busy_pct</nagiosServiceName>
+	    <!-- Average over 5 mins to avoid spurious status changes -->
+	    <timePeriodMillis>300000</timePeriodMillis>
+	</check>
+
+        <check name="chk_mem_used_pct" warn="90" crit="95" type="GTE">
+            <nagiosServiceName>chk_mem_used_pct</nagiosServiceName>
+	</check>
+
+
+<!-- 
+
+This is an HTTP check.  You can define a hostname, trailing URL and serverpath.  Hostname matches that in nagios.
+The warning and critical values 
+
+	<check name="chk_http" warn="5000" crit="8000" type="GTE">
+            <nagiosServiceName>chk_http</nagiosServiceName>
+	    <serverpath>http://linuxapp3.corelogic.local:7778</serverpath>
+	    <url>/em</url>
+	    <host>chrisglaptop</host>
+	</check> -->
+
+<!-- This is an example of an external Nagios check.  Point the check to a executable which follows the Nagios script conventions	
+	
+	<check name="chk_nagios">
+	    <nagiosServiceName>chk_test</nagiosServiceName>
+	    <saveMetrics>true</saveMetrics>
+	    <scriptName>/home/chris/work/projects/monitoring/dummy-nagios.sh</scriptName>
+	    <scriptType>shell</scriptType>
+	    <scriptArgs>-t -U -p</scriptArgs>
+	</check> 
+-->
+
+</check-group>
+
+
