@@ -534,7 +534,7 @@ def total_space_mb = [:]
                 // as it is more complicated to get information there..
                 if ( runCmd(["sh", "-c", "uname -r"]).toString().trim() == "5.10") {
                     def zoneName = runCmd(["sh", "-c", "/sbin/zonename"])
-                    if ( zoneName == "global" ) {
+                    if ( zoneName.toString().trim().startsWith("global") ) {
                     		def cmd = ["sh", "-c", "/usr/sbin/prtconf 2>/dev/null | grep Mem | cut -f 3 -d ' '"]
                                 def cmd2 = ["sh", "-c", "/usr/bin/vmstat -q | cut -d ' ' -f 6 | grep -v \"^\$\""]
 

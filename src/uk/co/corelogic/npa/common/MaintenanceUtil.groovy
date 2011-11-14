@@ -18,7 +18,7 @@ import java.lang.management.ManagementFactory
 static class MaintenanceUtil {
 	
     static config = NPA.getConfigObject()
-    static npa_version = "1.3.0_rc3"
+    static npa_version = "1.3.0_rc3_b4"
     private static hostname = ""
     //static npa_version = System.getProperty("application.version")
     

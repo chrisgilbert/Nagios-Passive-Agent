@@ -4,4 +4,4 @@
 # stable version from the internet
 # It will use the proxy settings in config/defaults.groovy if available
 #
-java -cp ../groovy-all-1.7.10.jar groovy.lang.GroovyShell generate_config.groovy
+java -cp ../lib/groovy-all-1.7.10.jar groovy.lang.GroovyShell generate_config.groovy

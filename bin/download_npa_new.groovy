@@ -3,7 +3,7 @@
 // Simple update class, to update NPA to the most recent version.  This will update the npa.jar file and download any new libraries,
 // but not make any changes to configuration
 //
-// Version 2.3 - 25/10/2011 Chris Gilbert
+// Version 2.4 - 14/11/2011 Chris Gilbert
 //
 
 def config = new ConfigSlurper().parse(new File("../config/defaults.groovy").toURL())
@@ -23,7 +23,7 @@ if ( proxyHost != null ) {
         if (config.npa.proxy_enable == "true" ){
 		println("Using proxy $proxyHost:$proxyPort")
             //println ( ["http.proxyHost":proxyHost, "http.proxyPort":proxyPort,"http.proxyUserName":proxyUserName.toString(), "http.proxyPassword":proxyPasswd.toString()] )
-            System.properties.putAll( ["http.proxyHost":proxyHost.toString(), "http.proxyPort":proxyPort.toString(), "http.proxyUserName":proxyUserName.toString(), "http.proxyPassword":proxyPasswd.toString()] )
+            System.properties.putAll( ["http.proxyHost":proxyHost.toString(), "https.proxyHost":proxyHost.toString(), "http.proxyPort":proxyPort.toString(), "https.proxyPort":proxyPort.toString(), "http.proxyUserName":proxyUserName.toString(), "https.proxyUserName":proxyUserName.toString(), "http.proxyPassword":proxyPasswd.toString(), "https.proxyPassword":proxyPasswd.toString()] )
         }
 }
 
@@ -78,7 +78,7 @@ def stopNpa() {
 	if (System.getProperty("os.name").startsWith("Windows")) {
 		runCmd(["cmd", "/c", "net stop npa"])
 	} else {
-		runCmd(["sh", "-c", ".\npa stop"])
+		runCmd(["sh", "-c", "./npa stop"])
 	}
    } catch(e) {
 	println("Failed to stop NPA!" + e)
@@ -92,7 +92,7 @@ def startNpa() {
 	if (System.getProperty("os.name").startsWith("Windows")) {
 		runCmd(["cmd", "/c", "net start npa"])
 	} else {
-		runCmd(["sh", "-c", ".\npa start"])
+		runCmd(["sh", "-c", "./npa start"])
 	}
 
 	println("Update complete! Check for any errors above, and confirm NPA is still working correctly in the npa.log file.")

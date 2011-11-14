@@ -37,11 +37,19 @@ else
 fi
 
 
+if [ $(id | cut -d '=' -f 2 | cut -d '(' -f 1) -eq 0 ]; then
+  echo Root access is available.
+  ROOT=y
+else
+  ROOT=n
+fi
+
 add_cronjobs() {
+
 tmpfile=/tmp/cron$$
 bakfile=/tmp/cron$$bak
 
-if [ $(who am i | awk '{print $1}') == 'root' ]; then
+if [ $ROOT  == 'Y' ]; then
   echo Root access is available.
   crontab -l -u $NPAUSER > $tmpfile
   crontab -l -u $NPAUSER > $bakfile
@@ -59,7 +67,7 @@ if [ $(grep "update_npa.sh" $tmpfile > /dev/null; echo $?) -gt 0 ]; then
     echo "0 0 * * 1 cd $INSTALLDIR/bin/; $(which bash) update_npa.sh >/dev/null 2>&1" >> $tmpfile
 fi
 
-if [ $(who am i | awk '{print $1}') == 'root' ]; then
+if [ $ROOT  == 'Y' ]; then
   crontab -u $NPAUSER $tmpfile
 else
   crontab $tmpfile
@@ -82,8 +90,8 @@ if [ -f $INSTALLDIR/npa.jar ]; then
 
 else
 
-if [ $(who am i | awk '{print $1}') == 'root' ]; then
-  echo Root access is available, creating user and group.
+
+if [ $ROOT  == 'Y' ]; then
   groupadd $NPAGROUP 
   useradd -G $NPAGROUP $NPAUSER
 fi
@@ -106,14 +114,14 @@ chmod 600 $INSTALLDIR/config/*
 
 chown -R $NPAUSER:$NPAGROUP $INSTALLDIR
 if [ $? -eq 0 ]; then
-        echo Installtion completed.  NPA installed in $INSTALLDIR
+        echo Installation completed.  NPA installed in $INSTALLDIR
 else
         Change of ownership failed!
         exit 1
 fi
 
 
-if [ $(who am i | awk '{print $1}') == 'root' ]; then
+if [ $ROOT  == 'Y' ]; then
 ln -s $INSTALLDIR/bin/npa /etc/init.d/npa
 ln -s /etc/init.d/npa /etc/rc3.d/S99npa
 ln -s /etc/init.d/npa /etc/rc1.d/K01npa
