@@ -44,7 +44,7 @@ npa {
     // Settings for automatic updates
     update_url="http://sourceforge.net/projects/npa/files/npa-prod.jar"
     update_file="npa-prod.jar"
-    libs_list="http://sourceforge.net/projects/npa/files/prod-libs.txt"
+    libs_list="http://sourceforge.net/projects/npa/files/libs/libs-prod.txt"
 
 }
 

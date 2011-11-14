@@ -441,7 +441,7 @@ if [ "X$PRIORITY" = "X" ]
 then
     CMDNICE=""
 else
-    CMDNICE="nice --adjustment=$PRIORITY"
+    CMDNICE="nice -n $PRIORITY"
 fi
 
 # Build the anchor file clause.

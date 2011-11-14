@@ -18,7 +18,7 @@ import java.lang.management.ManagementFactory
 static class MaintenanceUtil {
 	
     static config = NPA.getConfigObject()
-    static npa_version = "1.3.0_rc1"
+    static npa_version = "1.3.0_rc3"
     private static hostname = ""
     //static npa_version = System.getProperty("application.version")
     
@@ -92,7 +92,7 @@ static class MaintenanceUtil {
 
     public static void detectDeadlocks() {
         ThreadMXBean bean = ManagementFactory.getThreadMXBean();
-        long[] threadIds = bean.findDeadlockedThreads(); // Returns null if no threads are deadlocked.
+        long[] threadIds = bean.findMonitorDeadlockedThreads() // Returns null if no threads are deadlocked.
 
         if (threadIds != null) {
             ThreadInfo[] infos = bean.getThreadInfo(threadIds);

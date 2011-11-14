@@ -53,14 +53,15 @@ rem Install the Wrapper as an NT service.
 rem
 :startup
 "%_WRAPPER_EXE%" -i %_WRAPPER_CONF%
-if not errorlevel 1 goto :eof
-pause
+
 
 rem
 rem Add some scheduled tasks to restart the agent regularly and run automatic updates
 rem
 rem Added by Chris Gilbert
 rem
-schtasks /Create /SC DAILY /ST 05:00:00 /TN "Restart Nagios Passive Agent" /TR %_REALPATH%\restart-service-win.bat /RU "SYSTEM"
+schtasks /Create /SC HOURLY /ST 05:00:00 /TN "Restart Nagios Passive Agent" /TR %_REALPATH%\restart-service-win.bat /RU "SYSTEM"
 schtasks /Create /SC WEEKLY /ST 01:00:00 /D MON /TN "Update Nagios Passive Agent" /TR %_REALPATH%\update_npa.bat /RU "SYSTEM"
 
+if not errorlevel 1 goto :eof
+pause

@@ -3,7 +3,7 @@
 // Simple update class, to update NPA to the most recent version.  This will update the npa.jar file and download any new libraries,
 // but not make any changes to configuration
 //
-// Version 2.2 - 25/10/2011 Chris Gilbert
+// Version 2.3 - 25/10/2011 Chris Gilbert
 //
 
 def config = new ConfigSlurper().parse(new File("../config/defaults.groovy").toURL())
@@ -69,7 +69,7 @@ def download(address, toDir)
     def out = new BufferedOutputStream(file)
     out << new URL(address).openStream()
     out.close()
-    return (toDir + "/" + new URL(address).getFile())
+    return (toDir + "/" + new URL(address).getPath().tokenize("/").last())
 }
 
 def stopNpa() {

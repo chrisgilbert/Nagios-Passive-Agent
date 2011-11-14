@@ -14,17 +14,17 @@
             <url>jdbc:jtds:sqlserver://localhost/[database];cachemetadata=true;useCursors=true;sendStringParametersAsUnicode=false</url>
 	    <sql>
 <![CDATA[
-select 'spid: ' + cast(spid as varchar(30)) + 
-' kpid: ' + cast(kpid as varchar(30)) + 
-' blocked: '  + cast(blocked as varchar(30)) + 
-' waittime: ' + cast(waittime as varchar(30)) + 
-' waitresource: ' + cast(waitresource as varchar(30)) + 
-text as MESSAGE,
-'BLOCKING_QUERIES' as "METRIC_IDENTIFIER",
-(select count(1) from sys.sysprocesses where blocked > 0) as "METRIC_VALUE"
-from sys.sysprocesses qs
-CROSS APPLY sys.dm_exec_sql_text(qs.sql_handle) as st
-where blocked > 0
+SELECT 'Slow SQL: ' + sqltext.TEXT + 
+' ID: ' + cast(req.session_id as varchar(30)) +
+' Status: ' + req.status +
+' Command: ' + req.command +
+' CPU Time: ' + cast(req.cpu_time as varchar(30)) +
+' Total Time: ' + cast(req.total_elapsed_time as varchar(30)) as "MESSAGE",
+req.total_elapsed_time as "METRIC_VALUE",
+sqltext.TEXT as "METRIC_IDENTIFIER"
+FROM sys.dm_exec_requests req
+CROSS APPLY sys.dm_exec_sql_text(sql_handle) AS sqltext
+WHERE req.total_elapsed_time > 10
 ]]>
 </sql>
 	</check>
@@ -41,8 +41,17 @@ where blocked > 0
             <url>jdbc:jtds:sqlserver://localhost/[database];cachemetadata=true;useCursors=true;sendStringParametersAsUnicode=false</url>
             <sql>
 <![CDATA[
-'BLOCKING_QUERIES' as metric_identifier
-
+select 'spid: ' + cast(spid as varchar(30)) + 
+' kpid: ' + cast(kpid as varchar(30)) + 
+' blocked: '  + cast(blocked as varchar(30)) + 
+' waittime: ' + cast(waittime as varchar(30)) + 
+' waitresource: ' + cast(waitresource as varchar(30)) + 
+text as MESSAGE,
+'BLOCKING_QUERIES' as "METRIC_IDENTIFIER",
+(select count(1) from sys.sysprocesses where blocked > 0) as "METRIC_VALUE"
+from sys.sysprocesses qs
+CROSS APPLY sys.dm_exec_sql_text(qs.sql_handle) as st
+where blocked > 0
 ]]>
 </sql>
 

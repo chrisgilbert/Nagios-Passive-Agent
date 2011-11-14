@@ -1,12 +1,57 @@
 #!/bin/bash
 
-NPAUSER=oradev
-NPAGROUP=dbadev
-INSTALLDIR=/usr/local/corelogic/npa
+
+# Defaults
+export NPAUSER=oracle
+export NPAGROUP=dba
+export INSTALLDIR=/usr/local/corelogic/npa
+export RUNCORRECT=y
+
+
+#
+# Don't edit past here
+#
+
+STATUS=1
+
+set_status() {
+  if [ $1 -eq 1 ]; then
+    STATUS=1
+  fi
+}
+
+if [ $# -ne 3 ]; then
+  echo "There weren't any install arguments, so these defaults will be used:"
+  echo INSTALL DIRECTORY: $INSTALLDIR
+  echo NPA GROUP NAME: $NPAGROUP
+  echo NPA USER NAME: $NPAUSER
+  echo "If you wish to specify them yourself, then please enter $0 [INSTALL DIR] [NPA USER] [NPA GROUP].  These can be existing group/users if you wish."
+else
+  NPAUSER=$2
+  NPAGROUP=$3
+  INSTALLDIR=$1
+  echo Using these parameters:  
+  echo INSTALL DIRECTORY: $INSTALLDIR
+  echo NPA GROUP NAME: $NPAGROUP
+  echo NPA USER NAME: $NPA USER
+fi
+
+
+
+# Run an update if NPA is already installed
+if [ -f $INSTALLDIR/npa.jar ]; then
+  echo NPA is already installed, running update..
+  bash update_npa.sh
+
+
+
+# Otherwise, install
+
+else
 
 if [ $(who am i | awk '{print $1}') == 'root' ]; then
   echo Root access is available, creating user and group.
-  groupadd $NPAGROUP
+  groupadd $NPAGROUP 
   useradd -G $NPAGROUP $NPAUSER
 fi
 
@@ -24,6 +69,7 @@ echo Changing $INSTALLDIR/bin/npa file..
 sed "s/RUN_AS_USER=npa/RUN_AS_USER=$NPAUSER/" $INSTALLDIR/bin/npa > $INSTALLDIR/bin/npa.new
 mv $INSTALLDIR/bin/npa.new $INSTALLDIR/bin/npa
 chmod 755 $INSTALLDIR/bin/*
+chmod 600 $INSTALLDIR/config/*
 
 chown -R $NPAUSER:$NPAGROUP $INSTALLDIR
 if [ $? -eq 0 ]; then
@@ -48,7 +94,11 @@ else
         echo Chkconfig command to install npa service failed!
         exit 1
 fi
-else
+
+else
   echo No root access, service was not installed.
 fi
+
+fi
+
 

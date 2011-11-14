@@ -1,20 +1,28 @@
 #!/bin/bash
 
 # Defaults
-NPAUSER=npa
-NPAGROUP=npa
-INSTALLDIR=/usr/local/npa
-
+export NPAUSER=npa
+export NPAGROUP=npa
+export INSTALLDIR=/usr/local/npa
+export RUNCORRECT=y
 
 
 #
 # Don't edit past here
 #
 
+if [ $(id -u) -eq 0 ]; then
+  echo Root access is available: good.
+else
+  echo Please install as root.
+  exit 1
+fi
+
+
 STATUS=1
 
 set_status() {
-  if [ $1 -eq 1 ];
+  if [ $1 -eq 1 ]; then
     STATUS=1
   fi
 }
@@ -23,7 +31,7 @@ if [ $# -ne 3 ]; then
   echo "There weren't any install arguments, so these defaults will be used:"
   echo INSTALL DIRECTORY: $INSTALLDIR
   echo NPA GROUP NAME: $NPAGROUP
-  echo NPA USER NAME: $NPA USER
+  echo NPA USER NAME: $NPAUSER
   echo "If you wish to specify them yourself, then please enter $0 [INSTALL DIR] [NPA USER] [NPA GROUP].  These can be existing group/users if you wish."
 else
   NPAUSER=$2
@@ -35,6 +43,14 @@ else
   echo NPA USER NAME: $NPA USER
 fi
 
+
+# Run an update if NPA is already installed
+if [ -f $INSTALLDIR/npa.jar ]; then
+  echo NPA is already installed, running update..
+  bash update_npa.sh
+
+
+else
 
 /usr/sbin/groupadd $NPAUSER
 /usr/sbin/useradd $NPAUSER -g $NPAGROUP
@@ -101,4 +117,5 @@ if [${STATUS} -eq 1 ]; then
   exit 1
 else
   exit 0
+fi
 fi
