@@ -13,6 +13,7 @@ export RUNCORRECT=y
 
 if [ $(id -u) -eq 0 ]; then
   echo Root access is available: good.
+  ROOT=y
 else
   echo Please install as root.
   exit 1
@@ -42,6 +43,27 @@ else
   echo NPA GROUP NAME: $NPAGROUP
   echo NPA USER NAME: $NPA USER
 fi
+
+
+add_cronjobs() {
+tmpfile=/tmp/cron$$
+bakfile=/tmp/cron$$bak
+
+crontab -l -u $NPAUSER > $tmpfile
+crontab -l -u $NPAUSER > $bakfile
+
+if [ $(grep "bin/npa" $tmpfile > /dev/null; echo $?) -gt 0 ]; then
+    echo "0 0/2 * * * $INSTALLDIR/bin/npa restart >/dev/null 2>&1" >> $tmpfile
+fi
+
+if [ $(grep "update_npa.sh" $tmpfile > /dev/null; echo $?) -gt 0 ]; then
+    echo "0 0 * * 1 cd $INSTALLDIR/bin/; $(which bash) update_npa.sh >/dev/null 2>&1" >> $tmpfile
+fi
+
+crontab -u $NPAUSER $tmpfile
+rm $tmpfile
+}
+
 
 
 # Run an update if NPA is already installed
@@ -88,28 +110,13 @@ ln -s $INSTALLDIR/bin/npa /etc/init.d/npa
 
 if [ $? -eq 0 ]; then
 	echo Successfully installed npa service.
+    add_cronjobs
 	set_status 0
 else
 	echo Chkconfig command to install npa service failed!
+    add_cronjobs
 	set_status 1
 fi
-
-
-#
-# Add a cron job to restart the NPA agent every hour, and update it once a week
-#
-echo "Attempting to add cron jobs.. (these go into /etc/cron.hourly and /etc/cron.daily)"
-ln -s /etc/cron.hourly/npa-restart-cron $INSTALLDIR/bin/restart-npa.sh 
-ln -s /etc/cron.weekly/npa-update $INSTALLDIR/bin/update_npa.sh
-if [ $? -eq 0 ]; then
-	echo Successfully installed cron jobs.
-	set_status 0
-else
-	echo Failed to install cron jobs!
-	set_status 1
-fi
-
-
 
 
 if [${STATUS} -eq 1 ]; then

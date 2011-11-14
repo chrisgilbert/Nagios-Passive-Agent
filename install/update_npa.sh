@@ -32,12 +32,8 @@ cp ../config/defaults.groovy $INSTALL_DIR/config/defaults.groovy.newrelease
 # Backup old defaults and then copy in proxy and submittion config to new file
 echo Renaming defaults.groovy to defaults.groovy.$DATE
 cp $INSTALL_DIR/config/defaults.groovy $INSTALL_DIR/config/defaults.groovy.$DATE
-echo Transferring proxy and submit config...
-grep -v proxy ../config/defaults.groovy | grep -v submit > /tmp/def$$
-egrep "(proxy|submit)" $INSTALL_DIR/config/defaults.groovy > /tmp/olddef$$
-
-cp /tmp/olddef$$ $INSTALL_DIR/config/defaults.groovy
-cat /tmp/def$$ >> $INSTALL_DIR/config/defaults.groovy
+echo Transferring proxy and submit config by patching...
+diff -w -I ".*submit*" -I ".*proxy*" $INSTALL_DIR/config/defaults.groovy ../config/defaults.groovy | patch $INSTALL_DIR/config/defaults.groovy
 
 # Backup old defaults and then copy in proxy and submittion config to new file
 echo Renaming wrapper.confto wrapper.conf.$DATE

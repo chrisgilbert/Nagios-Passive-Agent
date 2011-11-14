@@ -33,15 +33,48 @@ else
   echo Using these parameters:  
   echo INSTALL DIRECTORY: $INSTALLDIR
   echo NPA GROUP NAME: $NPAGROUP
-  echo NPA USER NAME: $NPA USER
+  echo NPA USER NAME: $NPAUSER
 fi
+
+
+add_cronjobs() {
+tmpfile=/tmp/cron$$
+bakfile=/tmp/cron$$bak
+
+if [ $(who am i | awk '{print $1}') == 'root' ]; then
+  echo Root access is available.
+  crontab -l -u $NPAUSER > $tmpfile
+  crontab -l -u $NPAUSER > $bakfile
+else
+  echo Root access is not available, assuming current user\'s crontab.
+  crontab -l > $tmpfile
+  crontab -l > $bakfile
+fi
+
+if [ $(grep "bin/npa" $tmpfile > /dev/null; echo $?) -gt 0 ]; then
+    echo "0 0/2 * * * $INSTALLDIR/bin/npa restart >/dev/null 2>&1" >> $tmpfile
+fi
+
+if [ $(grep "update_npa.sh" $tmpfile > /dev/null; echo $?) -gt 0 ]; then
+    echo "0 0 * * 1 cd $INSTALLDIR/bin/; $(which bash) update_npa.sh >/dev/null 2>&1" >> $tmpfile
+fi
+
+if [ $(who am i | awk '{print $1}') == 'root' ]; then
+  crontab -u $NPAUSER $tmpfile
+else
+  crontab $tmpfile
+fi
+
+rm $tmpfile
+}
+
 
 
 
 # Run an update if NPA is already installed
 if [ -f $INSTALLDIR/npa.jar ]; then
   echo NPA is already installed, running update..
-  bash update_npa.sh
+  bash update_npa.sh && add_cronjobs
 
 
 
@@ -87,16 +120,19 @@ ln -s /etc/init.d/npa /etc/rc1.d/K01npa
 ln -s /etc/init.d/npa /etc/rc2.d/K01npa
 
 if [ $? -eq 0 ]; then
-
         echo Successfully installed npa service.
-        exit 0
+        echo Adding cron jobs..
+        add_cronjobs
+        exit $?
 else
         echo Chkconfig command to install npa service failed!
+        add_cronjobs
         exit 1
 fi
 
 else
   echo No root access, service was not installed.
+  add_cronjobs
 fi
 
 fi
