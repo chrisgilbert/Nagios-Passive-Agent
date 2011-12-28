@@ -21,7 +21,7 @@ class WeblogicGathererTest extends NPATest {
         variables.username = "weblogic"
         variables.password = "c0r3l0g1c"
         variables.port = "7001"
-        variables.host = "rel-wls11g.mscunix.corelogic.local"
+        variables.host = "rel-wls11g.corelogic.local"
         variables.serverName = "AdminServer"
         variables.applicationName = "mosaic"
         return new WeblogicGatherer(variables)
@@ -42,10 +42,10 @@ class WeblogicGathererTest extends NPATest {
         println ( "Load avg:" + instantiate().getMbeanAttributeValue("java.lang:type=OperatingSystem,Location=AdminServer", null, "SystemLoadAverage"))
     }
 
-    public void testOperationExecution() {
-        println(instantiate().executeMbeanOperation("java.lang:Location=AdminServer,type=Memory", "gc", null))
-        //println(instantiate().executeMbeanOperation("oc4j:j2eeType=J2EEServer,name=standalone", "getSharedLibraryNames", null))
-    }
+   public void testOperationExecution() {
+        //println(instantiate().executeMbeanOperation("java.lang:Location=AdminServer,type=Memory", "gc", null))
+        println(instantiate().executeMbeanOperation("oc4j:j2eeType=J2EEServer,name=standalone", "getSharedLibraryNames", null))
+   }
 
     public void testGetHTTPSessions() {
         println(instantiate().getMbeanAttributeValue("com.bea:Location=AdminServer,ServerRuntime=AdminServer,Name=AdminServer_/mosaic,ApplicationRuntime=mosaic,Type=WebAppComponentRuntime", null, "OpenSessionsCurrentCount"))

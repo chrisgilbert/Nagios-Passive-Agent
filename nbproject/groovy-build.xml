@@ -7,6 +7,8 @@
 <project xmlns:j2seproject3="http://www.netbeans.org/ns/j2se-project/3" xmlns:j2seproject1="http://www.netbeans.org/ns/j2se-project/1" xmlns:jaxrpc="http://www.netbeans.org/ns/j2se-project/jax-rpc">
     <target name="-groovy-init-macrodef-javac">
         <macrodef name="javac" uri="http://www.netbeans.org/ns/j2se-project/3">
+            <attribute default="${javac.processorpath}" name="processorpath"/>
+            <attribute default="${build.generated.sources.dir}/ap-source-output" name="apgeneratedsrcdir"/>
             <attribute name="srcdir" default="${src.src.dir}"/>
             <attribute name="destdir" default="${build.classes.dir}"/>
             <attribute name="classpath" default="${javac.classpath}"/>
@@ -15,6 +17,7 @@
             <attribute name="debug" default="${javac.debug}"/>
             <attribute name="sourcepath" default="${empty.dir}"/>
             <attribute name="gensrcdir" default="${empty.dir}"/>
+
             <element name="customize" optional="true"/>
             <sequential>
                 <taskdef name="groovyc" classpath="${javac.classpath}" classname="org.codehaus.groovy.ant.Groovyc"/>
@@ -36,6 +39,8 @@
                 </groovyc>
             </sequential>
         </macrodef>
+
+
         <macrodef name="depend" uri="http://www.netbeans.org/ns/j2se-project/3">
             <attribute name="srcdir" default="${src.src.dir}"/>
             <attribute name="destdir" default="${build.classes.dir}"/>

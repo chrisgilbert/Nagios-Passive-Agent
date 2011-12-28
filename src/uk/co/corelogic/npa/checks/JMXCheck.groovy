@@ -75,6 +75,7 @@ class JMXCheck extends Check implements CheckInterface {
         }
         try {
             return this.chkJMX(this.variables, this.attributes, this.operations)
+            //this.gatherer.disconnect()
         } catch (IOException e) {
             Log.error("Failed to retrieve JMX values! IOException was thrown.")
             throw e
@@ -135,6 +136,7 @@ class JMXCheck extends Check implements CheckInterface {
             def c2 = new GroovyShell().evaluate(c)
             Log.debug("INPUT is *******************: " + input)
             return c2(input)
+            c2 = null
         } catch(e) {
             Log.error("A problem occurred when processing your closure argument: " + e.message)
             throw e

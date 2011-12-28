@@ -18,6 +18,7 @@ String kernel_version
 String result
 // Define volumes instance variable to reduce OS commands
 def volumes = []
+def excludedVolumes = []
 
 // These hold the return values temporarily
 def free_space_mb = [:]
@@ -179,7 +180,7 @@ def total_space_mb = [:]
     def output
 
     if ( volumes.size() != 0 ) {
-        return volumes
+        return (volumes - excludedVolumes)
     }
 
     // We need a command for each os type
@@ -237,7 +238,7 @@ def total_space_mb = [:]
         Log.debug("All volumes shown by df (nfs,ufs,zfs,lofs filesystems only): $volumes" )
 
 	}
-        return volumes
+        return (volumes - excludedVolumes)
     }
 
 

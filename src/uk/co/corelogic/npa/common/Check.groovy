@@ -322,6 +322,21 @@ Map optionalWith = [:]
         return maxstatus
     }
 
+    /**
+     * Combine multiple CheckResult objects into a single check
+     */
+    public CheckResult combineResults(ArrayList results) {
+        def status = getMaxStatus(results*.status)
+        def performance = [:]
+        performance += results*.performance
+        def date = MetricsDB.getNewDateTime()
+        String message
+        message += results*.message
+        def nagiosServiceName = results[0].nagiosServiceName
+        def host = results[0].host
+        return new CheckResult (nagiosServiceName, host, status, performance, date, message)
+    }
+
 
     /**
      * Generate a new CheckResult object for the result of this check

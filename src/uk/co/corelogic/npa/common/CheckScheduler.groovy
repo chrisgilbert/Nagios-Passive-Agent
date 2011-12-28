@@ -99,7 +99,7 @@ class CheckScheduler {
         allFutures.collect {
             Log.warn("Cancelling check thread..")
             try {
-                it.cancel()
+                it.cancel(true)
             } catch(e) {
                 Log.error("Exception was suppressed!", e)
             }

@@ -78,7 +78,7 @@ class WeblogicCheckTest extends NPATest {
 		  <attributeName>OpenSessionsCurrentCount</attributeName>
 		</attribute>
                 <collectionClosure>{ it ->  it['OpenSessionsCurrentCount'].sum() }</collectionClosure>
-	    <host>rel-wls11g.mscunix.corelogic.local</host>
+	    <host>rel-wls11g.corelogic.local</host>
 	</check>
         '''
         return new XmlSlurper().parseText(check)

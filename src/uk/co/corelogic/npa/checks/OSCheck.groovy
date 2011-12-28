@@ -31,10 +31,16 @@ public class OSCheck extends Check implements CheckInterface {
 
     public chk_disk_free() {
         this.required += ["unitType", "volume"]
+        this.optional += ["excludeVolume"]
         init()
 
         if ( this.variables.volume == "ALL" ) {
-            return this.chkAllDisks(this.variables.clone(), this.chk_th_warn, this.chk_th_crit, this.chk_th_type)
+            if (this.variables.excludeVolumes != null ) {
+                return this.chkAllDisksWithExclusions(this.variables.clone(), this.chk_th_warn, this.chk_th_crit, this.chk_th_type)
+            } else {
+                return this.chkAllDisks(this.variables.clone(), this.chk_th_warn, this.chk_th_crit, this.chk_th_type)
+            }
+            
         } else {
             return this.chkDiskFree(this.variables.clone(), this.chk_th_warn, this.chk_th_crit, this.chk_th_type)
         }
@@ -54,6 +60,10 @@ public class OSCheck extends Check implements CheckInterface {
         return this.chkMemoryFreePct(this.variables.clone(), this.chk_th_warn, this.chk_th_crit, this.chk_th_type)
     }
 
+    private chkAllDisksWithExclusions(variables, th_warn, th_crit, th_type) {
+        this.gataherer.excludedVolumes.AddAll(variables.excludeVolumes.toList())
+        return this.chkAllDisks(this.variables.clone(), this.chk_th_warn, this.chk_th_crit, this.chk_th_type)
+    }
 
     private CheckResult chkAllDisks(variables, th_warn, th_crit, th_type) {
         
@@ -134,6 +144,14 @@ public class OSCheck extends Check implements CheckInterface {
         Log.debug("Generating result from values: ${this.initiatorID}, ${variables.nagiosServiceName}, ${this.gatherer.host}, $maxstatus, $performance, [new date], $message")
         return super.generateResult(this.initiatorID, variables.nagiosServiceName, this.gatherer.host, maxstatus, performance, new Date(), message)
         this.gatherer = null;
+    }
+
+    private CheckResult chkMultipleDiskFree(variables, th_warn, th_crit, th_type) {
+        def results = []
+        variables.volume.tokenize().each {
+             results.add(chkDiskFree(variables, th_warn, th_crit, th_type))
+        }
+        return super.combineStatus(results)
     }
 
     private CheckResult chkDiskFree(variables, th_warn, th_crit, th_type) {

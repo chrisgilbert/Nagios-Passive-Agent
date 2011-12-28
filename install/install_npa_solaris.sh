@@ -60,11 +60,11 @@ else
 fi
 
 if [ $(grep "bin/npa" $tmpfile > /dev/null; echo $?) -gt 0 ]; then
-    echo "0 0/2 * * * $INSTALLDIR/bin/npa restart >/dev/null 2>&1" >> $tmpfile
+    echo "0 0,2,4,6,8,10,12,14,16,18,20,22 * * * $INSTALLDIR/bin/npa restart >/dev/null 2>&1" >> $tmpfile
 fi
 
 if [ $(grep "update_npa.sh" $tmpfile > /dev/null; echo $?) -gt 0 ]; then
-    echo "0 0 * * 1 cd $INSTALLDIR/bin/; $(which bash) update_npa.sh >/dev/null 2>&1" >> $tmpfile
+    echo "# Uncomment for auto update #0 0 * * 1 cd $INSTALLDIR/bin/; $(which bash) update_npa.sh >/dev/null 2>&1" >> $tmpfile
 fi
 
 if [ $ROOT  == 'Y' ]; then

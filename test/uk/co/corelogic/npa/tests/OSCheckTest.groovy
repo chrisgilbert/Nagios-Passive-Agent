@@ -49,6 +49,26 @@ class OSCheckTest extends NPATest {
         println("Results is: " + result.status + " Message is: " + result.message)
     }
 
+    void testChk_disk_free_multi() {
+        this.variables.volume="/ /boot /home"
+        this.variables.nagiosServiceName="TEST"
+        this.variables.unitType="percent"
+        def check = new OSCheck(chk_name, th_warn, th_crit, th_type, variables)
+        assert check != null
+        def result = check.chk_disk_free()
+        assert result != null
+        println("Results is: " + result.status + " Message is: " + result.message)
+
+        this.variables.volume="/"
+        this.variables.nagiosServiceName="TEST"
+        this.variables.unitType="percent"
+        check = new OSCheck(chk_name, th_warn, th_crit, th_type, variables)
+        assert check != null
+        result = check.chk_disk_free()
+        assert result != null
+        println("Results is: " + result.status + " Message is: " + result.message)
+    }
+
 
     void testChk_disk_free_avg() {
         this.variables.volume="ALL"

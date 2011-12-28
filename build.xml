@@ -7,14 +7,91 @@
 <!-- the Compile on Save feature is turned off for the project. -->
 <!-- You can turn off the Compile on Save (or Deploy on Save) setting -->
 <!-- in the project's Project Properties dialog box.-->
-<project name="npa" default="default" basedir=".">
+<project name="npa" default="default" basedir="." xmlns:j2seproject3="http://www.netbeans.org/ns/j2se-project/3">
     <description>Builds, tests, and runs the project npa.</description>
     <import file="nbproject/build-impl.xml"/>
 
     <import file="nbproject/profiler-build-impl.xml"/>
     <import file="nbproject/profiler-build-impl.xml"/>
     <import file="nbproject/management-build-impl.xml"/>
-    <import file="nbproject/profiler-build-impl.xml"/>    <!--
+    <import file="nbproject/profiler-build-impl.xml"/>
+
+  <target depends="init,compile-test,-pre-test-run" if="have.tests" name="-do-test-run">
+        <j2seproject3:junit testincludes="**/*Test.class"/>
+    </target>
+
+    <target depends="init,compile-test-single,-pre-test-run-single" if="have.tests" name="-do-test-run-single">
+        <fail unless="test.includes">Must select some files in the IDE or set test.includes</fail>
+        <taskdef name="groovy" classname="org.codehaus.groovy.ant.Groovy" classpath="${javac.classpath}"/>
+        <groovy>
+            properties."test.includes.class" = properties."test.includes".split("\\.")[0] + ".class"
+        </groovy>
+        <j2seproject3:junit excludes="" includes="${test.includes.class}"/>
+    </target>
+
+    <target name="-init-macrodef-junit">
+        <macrodef name="junit" uri="http://www.netbeans.org/ns/j2se-project/3">
+            <attribute default="${includes}" name="includes"/>
+            <attribute default="${excludes}" name="excludes"/>
+            <attribute default="**" name="testincludes"/>
+            <sequential>
+                <junit dir="${work.dir}" errorproperty="tests.failed" failureproperty="tests.failed" fork="true" showoutput="true">
+                    <batchtest todir="${build.test.results.dir}">
+                        <fileset dir="${build.test.classes.dir}" excludes="@{excludes},${excludes}" includes="@{includes}">
+                            <filename name="@{testincludes}"/>
+                        </fileset>
+                    </batchtest>
+                    <classpath>
+                        <path path="${run.test.classpath}"/>
+                    </classpath>
+                    <syspropertyset>
+                        <propertyref prefix="test-sys-prop."/>
+                        <mapper from="test-sys-prop.*" to="*" type="glob"/>
+                    </syspropertyset>
+                    <formatter type="brief" usefile="false"/>
+                    <formatter type="xml"/>
+                    <jvmarg line="${run.jvmargs}"/>
+                </junit>
+            </sequential>
+        </macrodef>
+    </target>
+
+       <macrodef name="javac" uri="http://www.netbeans.org/ns/j2se-project/3">
+            <attribute name="srcdir" default="${src.src.dir}"/>
+            <attribute name="destdir" default="${build.classes.dir}"/>
+            <attribute name="classpath" default="${javac.classpath}"/>
+            <attribute name="includes" default="${includes}"/>
+            <attribute name="excludes" default="${excludes}"/>
+            <attribute name="debug" default="${javac.debug}"/>
+            <attribute name="sourcepath" default="${empty.dir}"/>
+            <attribute name="gensrcdir" default="${empty.dir}"/>
+            <attribute default="${javac.processorpath}" name="processorpath"/>
+            <attribute default="${build.generated.sources.dir}/ap-source-output" name="apgeneratedsrcdir"/>
+
+
+            <element name="customize" optional="true"/>
+            <sequential>
+                <taskdef name="groovyc" classpath="${javac.classpath}" classname="org.codehaus.groovy.ant.Groovyc"/>
+                <property name="empty.dir" location="${build.dir}/empty"/>
+                <mkdir dir="${empty.dir}"/>
+                <groovyc srcdir="@{srcdir}" sourcepath="@{sourcepath}" destdir="@{destdir}" encoding="${source.encoding}" includes="@{includes}" excludes="@{excludes}" includeAntRuntime="false">
+                    <src>
+                        <dirset dir="@{gensrcdir}" erroronmissingdir="false">
+                            <include name="*"/>
+                        </dirset>
+                    </src>
+                    <classpath>
+                        <path path="@{classpath}"/>
+                    </classpath>
+                    <javac debug="@{debug}" deprecation="${javac.deprecation}" encoding="${source.encoding}" source="${javac.source}" target="${javac.target}">
+                        <compilerarg line="${javac.compilerargs} ${javac.compilerargs.jaxws}"/>
+                        <customize/>
+                    </javac>
+                </groovyc>
+            </sequential>
+        </macrodef>
+
+    <!--
 
     There exist several targets which are by default empty and which can be 
     used for execution of your tasks. These targets are usually executed 
@@ -82,7 +159,8 @@
         <arg value="${dist.dir}"/>
         </exec>
      </target>
-     
+
+ <!--
     <target name="-post-test-run">
  <junit dir="${work.dir}" errorproperty="tests.failed"
  failureproperty="tests.failed" fork="true"
@@ -116,6 +194,8 @@
      todir="${build.test.results.dir}/../report/html"/>
  </junitreport>
 </target>
+
+-->
 
 <target name="copy-common-files" depends="jar" description="copy files common to dists">
 

@@ -36,7 +36,7 @@ echo Transferring proxy and submit config by patching...
 
 FILE1=$(egrep -v "(submit|proxy)" $INSTALL_DIR/config/defaults.groovy > /tmp/tmpfile1$$; echo /tmp/tmpfile1$$)
 FILE2=$(egrep -v "(submit|proxy)" $INSTALL_DIR/config/defaults.groovy.newrelease > /tmp/tmpfile2$$; echo /tmp/tmpfile2$$)
-diff -w $FILE1 $FILE2 | patch $FILE1 && cp $FILE1 $INSTALL_DIR/config/defaults.groovy
+diff -w $FILE1 $FILE2 | patch $INSTALL_DIR/config/defaults.groovy
 
 
 # Backup old defaults and then copy in proxy and submittion config to new file
