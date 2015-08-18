@@ -2,9 +2,11 @@ h2. Nagios Passive Agent
 
 h4. Chris Gilbert <disciple3d AT gmail DOT com>
 
-#NOTICE:  This project is no longer being maintained by me, and I do not presently use the agent.  If you are interested in maintaining it, please let me know and I'd be happy to help you get started with it.
+*IMPORTANT NOTICE:*  This project is no longer being maintained by me, and I do not presently use the agent.  If you are interested in maintaining it, please let me know and I'd be happy to help you get started with it.
 
 
+
+----------
 
 There are several branches:
 
